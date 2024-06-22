@@ -1,0 +1,65 @@
+{
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"baseUrl": "./src/",
+		"paths": {
+			"@/*": [
+				"*"
+			],
+			"@app/*": [
+				"app/*"
+			],
+			"@styles/*": [
+				"app/_styles/*"
+			],
+			"@entities/*": [
+				"entities/*"
+			],
+			"@pages/*": [
+				"next-pages/*"
+			],
+			"@pages/main-page/*": [
+				"next-pages/main-page/*"
+			],
+			"@shared/*": [
+				"shared/*"
+			],
+			"@shared/ui/*": [
+				"shared/ui/*"
+			],
+			"@widgets/*": [
+				"widgets/*"
+			],
+			"@widgets/footer/*": [
+				"widgets/footer/*"
+			],
+			"@widgets/header/*": [
+				"widgets/header/*"
+			],
+			"@widgets/layouts/*": [
+				"widgets/layouts/*"
+			],
+			"@features/*": [
+				"features/*"
+			]
+		}
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": ["node_modules"]
+}

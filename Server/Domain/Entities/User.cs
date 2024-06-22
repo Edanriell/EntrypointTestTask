@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
-
-namespace Domain.Entities;
+﻿namespace Domain.Entities;
 
 [Table("Users")]
 public class User : IdentityUser
@@ -26,3 +22,5 @@ public class User : IdentityUser
 
     [Required] public ICollection<Order>? Orders { get; set; } = new List<Order>();
 }
+
+// User can have one photo

@@ -3,7 +3,6 @@ using Application.Services.Users.Commands.ConfirmUserEmail;
 using Application.Services.Users.Commands.DeleteUser;
 using Application.Services.Users.Commands.ForgotPassword;
 using Application.Services.Users.Commands.LoginUser;
-using Application.Services.Users.Commands.LoginUserForAdminPanel;
 using Application.Services.Users.Commands.LogoutUser;
 using Application.Services.Users.Commands.RefreshToken;
 using Application.Services.Users.Commands.RegisterUser;
@@ -11,6 +10,9 @@ using Application.Services.Users.Commands.ResendConfirmationEmail;
 using Application.Services.Users.Commands.ResetUserPassword;
 using Application.Services.Users.Commands.TwoFactorAuthentication;
 using Application.Services.Users.Commands.UpdateUserInfo;
+using Application.Services.Users.Queries.GetAllUsers;
+using Application.Services.Users.Queries.GetPaginatedSortedAndFilteredUsers;
+using Application.Services.Users.Queries.GetUser;
 using Application.Services.Users.Queries.IsUserInPolicy;
 using Application.Services.Users.Queries.IsUserInRole;
 using Application.Services.Users.Queries.UserInfo;
@@ -26,6 +28,9 @@ public class Users : EndpointGroupBase
         var routeGroupBuilder = app.MapGroup(this);
 
         routeGroupBuilder
+            .MapGet(GetAllUsers, "all")
+            .MapGet(GetUser, "{id}")
+            .MapGet(GetPaginatedSortedAndFilteredUsers)
             .MapPost(RegisterUser, "register")
             .MapPost(LoginUser, "login")
             .MapGet(LogoutUser, "logout")
@@ -41,6 +46,25 @@ public class Users : EndpointGroupBase
             .MapGet(IsUserInRole, "isInRole")
             .MapGet(IsUserInPolicy, "isInPolicy")
             .MapGet(ChangeUserRole, "changeUserRole");
+    }
+
+    [Authorize(Policy = Policies.CanManageUserAccount)]
+    private Task<IResult> GetAllUsers(ISender sender, [AsParameters] GetAllUsersQuery query)
+    {
+        return sender.Send(query);
+    }
+
+    [Authorize(Policy = Policies.CanManageUserAccount)]
+    private Task<IResult> GetUser(ISender sender, [AsParameters] GetUserQuery query)
+    {
+        return sender.Send(query);
+    }
+
+    [Authorize(Policy = Policies.CanManageUserAccount)]
+    private Task<IResult> GetPaginatedSortedAndFilteredUsers(ISender sender,
+        [AsParameters] GetPaginatedSortedAndFilteredUsersQuery query)
+    {
+        return sender.Send(query);
     }
 
     private Task<IResult> RegisterUser(ISender sender,
@@ -129,12 +153,6 @@ public class Users : EndpointGroupBase
 
     [Authorize(Policy = Policies.CanChangeUserRole)]
     private Task<IResult> ChangeUserRole(ISender sender, [AsParameters] ChangeUserRoleCommand command)
-    {
-        return sender.Send(command);
-    }
-
-    private Task<IResult> LoginUserForAdminPanel(ISender sender,
-        [AsParameters] LoginUserForAdminPanelCommand command)
     {
         return sender.Send(command);
     }

@@ -21,17 +21,20 @@ public class UserInfoQueryHandler(UserManager<User> userManager, IHttpContextAcc
         return TypedResults.Ok(await CreateInfoResponseAsync(user, userManager));
     }
 
-    private static async Task<InfoResponse> CreateInfoResponseAsync<TUser>(TUser user, UserManager<TUser> userManager)
+    private static async Task<UserInfoDto> CreateInfoResponseAsync<TUser>(TUser user, UserManager<TUser> userManager)
         where TUser : class
     {
-        return new InfoResponse
+        return new UserInfoDto
         {
+            Id = (user as User)?.Id!,
+            Username = (user as User)?.UserName!,
+            Name = (user as User)?.Name!,
+            Surname = (user as User)?.Surname!,
+            Photo = (user as User)?.Photo!,
+            Roles = await userManager.GetRolesAsync(user),
             Email = await userManager.GetEmailAsync(user) ??
                     throw new NotSupportedException("Users must have an email."),
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user)
         };
     }
 }
-
-// TODO
-// THIS MUST BE TESTED

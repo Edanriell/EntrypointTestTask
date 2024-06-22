@@ -20,3 +20,7 @@ public class Product : BaseAuditableEntity
     // Old
     // public ICollection<ProductOrderLink>? ProductOrders { get; set; }
 }
+
+// Missing Categories and Subcategories
+// Add option to add multiple Photos
+// Stock variants optional

@@ -1,0 +1,26 @@
+using Domain.Entities;
+using Domain.Enums;
+
+namespace Application.Services.Users.Dto;
+
+public class UserDto
+{
+    public string Id { get; set; } = null!;
+    public string Username { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Surname { get; set; } = null!;
+    public string Address { get; set; } = null!;
+    public DateTime BirthDate { get; set; }
+    public Gender Gender { get; set; }
+    public byte[]? Photo { get; set; }
+    public ICollection<Order>? Orders { get; set; }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<User, UserDto>();
+        }
+    }
+}

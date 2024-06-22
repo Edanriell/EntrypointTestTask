@@ -6,6 +6,17 @@ using Web.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Without this code you can't do external api calls
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://localhost:3000/api/auth/callback/credentials",  "http://localhost:3000/api/auth/signin?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Flogin");
+        });
+});
+
+
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
