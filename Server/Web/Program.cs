@@ -7,12 +7,24 @@ using Web.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Without this code you can't do external api calls
+// builder.Services.AddCors(options =>
+// {
+//     options.AddDefaultPolicy(
+//         policy =>
+//         {
+//             policy.WithOrigins("http://localhost:3000", "http://localhost:3000/api/auth/callback/credentials",
+//                 "http://localhost:3000/api/auth/signin?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Flogin",
+//                 "http://localhost:3000/dashboard");
+//         });
+// });
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:3000/api/auth/callback/credentials",  "http://localhost:3000/api/auth/signin?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Flogin");
+            policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         });
 });
 
@@ -53,6 +65,8 @@ app.UseExceptionHandler(options => { });
 app.Map("/", () => Results.Redirect("/api"));
 
 app.MapEndpoints();
+
+app.UseCors();
 
 app.Run();
 

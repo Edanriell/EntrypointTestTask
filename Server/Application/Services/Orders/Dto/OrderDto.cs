@@ -20,7 +20,14 @@ public class OrderDto
         {
             CreateMap<Order, OrderDto>()
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.User))
-                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.OrderProducts!.Select(p => p.Product)));
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.OrderProducts.Select(p =>
+                    new ProductBasicDto
+                    {
+                        Id = p.ProductId,
+                        ProductName = p.Product.ProductName,
+                        UnitPrice = p.Product.UnitPrice,
+                        Quantity = p.Quantity
+                    })));
 
             CreateMap<User, CustomerDto>();
 

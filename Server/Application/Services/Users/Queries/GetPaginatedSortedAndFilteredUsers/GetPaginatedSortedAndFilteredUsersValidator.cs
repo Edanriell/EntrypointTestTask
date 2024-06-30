@@ -33,50 +33,38 @@ public class GetPaginatedSortedAndFilteredUsersValidator
             .WithMessage("Sort order can be only ASC or DESC");
 
         RuleFor(x => x.UserName)
-            .NotEmpty()
-            .WithMessage("Username is required.")
             .Length(3, 50)
             .WithMessage("Username must be between 3 and 50 characters.");
 
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .WithMessage("Name is required.")
             .Length(2, 50)
             .WithMessage("Name must be between 2 and 50 characters.");
 
         RuleFor(x => x.Surname)
-            .NotEmpty()
-            .WithMessage("Surname is required.")
             .Length(2, 50)
             .WithMessage("Surname must be between 2 and 50 characters.");
 
         RuleFor(x => x.Email)
-            .NotEmpty()
-            .WithMessage("Email is required.")
             .EmailAddress()
             .WithMessage("A valid email is required.");
 
-        RuleFor(x => x.OrderCreatedAt)
-            .NotNull()
-            .WithMessage("Order creation date is required.");
-
-        RuleFor(x => x.OrderUpdatedAt)
-            .GreaterThanOrEqualTo(x => x.OrderCreatedAt)
-            .WithMessage("Order update date must be greater than or equal to the order creation date.");
+        // RuleFor(x => x.OrderCreatedAt)
+        //     .NotNull()
+        //     .WithMessage("Order creation date is required.");
+        //
+        // RuleFor(x => x.OrderUpdatedAt)
+        //     .GreaterThanOrEqualTo(x => x.OrderCreatedAt)
+        //     .WithMessage("Order update date must be greater than or equal to the order creation date.");
 
         RuleFor(x => x.OrderStatus)
             .IsInEnum()
             .WithMessage("A valid order status is required.");
 
         RuleFor(x => x.OrderProductCode)
-            .NotEmpty()
-            .WithMessage("Order product code is required.")
             .Matches(new Regex("^[A-Za-z0-9-]+$"))
             .WithMessage("Order product code must be alphanumeric and can include hyphens.");
 
         RuleFor(x => x.OrderProductName)
-            .NotEmpty()
-            .WithMessage("Order product name is required.")
             .Length(2, 100)
             .WithMessage("Order product name must be between 2 and 100 characters.");
     }
@@ -96,3 +84,5 @@ public class GetPaginatedSortedAndFilteredUsersValidator
         };
     }
 }
+
+// CreatedAt and UpdatedAt is broken need to fix

@@ -19,9 +19,14 @@ public class GetUserQueryHandler(UserManager<User> userManager, IMapper mapper, 
         {
             var entity = await userManager.Users
                 .AsNoTracking()
+                .Include(user => user.Orders)!
+                .ThenInclude(order => order.OrderProducts)!
+                .ThenInclude(productOrderLink => productOrderLink.Product)
                 .Where(user => user.Id == request.Id)
                 .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(cancellationToken);
+
 
             if (entity is null)
             {

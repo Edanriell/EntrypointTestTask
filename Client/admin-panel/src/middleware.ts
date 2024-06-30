@@ -6,7 +6,8 @@ export default withAuth(
 	async function middleware(req) {
 		const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 		const { pathname } = req.nextUrl;
-
+		// console.log(`${token}  token`);
+		// console.log(token);
 		// Define protected routes
 		const sensitiveRoutes = ["/dashboard", "/access-denied"];
 		const allowedRoles = ["Moderator", "Administrator", "SuperAdministrator"];

@@ -18,6 +18,20 @@ public class CreateOrderCommandHandler(IApplicationDbContext context, IMapper ma
     public async Task<IResult> Handle(CreateOrderCommand request
         , CancellationToken cancellationToken)
     {
+        // var orderProducts = new List<ProductOrderLink>
+        // {
+        //     new()
+        //     {
+        //         ProductId = 1,
+        //         Quantity = 2
+        //     },
+        //     new()
+        //     {
+        //         ProductId = 2,
+        //         Quantity = 2
+        //     }
+        // };
+
         var entity = new Order
         {
             UserId = request.UserId,
@@ -35,6 +49,7 @@ public class CreateOrderCommandHandler(IApplicationDbContext context, IMapper ma
                         }
                 )
                 .ToList()
+            // OrderProducts = orderProducts
         };
 
         entity.AddDomainEvent(new OrderCreatedEvent(entity));

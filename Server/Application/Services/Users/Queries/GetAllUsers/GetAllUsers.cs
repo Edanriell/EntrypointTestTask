@@ -14,7 +14,14 @@ public class GetAllUsersQueryHandler(UserManager<User> userManager, IMapper mapp
 
         if (!memoryCache.TryGetValue(cacheKey, out (int recordCount, UserDto[] result) dataTuple))
         {
-            var users = await userManager.Users.AsNoTracking().ToListAsync(cancellationToken);
+            var users = await userManager.Users
+                .AsNoTracking()
+                .Include(user => user.Orders)!
+                .ThenInclude(order => order.OrderProducts)!
+                .ThenInclude(productOrderLink => productOrderLink.Product)
+                .AsSplitQuery()
+                .ToListAsync(cancellationToken);
+
 
             dataTuple.recordCount = users.Count;
 

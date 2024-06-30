@@ -42,7 +42,8 @@ public class RegisterUserCommandHandler(
             Address = request.Address,
             BirthDate = request.BirthDate,
             Gender = request.Gender,
-            Photo = request.Photo is null ? [] : await ConvertBase64ToByteArray(request.Photo)
+            Photo = request.Photo is null ? [] : await ConvertBase64ToByteArray(request.Photo),
+            CreatedAt = DateTime.UtcNow
         };
 
         var result = await userManager.CreateAsync(newUser, request.Password);

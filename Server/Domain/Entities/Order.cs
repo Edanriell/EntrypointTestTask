@@ -15,12 +15,15 @@ public class Order : BaseAuditableEntity
 
     [Required] [MaxLength(400)] public string OrderInformation { get; set; } = string.Empty;
 
-    public User? User { get; set; }
+    [JsonIgnore] public User? User { get; set; }
 
-    public List<Product> Products { get; set; } = new();
-    [JsonIgnore] public List<ProductOrderLink> OrderProducts { get; set; } = new();
+    [JsonIgnore] public List<Product> Products { get; set; } = new();
+
+    public List<ProductOrderLink> OrderProducts { get; set; } = new();
 
     [Key] [Required] public int Id { get; set; }
     // Old
     // public ICollection<ProductOrderLink>? OrderProducts { get; set; }
 }
+
+// User field must be renamed to Customer =)

@@ -93,6 +93,11 @@ export const authOptions: NextAuthOptions = {
 					requiredFields: requiredAuthFields
 				});
 
+				// console.log(userData);
+				// console.log(authData);
+				// console.log(isUserDataValid);
+				// console.log(isAuthDataValid);
+
 				if (isUserDataValid && isAuthDataValid) {
 					return {
 						...userData,
@@ -107,7 +112,21 @@ export const authOptions: NextAuthOptions = {
 	],
 	callbacks: {
 		async jwt({ token, user }: { token: any; user: any }) {
-			if (user.accessToken) {
+			// console.log(`${token} tooookeeeeeen`);
+			// console.log(token);
+			// console.log(`${user} uuuuuuuussssseeeeer`);
+			// console.log(user);
+			if (user) {
+				console.log(user);
+				// console.log(user.accessToken);
+				token.id = user.id;
+				token.username = user.username;
+				token.name = user.name;
+				token.surname = user.surname;
+				token.email = user.email;
+				token.isEmailConfirmed = user.isEmailConfirmed;
+				token.photo = user.photo;
+
 				token.accessToken = user.accessToken;
 				token.refreshToken = user.refreshToken;
 				token.accessTokenExpires = Date.now() + user.expiresIn * 1000;
@@ -121,8 +140,23 @@ export const authOptions: NextAuthOptions = {
 			return refreshAccessToken(token as Token);
 		},
 		async session({ session, token }: { session: any; token: any }) {
-			session.accessToken = token.accessToken;
-			session.roles = token.roles;
+			// console.log("asdasdsadsadsadaasdasdsdasda");
+			// console.log(session);
+			// console.log("1232133231");
+			// console.log(token);
+			if (token) {
+				session.user.id = token.id;
+				session.user.username = token.username;
+				session.user.name = token.name;
+				session.user.surname = token.surname;
+				session.user.email = token.email;
+				session.user.isEmailConfirmed = token.isEmailConfirmed;
+				session.user.photo = token.photo;
+
+				session.accessToken = token.accessToken;
+				session.roles = token.roles;
+			}
+
 			return session;
 		}
 	},
@@ -154,4 +188,4 @@ export const refreshAccessToken = async (token: Token) => {
 	};
 };
 
-export const getSession = async () => getServerSession(authOptions);
+export const getSession = async () => await getServerSession(authOptions);
