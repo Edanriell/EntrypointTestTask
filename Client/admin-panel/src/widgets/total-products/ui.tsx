@@ -1,16 +1,27 @@
-import { FC } from "react";
+import { FC, memo, useMemo } from "react";
 import { ShoppingBasket } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, Skeleton } from "@shared/ui";
+import type { Product } from "@entities/products/model";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
+import { Skeleton } from "@shared/ui/skeleton";
+import { Badge } from "@shared/ui/badge";
+import { formatNumberWithSeparators } from "@shared/lib";
 
 type TotalProductsProps = {
-	data: any;
-	error: any;
+	data?: Array<Product>;
+	error: Error | null;
 	isPending: boolean;
 	isError: boolean;
 };
 
-export const TotalProducts: FC<TotalProductsProps> = ({ data, error, isPending, isError }) => {
+const TotalProducts: FC<TotalProductsProps> = ({ data, error, isPending, isError }) => {
+	// const info = useRenderInfo("TotalRevenue");
+	const totalProducts = useMemo(
+		() => (data ? formatNumberWithSeparators(data?.length, 3) : 0),
+		[data]
+	);
+
 	if (isPending) {
 		return (
 			<Card x-chunk="A card showing the total products count.">
@@ -27,7 +38,9 @@ export const TotalProducts: FC<TotalProductsProps> = ({ data, error, isPending, 
 					<ShoppingBasket className="h-4 w-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-1xl font-bold">Error: {error.message}</div>
+					<Badge className="mt-4 text-left px-7 py-1 text-[12px]" variant="destructive">
+						Error: {error?.message}
+					</Badge>
 				</CardContent>
 			</Card>
 		);
@@ -40,8 +53,10 @@ export const TotalProducts: FC<TotalProductsProps> = ({ data, error, isPending, 
 				<ShoppingBasket className="h-4 w-4 text-muted-foreground" />
 			</CardHeader>
 			<CardContent>
-				<div className="text-2xl font-bold">{data.length}</div>
+				<div className="text-2xl font-bold">{totalProducts}</div>
 			</CardContent>
 		</Card>
 	);
 };
+
+export const MemoizedTotalProducts = memo(TotalProducts);

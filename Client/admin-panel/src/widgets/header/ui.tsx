@@ -9,24 +9,22 @@ import {
 	LineChart,
 	Package,
 	PanelLeft,
+	Settings,
 	ShoppingCart,
-	Users2,
-	Settings
+	Users2
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
+import { Sheet, SheetContent, SheetTrigger } from "@shared/ui/sheet";
+import { Button } from "@shared/ui/button";
 import {
-	Button,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-	Sheet,
-	SheetContent,
-	SheetTrigger
-} from "@shared/ui";
+	DropdownMenuTrigger
+} from "@shared/ui/dropdown";
 
 type HeaderProps = {
 	children?: ReactNode;

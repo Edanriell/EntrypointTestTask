@@ -11,15 +11,15 @@ public class Order : BaseAuditableEntity
 
     [Required] public OrderStatus Status { get; set; } = OrderStatus.Created;
 
-    [Required] [StringLength(80)] public string ShipAddress { get; set; } = string.Empty;
+    [Required] [StringLength(80)] public string ShipAddress { get; set; } = null!;
 
-    [Required] [MaxLength(400)] public string OrderInformation { get; set; } = string.Empty;
+    [Required] [MaxLength(400)] public string OrderInformation { get; set; } = null!;
 
-    [JsonIgnore] public User? User { get; set; }
+    [JsonIgnore] public User User { get; set; } = null!;
 
-    [JsonIgnore] public List<Product> Products { get; set; } = new();
+    [JsonIgnore] public List<Product>? Products { get; set; } = new();
 
-    public List<ProductOrderLink> OrderProducts { get; set; } = new();
+    public List<ProductOrderLink>? OrderProducts { get; set; } = new();
 
     [Key] [Required] public int Id { get; set; }
     // Old

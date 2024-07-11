@@ -13,7 +13,7 @@ public class Product : BaseAuditableEntity
 
     [Required] public int UnitsInStock { get; set; }
     [Required] public int UnitsOnOrder { get; set; } = 0;
-    public List<Order> Orders { get; set; } = new();
+    public List<Order>? Orders { get; set; } = new();
     [JsonIgnore] public List<ProductOrderLink> ProductOrders { get; set; } = new();
     [Key] [Required] public int Id { get; set; }
 

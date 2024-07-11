@@ -810,7 +810,7 @@
             "schema": {
               "type": "boolean"
             },
-            "x-position": 1
+            "x-position": 2
           },
           {
             "name": "UseSessionCookies",
@@ -819,7 +819,7 @@
             "schema": {
               "type": "boolean"
             },
-            "x-position": 2
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -832,7 +832,7 @@
               }
             }
           },
-          "x-position": 3
+          "x-position": 1
         },
         "responses": {
           "200": {

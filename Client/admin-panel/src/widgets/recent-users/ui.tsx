@@ -1,20 +1,16 @@
 import { FC } from "react";
 
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-	ScrollArea,
-	Skeleton
-} from "@shared/ui";
+import type { User } from "@entities/users/model";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
+import { Skeleton } from "@shared/ui/skeleton";
+import { ScrollArea } from "@shared/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
+import { Badge } from "@shared/ui/badge";
 
 type RecentUsersProps = {
-	data: any;
-	error: any;
+	data: Array<User>;
+	error: Error | null;
 	isPending: boolean;
 	isError: boolean;
 };
@@ -35,7 +31,12 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 					<CardTitle>Recent Users</CardTitle>
 				</CardHeader>
 				<CardContent className="grid gap-8">
-					<div className="text-1xl font-bold text-left mt-[40px]">Error: {error.message}</div>
+					<Badge
+						className="mt-10 px-9 py-2 text-[14px] text-center block max-w-max mr-auto ml-auto"
+						variant="destructive"
+					>
+						Error: {error?.message}
+					</Badge>
 				</CardContent>
 			</Card>
 		);
@@ -48,11 +49,11 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 			</CardHeader>
 			<CardContent className="grid gap-8">
 				<ScrollArea className="h-[440px] w-full rounded-lg">
-					{data.map((user: any) => {
+					{data.map((user) => {
 						return (
 							<div key={user.id} className="flex items-center gap-4 mb-[32px]">
 								<Avatar className="hidden h-9 w-9 sm:flex">
-									<AvatarImage src="/avatars/01.png" alt="Avatar" />
+									<AvatarImage src={user.photo ? user.photo : "#"} alt="Avatar" />
 									<AvatarFallback>
 										{user.name[0]}
 										{user.surname[0]}
@@ -72,3 +73,7 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 		</Card>
 	);
 };
+
+// TODO
+// Figure out how to add image to user and how to use it on frontend
+// TODO

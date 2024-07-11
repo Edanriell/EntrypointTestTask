@@ -1,17 +1,11 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import { Upload } from "lucide-react";
-import {
-	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Input,
-	Label
-} from "@shared/ui";
 
-import { Fragment } from "react";
+import { Button } from "@shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
+import { Input } from "@shared/ui/input";
+import { Label } from "@shared/ui/label";
 
 export default function Dashboard() {
 	return (

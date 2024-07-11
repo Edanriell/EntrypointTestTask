@@ -7,7 +7,7 @@ public class User : IdentityUser
 
     [Required] [MaxLength(72)] public string Surname { get; set; } = null!;
 
-    [Required] [MaxLength(24)] public string? Password { get; set; }
+    [Required] [MaxLength(24)] public string Password { get; set; }
 
     [Required]
     [MinLength(10)]

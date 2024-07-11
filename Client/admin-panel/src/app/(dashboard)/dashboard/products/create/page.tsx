@@ -1,34 +1,23 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import { PlusCircle, Upload } from "lucide-react";
+
+import { Button } from "@shared/ui/button";
 import {
-	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
-	CardTitle,
-	Input,
-	Label,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow
-} from "@shared/ui";
-
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue
-} from "@/components/ui/select";
-
-import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Fragment } from "react";
+	CardTitle
+} from "@shared/ui/card";
+import { Label } from "@shared/ui/label";
+import { Input } from "@shared/ui/input";
+import { Textarea } from "@shared/ui/textarea";
+import { Table, TableCell, TableHead, TableRow } from "@/shared/ui/table";
+import { TableBody, TableHeader } from "@shared/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@shared/ui/toggle-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
 
 export default function Dashboard() {
 	return (

@@ -1,12 +1,8 @@
 import Image from "next/image";
 
-import { Login } from "@/features";
-import { getSession } from "@/entitites/session";
+import { Login } from "@features/login";
 
 export const LoginPage = async () => {
-	const session = await getSession();
-	console.log(session);
-
 	return (
 		<section className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
 			<h1 className="visually-hidden">Login page</h1>

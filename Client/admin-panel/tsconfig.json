@@ -31,6 +31,9 @@
 			"@entities/*": [
 				"entities/*"
 			],
+			"@entities/orders/ui/*": [
+				"entities/orders/ui/*"
+			],
 			"@pages/*": [
 				"next-pages/*"
 			],

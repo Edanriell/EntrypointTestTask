@@ -3,7 +3,7 @@
 import { signOut } from "next-auth/react";
 import { Ban } from "lucide-react";
 
-import { Button } from "@shared/ui";
+import { Button } from "@shared/ui/button";
 
 export const AccessDenied = () => {
 	const handleSignOutClick = async () => {

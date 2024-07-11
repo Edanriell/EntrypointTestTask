@@ -9,6 +9,7 @@ using Application.Services.Users.Commands.RegisterUser;
 using Application.Services.Users.Commands.ResendConfirmationEmail;
 using Application.Services.Users.Commands.ResetUserPassword;
 using Application.Services.Users.Commands.TwoFactorAuthentication;
+using Application.Services.Users.Commands.UpdateUser;
 using Application.Services.Users.Commands.UpdateUserInfo;
 using Application.Services.Users.Queries.GetAllUsers;
 using Application.Services.Users.Queries.GetPaginatedSortedAndFilteredUsers;
@@ -42,6 +43,7 @@ public class Users : EndpointGroupBase
             .MapPost(TwoFactorAuthentication, "/2fa")
             .MapGet(UserInfo, "userInfo")
             .MapPost(UpdateUserInfo, "updateUserInfo")
+            .MapPut(UpdateUser, "update")
             .MapDelete(DeleteUser, "delete")
             .MapGet(IsUserInRole, "isInRole")
             .MapGet(IsUserInPolicy, "isInPolicy")
@@ -129,6 +131,12 @@ public class Users : EndpointGroupBase
 
     [Authorize(Policy = Policies.CanManageUserAccount)]
     private Task<IResult> UpdateUserInfo(ISender sender, [FromBody] UpdateUserInfoCommand command)
+    {
+        return sender.Send(command);
+    }
+
+    [Authorize(Policy = Policies.CanManageUserAccount)]
+    private Task<IResult> UpdateUser(ISender sender, [FromBody] UpdateUserCommand command)
     {
         return sender.Send(command);
     }

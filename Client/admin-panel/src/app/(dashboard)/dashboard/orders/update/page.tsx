@@ -1,23 +1,11 @@
-import {
-	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Input,
-	Label
-} from "@shared/ui";
-
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Fragment } from "react";
+
+import { Button } from "@shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
+import { Label } from "@shared/ui/label";
+import { Input } from "@shared/ui/input";
+import { Textarea } from "@shared/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
 
 export default function Dashboard() {
 	return (

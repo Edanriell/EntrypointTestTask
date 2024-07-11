@@ -4,20 +4,25 @@ import { Fragment } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 
-import { TotalRevenue } from "@widgets/total-revenue";
-import { TotalUsers } from "@widgets/total-users";
-import { TotalOrders } from "@widgets/total-orders";
-import { TotalProducts } from "@widgets/total-products";
+import type { Order } from "@entities/orders/model";
+import type { User } from "@entities/users/model";
+import type { Product } from "@entities/products/model";
+import { getAllOrders, getRecentOrders } from "@entities/orders/api";
+import { getAllProducts } from "@entities/products/api";
+import { getAllUsers, getRecentUsers } from "@entities/users/api";
+
+import { MemoizedTotalRevenue } from "@widgets/total-revenue";
+import { MemoizedTotalUsers } from "@widgets/total-users";
+import { MemoizedTotalOrders } from "@widgets/total-orders";
+import { MemoizedTotalProducts } from "@widgets/total-products";
 import { RecentOrders } from "@widgets/recent-orders";
 import { RecentUsers } from "@widgets/recent-users";
-
-import { getAllOrders, getAllProducts, getAllUsers, getRecentOrders, getRecentUsers } from "./api";
 
 export const DashboardPage = () => {
 	const { data: session, status } = useSession();
 
-	const userId = (session as any)?.user?.id;
-	const accessToken = (session as any)?.accessToken;
+	const userId = session?.user.id;
+	const accessToken = session?.accessToken;
 
 	const {
 		data: ordersData,
@@ -26,7 +31,7 @@ export const DashboardPage = () => {
 		isError: isOrdersError
 	} = useQuery({
 		queryKey: ["getAllOrders", userId],
-		queryFn: () => getAllOrders(accessToken),
+		queryFn: (): Promise<Array<Order>> => getAllOrders(accessToken!),
 		enabled: !!userId && !!accessToken
 	});
 
@@ -37,7 +42,7 @@ export const DashboardPage = () => {
 		isError: isUsersError
 	} = useQuery({
 		queryKey: ["getAllUsers", userId],
-		queryFn: () => getAllUsers(accessToken),
+		queryFn: (): Promise<Array<User>> => getAllUsers(accessToken!),
 		enabled: !!userId && !!accessToken
 	});
 
@@ -48,7 +53,7 @@ export const DashboardPage = () => {
 		isError: isProductsError
 	} = useQuery({
 		queryKey: ["getAllProducts", userId],
-		queryFn: () => getAllProducts(accessToken),
+		queryFn: (): Promise<Array<Product>> => getAllProducts(accessToken!),
 		enabled: !!userId && !!accessToken
 	});
 
@@ -59,7 +64,7 @@ export const DashboardPage = () => {
 		isError: isRecentOrdersError
 	} = useQuery({
 		queryKey: ["recentOrders", userId],
-		queryFn: () => getRecentOrders(accessToken),
+		queryFn: (): Promise<Array<Order>> => getRecentOrders(accessToken!),
 		enabled: !!userId && !!accessToken
 	});
 
@@ -70,32 +75,32 @@ export const DashboardPage = () => {
 		isError: isRecentUsersError
 	} = useQuery({
 		queryKey: ["recentUsers", userId],
-		queryFn: () => getRecentUsers(accessToken),
+		queryFn: (): Promise<Array<User>> => getRecentUsers(accessToken!),
 		enabled: !!userId && !!accessToken
 	});
 
 	return (
 		<Fragment>
 			<div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-				<TotalRevenue
+				<MemoizedTotalRevenue
 					data={ordersData}
 					error={ordersError}
 					isPending={isOrdersPending}
 					isError={isOrdersError}
 				/>
-				<TotalUsers
+				<MemoizedTotalUsers
 					data={usersData}
 					error={usersError}
 					isPending={isUsersPending}
 					isError={isUsersError}
 				/>
-				<TotalOrders
+				<MemoizedTotalOrders
 					data={ordersData}
 					error={ordersError}
 					isPending={isOrdersPending}
 					isError={isOrdersError}
 				/>
-				<TotalProducts
+				<MemoizedTotalProducts
 					data={productsData}
 					error={productsError}
 					isPending={isProductsPending}

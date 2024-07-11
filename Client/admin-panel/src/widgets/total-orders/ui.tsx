@@ -1,18 +1,27 @@
-import { FC } from "react";
-
-import { Card, CardContent, CardHeader, CardTitle, Skeleton } from "@shared/ui";
+import { FC, memo, useMemo } from "react";
 import { CreditCard } from "lucide-react";
 
+import type { Order } from "@entities/orders/model";
+
 import { formatNumberWithSeparators } from "@shared/lib";
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
+import { Skeleton } from "@shared/ui/skeleton";
+import { Badge } from "@shared/ui/badge";
 
 type TotalOrdersProps = {
-	data: any;
-	error: any;
+	data?: Array<Order>;
+	error: Error | null;
 	isPending: boolean;
 	isError: boolean;
 };
 
-export const TotalOrders: FC<TotalOrdersProps> = ({ data, error, isPending, isError }) => {
+const TotalOrders: FC<TotalOrdersProps> = ({ data, error, isPending, isError }) => {
+	// const info = useRenderInfo("TotalOrders");
+	const totalOrders = useMemo(
+		() => (data ? formatNumberWithSeparators(data?.length, 3) : 0),
+		[data]
+	);
+
 	if (isPending) {
 		return (
 			<Card x-chunk="A card showing the total orders count.">
@@ -29,7 +38,9 @@ export const TotalOrders: FC<TotalOrdersProps> = ({ data, error, isPending, isEr
 					<CreditCard className="h-4 w-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-1xl font-bold">Error: {error.message}</div>
+					<Badge className="mt-4 text-left px-7 py-1 text-[12px]" variant="destructive">
+						Error: {error?.message}
+					</Badge>
 				</CardContent>
 			</Card>
 		);
@@ -42,8 +53,10 @@ export const TotalOrders: FC<TotalOrdersProps> = ({ data, error, isPending, isEr
 				<CreditCard className="h-4 w-4 text-muted-foreground" />
 			</CardHeader>
 			<CardContent>
-				<div className="text-2xl font-bold">{formatNumberWithSeparators(data.length, 3)}</div>
+				<div className="text-2xl font-bold">{totalOrders}</div>
 			</CardContent>
 		</Card>
 	);
 };
+
+export const MemoizedTotalOrders = memo(TotalOrders);

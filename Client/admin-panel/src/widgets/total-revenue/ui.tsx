@@ -1,18 +1,25 @@
-import { FC } from "react";
+import { FC, memo, useMemo } from "react";
 import { DollarSign } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, Skeleton } from "@shared/ui";
+import type { Order } from "@entities/orders/model";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
+import { Skeleton } from "@shared/ui/skeleton";
+import { Badge } from "@shared/ui/badge";
 
 import { calculateTotalRevenue } from "./lib";
 
 type TotalRevenueProps = {
-	data: any;
-	error: any;
+	data?: Array<Order>;
+	error: Error | null;
 	isPending: boolean;
 	isError: boolean;
 };
 
-export const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }) => {
+const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }) => {
+	// const info = useRenderInfo("TotalRevenue");
+	const totalRevenue = useMemo(() => (data ? calculateTotalRevenue(data) : 0), [data]);
+
 	if (isPending) {
 		return (
 			<Card x-chunk="A card showing the total revenue in USD.">
@@ -28,8 +35,10 @@ export const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, is
 					<CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
 					<DollarSign className="h-4 w-4 text-muted-foreground" />
 				</CardHeader>
-				<CardContent>
-					<div className="text-1xl font-bold">Error: {error.message}</div>
+				<CardContent className="flex items-center justify-center">
+					<Badge className="mt-4 text-left px-7 py-1 text-[12px]" variant="destructive">
+						Error: {error?.message}
+					</Badge>
 				</CardContent>
 			</Card>
 		);
@@ -42,8 +51,10 @@ export const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, is
 				<DollarSign className="h-4 w-4 text-muted-foreground" />
 			</CardHeader>
 			<CardContent>
-				<div className="text-2xl font-bold">${calculateTotalRevenue(data)}</div>
+				<div className="text-2xl font-bold">{totalRevenue}</div>
 			</CardContent>
 		</Card>
 	);
 };
+
+export const MemoizedTotalRevenue = memo(TotalRevenue);

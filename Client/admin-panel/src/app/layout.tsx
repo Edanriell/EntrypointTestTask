@@ -1,7 +1,8 @@
 import { FC, ReactNode } from "react";
 
 import { NextAuthSessionProvider, TanStackQueryProvider } from "@app/_providers";
-import { Toaster } from "@/components/ui/sonner";
+
+import { Toaster } from "@shared/ui/sonner";
 
 import "./_styles/styles.scss";
 

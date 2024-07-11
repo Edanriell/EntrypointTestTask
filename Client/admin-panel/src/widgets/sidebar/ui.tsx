@@ -9,7 +9,7 @@ import {
 	Users2
 } from "lucide-react";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@shared/ui/tooltip";
 
 export const Sidebar = () => {
 	return (
