@@ -1,7 +1,7 @@
 import { FC } from "react";
 
+import type { Order } from "@entities/orders/model";
 import { calculateOrderTotal } from "@entities/orders/lib";
-import { Order } from "@entities/orders/model";
 
 import { TableCell, TableRow } from "@shared/ui/table";
 import { formatDateString } from "@shared/lib";

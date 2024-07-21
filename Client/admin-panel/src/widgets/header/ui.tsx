@@ -1,124 +1,46 @@
 "use client";
 
-import { FC, ReactNode } from "react";
+import { FC, Fragment } from "react";
 import Link from "next/link";
+
+import { MobileNavigation } from "@widgets/mobile-navigation";
+import { UserProfile } from "@widgets/user-profile";
+
 import {
-	CircleUser,
-	Home,
-	LayoutDashboard,
-	LineChart,
-	Package,
-	PanelLeft,
-	Settings,
-	ShoppingCart,
-	Users2
-} from "lucide-react";
-import { signOut } from "next-auth/react";
+	Breadcrumb,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator
+} from "@shared/ui/breadcrumb";
+import { useBreadcrumbs } from "@shared/lib/hooks";
 
-import { Sheet, SheetContent, SheetTrigger } from "@shared/ui/sheet";
-import { Button } from "@shared/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger
-} from "@shared/ui/dropdown";
-
-type HeaderProps = {
-	children?: ReactNode;
-};
-
-export const Header: FC<HeaderProps> = ({ children }) => {
-	const handleSignOutClick = async () => {
-		await signOut();
-	};
+export const Header: FC = () => {
+	const breadcrumbs = useBreadcrumbs();
 
 	return (
 		<header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-			<Sheet>
-				<SheetTrigger asChild>
-					<Button size="icon" variant="outline" className="sm:hidden">
-						<PanelLeft className="h-5 w-5" />
-						<span className="sr-only">Toggle Menu</span>
-					</Button>
-				</SheetTrigger>
-				<SheetContent side="left" className="sm:max-w-xs">
-					<nav className="grid gap-6 text-lg font-medium">
-						<Link
-							href="/"
-							className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-						>
-							<LayoutDashboard className="h-5 w-5 transition-all group-hover:scale-110" />
-							<span className="sr-only">Admin Panel</span>
-						</Link>
-						<Link
-							href="/dashboard"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<Home className="h-5 w-5" />
-							Home
-						</Link>
-						<Link
-							href="/dashboard/orders"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<ShoppingCart className="h-5 w-5" />
-							Orders
-						</Link>
-						<Link
-							href="/dashboard/products"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<Package className="h-5 w-5" />
-							Products
-						</Link>
-						<Link
-							href="/dashboard/customers"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<Users2 className="h-5 w-5" />
-							Customers
-						</Link>
-						<Link
-							href="/dashboard/analytics"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<LineChart className="h-5 w-5" />
-							Analytics
-						</Link>
-						<Link
-							href="/settings"
-							className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-						>
-							<Settings className="h-5 w-5" />
-							Settings
-						</Link>
-					</nav>
-				</SheetContent>
-			</Sheet>
-			{children}
+			<MobileNavigation />
+			<Breadcrumb className="hidden md:flex items-center justify-center">
+				<BreadcrumbList>
+					{breadcrumbs.map((breadcrumb, index) => (
+						<Fragment key={breadcrumb.href}>
+							{index < breadcrumbs.length - 1 ? (
+								<Fragment>
+									<BreadcrumbLink asChild>
+										<Link href={breadcrumb.href}>{breadcrumb.name}</Link>
+									</BreadcrumbLink>
+									<BreadcrumbSeparator className="flex items-center justify-center" />
+								</Fragment>
+							) : (
+								<BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
+							)}
+						</Fragment>
+					))}
+				</BreadcrumbList>
+			</Breadcrumb>
 			<div className={"ml-auto"}>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="secondary" size="icon" className="rounded-full">
-							<CircleUser className="h-5 w-5" />
-							<span className="sr-only">Toggle user menu</span>
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>My Account</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							<Link href="/settings">Settings</Link>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							<button onClick={handleSignOutClick}>Logout</button>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<UserProfile />
 			</div>
 		</header>
 	);

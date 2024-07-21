@@ -1,8 +1,3 @@
-export const calculateIncrease = (current: number, previous: number) => {
-	if (previous === 0) return 0;
-	return ((current - previous) / previous) * 100;
-};
-
 export const processMonthData = (orders: any) => {
 	if (!orders || orders.length === 0) {
 		return { current: 0, previous: 0 };

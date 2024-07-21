@@ -1,25 +1,38 @@
+"use client";
+
 import { FC } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { Order } from "@entities/orders/model";
+import { getRecentOrders } from "@entities/orders/api";
+import { OrderRowMinimal } from "@entities/orders/ui";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Skeleton } from "@shared/ui/skeleton";
 import { Button } from "@shared/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@shared/ui/table";
 import { Badge } from "@shared/ui/badge";
-import { OrderRowMinimal } from "@entities/orders";
 
-type RecentOrdersProps = {
-	data?: Array<Order>;
-	error: Error | null;
-	isPending: boolean;
-	isError: boolean;
-};
+export const RecentOrders: FC = () => {
+	const { data: session, status } = useSession();
+	const userId = session?.user.id;
+	const accessToken = session?.accessToken;
 
-export const RecentOrders: FC<RecentOrdersProps> = ({ data, error, isPending, isError }) => {
-	if (isPending) {
+	const {
+		data: recentOrdersData,
+		error: recentOrdersError,
+		isPending: isRecentOrdersPending,
+		isError: isRecentOrdersError
+	} = useQuery({
+		queryKey: ["recentOrders", userId, accessToken],
+		queryFn: (): Promise<Array<Order>> => getRecentOrders(accessToken!),
+		enabled: !!userId && !!accessToken
+	});
+
+	if (isRecentOrdersPending) {
 		return (
 			<Card className="xl:col-span-2" x-chunk="A card showing a table of recent orders.">
 				<Skeleton className="w-full h-[537.74px] md:h-[full] rounded-lg" />
@@ -27,7 +40,7 @@ export const RecentOrders: FC<RecentOrdersProps> = ({ data, error, isPending, is
 		);
 	}
 
-	if (isError) {
+	if (isRecentOrdersError) {
 		return (
 			<Card className="xl:col-span-2 relative" x-chunk="A card showing a table of recent orders.">
 				<CardHeader className="flex flex-row items-center">
@@ -57,7 +70,7 @@ export const RecentOrders: FC<RecentOrdersProps> = ({ data, error, isPending, is
 						className="mt-10 px-9 py-2 text-[16px] text-center block max-w-max mr-auto ml-auto"
 						variant="destructive"
 					>
-						Error: {error?.message}
+						Error: {recentOrdersError?.message}
 					</Badge>
 				</CardContent>
 			</Card>
@@ -88,7 +101,7 @@ export const RecentOrders: FC<RecentOrdersProps> = ({ data, error, isPending, is
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{data?.map((order) => (
+						{recentOrdersData?.map((order) => (
 							<OrderRowMinimal
 								key={`${order.id}-${order.customer.name}-${order.customer.surname}`}
 								order={order}

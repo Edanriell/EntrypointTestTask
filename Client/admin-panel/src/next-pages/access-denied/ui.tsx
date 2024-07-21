@@ -6,9 +6,7 @@ import { Ban } from "lucide-react";
 import { Button } from "@shared/ui/button";
 
 export const AccessDenied = () => {
-	const handleSignOutClick = async () => {
-		await signOut();
-	};
+	const handleSignOutClick = async () => await signOut();
 
 	return (
 		<section className={"flex flex-col items-center justify-center min-h-[100vh]"}>

@@ -1,3 +1,5 @@
+import { OrderStatus } from "@entities/orders/model";
+
 export const calculateTotalPrice = (products: any) => {
 	let totalPrice = 0;
 
@@ -10,4 +12,23 @@ export const calculateTotalPrice = (products: any) => {
 	}
 
 	return totalPrice;
+};
+
+export const displayOrderStatus = (orderStatus: OrderStatus) => {
+	switch (orderStatus) {
+		case OrderStatus.Created:
+			return "Created";
+		case OrderStatus.PendingForPayment:
+			return "PendingForPayment";
+		case OrderStatus.Paid:
+			return "Paid";
+		case OrderStatus.InTransit:
+			return "InTransit";
+		case OrderStatus.Delivered:
+			return "Delivered";
+		case OrderStatus.Cancelled:
+			return "Cancelled";
+		default:
+			return "Unknown status";
+	}
 };

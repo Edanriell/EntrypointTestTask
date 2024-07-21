@@ -1,4 +1,12 @@
-import { FC } from "react";
+"use client";
+
+import { FC, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+
+import type { Order } from "@entities/orders/model";
+import { calculateIncrease } from "@entities/orders/lib";
+import { getAllOrders } from "@entities/orders/api";
 
 import {
 	Card,
@@ -10,21 +18,37 @@ import {
 } from "@shared/ui/card";
 import { Skeleton } from "@shared/ui/skeleton";
 import { Progress } from "@shared/ui/progress";
+import { Badge } from "@shared/ui/badge";
 
-import { calculateIncrease, processMonthData } from "./model";
+import { processMonthData } from "./model";
 
-type MonthSalesProps = {
-	data: any;
-	error: any;
-	isPending: boolean;
-	isError: boolean;
-};
+export const MonthSales: FC = () => {
+	// const info = useRenderInfo("WeekSales");
+	const { data: session, status } = useSession();
+	const userId = (session as any)?.user?.id;
+	const accessToken = (session as any)?.accessToken;
 
-export const MonthSales: FC<MonthSalesProps> = ({ data, error, isPending, isError }) => {
-	const { current, previous } = processMonthData(data);
-	const monthIncrease = calculateIncrease(current, previous);
+	const {
+		data: ordersData,
+		error: ordersError,
+		isPending: isOrdersPending,
+		isError: isOrdersError
+	} = useQuery({
+		queryKey: ["getAllOrders", userId, accessToken],
+		queryFn: (): Promise<Array<Order>> => getAllOrders(accessToken),
+		enabled: !!userId && !!accessToken
+	});
 
-	if (isPending) {
+	const { current, previous } = useMemo(
+		() => (ordersData ? processMonthData(ordersData) : { current: 0, previous: 0 }),
+		[ordersData]
+	);
+	const monthIncrease = useMemo(
+		() => (ordersData ? calculateIncrease(current, previous) : 0),
+		[current, previous, ordersData]
+	);
+
+	if (isOrdersPending) {
 		return (
 			<Card x-chunk="A card showing the month sales increase.">
 				<Skeleton className="w-full h-[179.77px] rounded-lg" />
@@ -32,15 +56,16 @@ export const MonthSales: FC<MonthSalesProps> = ({ data, error, isPending, isErro
 		);
 	}
 
-	if (isError) {
+	if (isOrdersError) {
 		return (
 			<Card x-chunk="A card showing the month sales increase.">
 				<CardHeader className="pb-2">
 					<CardDescription>This Month</CardDescription>
-					<CardTitle className="text-4xl">${current}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className="text-1xl font-medium">Error: {error.message}</div>
+					<Badge className="mt-4 text-left px-7 py-1 text-[12px]" variant="destructive">
+						Error: {ordersError?.message}
+					</Badge>
 				</CardContent>
 				<CardFooter></CardFooter>
 			</Card>
@@ -55,7 +80,8 @@ export const MonthSales: FC<MonthSalesProps> = ({ data, error, isPending, isErro
 			</CardHeader>
 			<CardContent>
 				<div className="text-xs text-muted-foreground">
-					{`${monthIncrease.toFixed(2)}%`} from last month
+					{monthIncrease <= 0 ? `${monthIncrease.toFixed(2)}%` : `+${monthIncrease.toFixed(2)}%`}{" "}
+					from last month
 				</div>
 			</CardContent>
 			<CardFooter>

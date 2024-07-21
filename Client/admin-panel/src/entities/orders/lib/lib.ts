@@ -11,3 +11,8 @@ export const calculateOrderTotal = (orderData: any) => {
 
 	return formatNumberWithSeparators(orderTotal, 3);
 };
+
+export const calculateIncrease = (current: number, previous: number) => {
+	if (previous === 0) return 0;
+	return ((current - previous) / previous) * 100;
+};

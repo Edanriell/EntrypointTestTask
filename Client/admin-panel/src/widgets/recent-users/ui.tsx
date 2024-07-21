@@ -1,6 +1,11 @@
+"use client";
+
 import { FC } from "react";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { User } from "@entities/users/model";
+import { getRecentUsers } from "@entities/users/api";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
 import { Skeleton } from "@shared/ui/skeleton";
@@ -8,15 +13,23 @@ import { ScrollArea } from "@shared/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
 import { Badge } from "@shared/ui/badge";
 
-type RecentUsersProps = {
-	data: Array<User>;
-	error: Error | null;
-	isPending: boolean;
-	isError: boolean;
-};
+export const RecentUsers: FC = () => {
+	const { data: session, status } = useSession();
+	const userId = session?.user.id;
+	const accessToken = session?.accessToken;
 
-export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isError }) => {
-	if (isPending) {
+	const {
+		data: recentUsersData,
+		error: recentUsersError,
+		isPending: isRecentUsersPending,
+		isError: isRecentUsersError
+	} = useQuery({
+		queryKey: ["recentUsers", userId, accessToken],
+		queryFn: (): Promise<Array<User>> => getRecentUsers(accessToken!),
+		enabled: !!userId && !!accessToken
+	});
+
+	if (isRecentUsersPending) {
 		return (
 			<Card x-chunk="A card showing a list of recent registered users.">
 				<Skeleton className="w-full h-[537.74px] md:h-[full] rounded-lg" />
@@ -24,7 +37,7 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 		);
 	}
 
-	if (isError) {
+	if (isRecentUsersError) {
 		return (
 			<Card x-chunk="A card showing a list of recent registered users.">
 				<CardHeader>
@@ -35,7 +48,7 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 						className="mt-10 px-9 py-2 text-[14px] text-center block max-w-max mr-auto ml-auto"
 						variant="destructive"
 					>
-						Error: {error?.message}
+						Error: {recentUsersError?.message}
 					</Badge>
 				</CardContent>
 			</Card>
@@ -49,14 +62,17 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 			</CardHeader>
 			<CardContent className="grid gap-8">
 				<ScrollArea className="h-[440px] w-full rounded-lg">
-					{data.map((user) => {
+					{recentUsersData?.map((user) => {
 						return (
 							<div key={user.id} className="flex items-center gap-4 mb-[32px]">
-								<Avatar className="hidden h-9 w-9 sm:flex">
-									<AvatarImage src={user.photo ? user.photo : "#"} alt="Avatar" />
+								<Avatar className="h-9 w-9 sm:flex">
+									<AvatarImage
+										src={user?.photo ? "data:image/jpeg;base64," + user?.photo : "#"}
+										alt={user?.name + " " + user?.surname + " " + "avatar"}
+									/>
 									<AvatarFallback>
-										{user.name[0]}
-										{user.surname[0]}
+										{user?.name[0]}
+										{user?.surname[0]}
 									</AvatarFallback>
 								</Avatar>
 								<div className="grid gap-1">
@@ -73,7 +89,3 @@ export const RecentUsers: FC<RecentUsersProps> = ({ data, error, isPending, isEr
 		</Card>
 	);
 };
-
-// TODO
-// Figure out how to add image to user and how to use it on frontend
-// TODO

@@ -15,7 +15,6 @@ type User = {
 	username: string;
 	name: string;
 	surname: string;
-	photo: string;
 	email: string;
 	isEmailConfirmed: boolean;
 };
@@ -122,7 +121,6 @@ export const authOptions: NextAuthOptions = {
 				token.surname = user.surname;
 				token.email = user.email;
 				token.isEmailConfirmed = user.isEmailConfirmed;
-				token.photo = user.photo;
 
 				token.accessToken = user.accessToken;
 				token.refreshToken = user.refreshToken;
@@ -144,7 +142,6 @@ export const authOptions: NextAuthOptions = {
 				session.user.surname = token.surname;
 				session.user.email = token.email;
 				session.user.isEmailConfirmed = token.isEmailConfirmed;
-				session.user.photo = token.photo;
 
 				session.accessToken = token.accessToken;
 				session.roles = token.roles;

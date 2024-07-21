@@ -1,5 +1,8 @@
-import { FC, memo, useMemo } from "react";
+import { FC } from "react";
 import { DollarSign } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAllOrders } from "@entities/orders";
+import { useSession } from "next-auth/react";
 
 import type { Order } from "@entities/orders/model";
 
@@ -9,18 +12,24 @@ import { Badge } from "@shared/ui/badge";
 
 import { calculateTotalRevenue } from "./lib";
 
-type TotalRevenueProps = {
-	data?: Array<Order>;
-	error: Error | null;
-	isPending: boolean;
-	isError: boolean;
-};
-
-const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }) => {
+export const TotalRevenue: FC = () => {
 	// const info = useRenderInfo("TotalRevenue");
-	const totalRevenue = useMemo(() => (data ? calculateTotalRevenue(data) : 0), [data]);
+	const { data: session, status } = useSession();
+	const userId = session?.user.id;
+	const accessToken = session?.accessToken;
 
-	if (isPending) {
+	const {
+		data: ordersData,
+		error: ordersError,
+		isPending: isOrdersPending,
+		isError: isOrdersError
+	} = useQuery({
+		queryKey: ["getAllOrders", userId, accessToken],
+		queryFn: (): Promise<Array<Order>> => getAllOrders(accessToken!),
+		enabled: !!userId && !!accessToken
+	});
+
+	if (isOrdersPending) {
 		return (
 			<Card x-chunk="A card showing the total revenue in USD.">
 				<Skeleton className="w-full h-[109.8px] rounded-lg" />
@@ -28,7 +37,7 @@ const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }
 		);
 	}
 
-	if (isError) {
+	if (isOrdersError) {
 		return (
 			<Card x-chunk="A card showing the total revenue in USD.">
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -37,7 +46,7 @@ const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }
 				</CardHeader>
 				<CardContent className="flex items-center justify-center">
 					<Badge className="mt-4 text-left px-7 py-1 text-[12px]" variant="destructive">
-						Error: {error?.message}
+						Error: {ordersError?.message}
 					</Badge>
 				</CardContent>
 			</Card>
@@ -51,10 +60,8 @@ const TotalRevenue: FC<TotalRevenueProps> = ({ data, error, isPending, isError }
 				<DollarSign className="h-4 w-4 text-muted-foreground" />
 			</CardHeader>
 			<CardContent>
-				<div className="text-2xl font-bold">{totalRevenue}</div>
+				<div className="text-2xl font-bold">${calculateTotalRevenue(ordersData)}</div>
 			</CardContent>
 		</Card>
 	);
 };
-
-export const MemoizedTotalRevenue = memo(TotalRevenue);

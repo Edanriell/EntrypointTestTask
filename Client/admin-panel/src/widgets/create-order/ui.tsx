@@ -1,14 +1,15 @@
+import { FC } from "react";
 import Link from "next/link";
 
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@shared/ui/card";
 
-export const CreateOrder = () => {
+export const CreateOrder: FC = () => {
 	return (
 		<Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
 			<CardHeader className="pb-3">
 				<CardTitle>Orders</CardTitle>
 				<CardDescription className="max-w-lg text-balance leading-relaxed">
-					Manage all orders in store and create new ones efficiently.
+					Manage all orders in store and create new ones.
 				</CardDescription>
 			</CardHeader>
 			<CardFooter>
