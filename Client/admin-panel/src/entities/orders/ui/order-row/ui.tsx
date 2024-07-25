@@ -9,42 +9,43 @@ import { formatDateString } from "@shared/lib";
 import { calculateTotalPrice, displayOrderStatus } from "./lib";
 
 type OrderRowProps = {
-	order: Order;
-	onOrderClick: (order: Order) => void;
-	lastOrderRowRef?: (node?: Element | null | undefined) => void;
+	data: Order;
+	onRowClick: (order: Order) => void;
+	lastRowRef?: (node?: Element | null | undefined) => void;
+	classes?: string;
 };
 
-export const OrderRow: FC<OrderRowProps> = ({ onOrderClick, order, lastOrderRowRef }) => {
+export const OrderRow: FC<OrderRowProps> = ({ onRowClick, data, lastRowRef, classes }) => {
 	// const renderTime = useRenderInfo("OrderRow");
 
 	return (
-		<TableRow className="cursor-pointer" ref={lastOrderRowRef} onClick={() => onOrderClick(order)}>
-			<TableCell className={"block"}>
+		<TableRow className={classes} ref={lastRowRef} onClick={() => onRowClick(data)}>
+			<TableCell className={"table-cell"}>
 				<div className="font-medium">
-					{order.customer?.name} {order.customer?.surname}
+					{data.customer?.name} {data.customer?.surname}
 				</div>
-				<div className="hidden text-sm text-muted-foreground md:inline">
-					{order.customer?.email}
-				</div>
+				<div className="hidden text-sm text-muted-foreground md:inline">{data.customer?.email}</div>
 			</TableCell>
 			<TableCell className="hidden min-[520px]:table-cell">
 				<Badge className="text-xs" variant="secondary">
-					{displayOrderStatus(order?.status)}
+					{displayOrderStatus(data?.status)}
 				</Badge>
 			</TableCell>
 			<TableCell className="hidden min-[920px]:table-cell">
-				{formatDateString(order?.createdAt)}
+				{formatDateString(data?.createdAt)}
 			</TableCell>
 			<TableCell className="hidden min-[1040px]:table-cell">
-				{formatDateString(order?.updatedAt)}
+				{formatDateString(data?.updatedAt)}
 			</TableCell>
 			<TableCell className="hidden min-[1200px]:table-cell min-[1200px]:max-w-[180px]">
-				{order?.shipAddress}
+				{data?.shipAddress}
 			</TableCell>
 			<TableCell className="hidden min-[1320px]:table-cell min-[1200px]:max-w-[180px]">
-				{order?.orderInformation}
+				{data?.orderInformation}
 			</TableCell>
-			<TableCell className="text-right">${calculateTotalPrice(order?.products)}</TableCell>
+			<TableCell className="text-right table-cell">
+				${calculateTotalPrice(data?.products)}
+			</TableCell>
 		</TableRow>
 	);
 };

@@ -17,18 +17,18 @@ type SortProps = {
 		groupName: string;
 		groupSortMethods: Array<{
 			methodName: string;
-			activeSortingMethodName: string;
+			uniqueMethodName: string;
 			sortColumn: string;
 			sortOrder: string;
 		}>;
 	}>;
 	currentlyActiveSortingMethod: {
-		activeSortingMethodName: string;
+		uniqueMethodName: string;
 		sortColumn: string;
 		sortOrder: string;
 	} | null;
 	onSortMethodClick: (sortMethod: {
-		activeSortingMethodName: string;
+		uniqueMethodName: string;
 		sortColumn: string;
 		sortOrder: string;
 	}) => void;
@@ -54,20 +54,17 @@ export const Sort: FC<SortProps> = ({
 						<DropdownMenuLabel>{groupName}</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						{groupSortMethods.map(
-							({ activeSortingMethodName, sortColumn, sortOrder, methodName }, index) => (
+							({ uniqueMethodName, sortColumn, sortOrder, methodName }, index) => (
 								<DropdownMenuCheckboxItem
 									key={index + "-" + methodName + "-" + sortColumn + "-" + sortOrder}
 									onClick={() =>
 										onSortMethodClick({
-											activeSortingMethodName: activeSortingMethodName,
+											uniqueMethodName: uniqueMethodName,
 											sortColumn: sortColumn,
 											sortOrder: sortOrder
 										})
 									}
-									checked={
-										currentlyActiveSortingMethod?.activeSortingMethodName ===
-										activeSortingMethodName
-									}
+									checked={currentlyActiveSortingMethod?.uniqueMethodName === uniqueMethodName}
 								>
 									{methodName}
 								</DropdownMenuCheckboxItem>

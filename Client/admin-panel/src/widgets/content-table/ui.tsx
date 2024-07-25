@@ -4,9 +4,6 @@ import { FC, Fragment, useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
 
 import type { Order } from "@entities/orders/model";
-import { OrderRow } from "@entities/orders/ui/order-row";
-
-import { OrderDrawer } from "@widgets/order-drawer";
 
 import {
 	Card,
@@ -29,11 +26,18 @@ type OrdersTableProps = {
 	isFetchingNextPage: boolean;
 	status: "error" | "success" | "pending";
 	description: string;
-	ordersTableLastRowRef?: (node?: Element | null | undefined) => void;
+	tableLastRowRef?: (node?: Element | null | undefined) => void;
+	columnsData: Array<{
+		name: string;
+		classes?: string;
+	}>;
+	Row: FC<any>;
+	Drawer?: FC<any>;
+	DrawerInnerContent?: FC<any>;
 };
 
-export const OrdersTable: FC<OrdersTableProps> = ({
-	ordersTableLastRowRef,
+export const ContentTable: FC<OrdersTableProps> = ({
+	tableLastRowRef,
 	data,
 	error,
 	isPending,
@@ -41,7 +45,11 @@ export const OrdersTable: FC<OrdersTableProps> = ({
 	isFetchingNextPage,
 	hasNextPage,
 	status,
-	description
+	description,
+	columnsData,
+	Row,
+	Drawer,
+	DrawerInnerContent
 }) => {
 	const [isOrderDrawerOpen, setIsOrderDrawerOpen] = useState<boolean>(false);
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -108,13 +116,11 @@ export const OrdersTable: FC<OrdersTableProps> = ({
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead className="block">Customer</TableHead>
-								<TableHead className="hidden min-[520px]:table-cell">Status</TableHead>
-								<TableHead className="hidden min-[920px]:table-cell">Date</TableHead>
-								<TableHead className="hidden min-[1040px]:table-cell">Last update</TableHead>
-								<TableHead className="hidden min-[1200px]:table-cell">Ship address</TableHead>
-								<TableHead className="hidden min-[1320px]:table-cell">Order information</TableHead>
-								<TableHead className="text-right">Amount</TableHead>
+								{columnsData.map(({ name, classes }, index) => (
+									<TableHead key={index + "-" + name} className={classes}>
+										{name}
+									</TableHead>
+								))}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -122,19 +128,21 @@ export const OrdersTable: FC<OrdersTableProps> = ({
 								page.map((order, index) => {
 									if (page.length === index + 1) {
 										return (
-											<OrderRow
-												lastOrderRowRef={ordersTableLastRowRef}
-												onOrderClick={() => handleOrderRowClick(order)}
+											<Row
+												lastRowRef={tableLastRowRef}
+												onRowClick={() => handleOrderRowClick(order)}
 												key={order.id + order.customer.email + index}
-												order={order}
+												data={order}
+												classes={Drawer && DrawerInnerContent ? "cursor-pointer" : ""}
 											/>
 										);
 									} else {
 										return (
-											<OrderRow
-												onOrderClick={() => handleOrderRowClick(order)}
+											<Row
+												onRowClick={() => handleOrderRowClick(order)}
 												key={order.id + order.customer.email + index}
-												order={order}
+												data={order}
+												classes={Drawer && DrawerInnerContent ? "cursor-pointer" : ""}
 											/>
 										);
 									}
@@ -146,7 +154,7 @@ export const OrdersTable: FC<OrdersTableProps> = ({
 				<CardFooter>
 					{!hasNextPage && status === "success" && (
 						<div className="text-xs text-muted-foreground">
-							<strong>All orders</strong> has been <strong>displayed</strong>
+							<strong>All content</strong> has been <strong>displayed</strong>
 						</div>
 					)}
 					{hasNextPage && isFetchingNextPage && (
@@ -163,11 +171,14 @@ export const OrdersTable: FC<OrdersTableProps> = ({
 					)}
 				</CardFooter>
 			</Card>
-			<OrderDrawer
-				onDrawerClose={handleOrderDrawerClose}
-				isOrderDrawerOpen={isOrderDrawerOpen}
-				order={selectedOrder}
-			/>
+			{Drawer && DrawerInnerContent ? (
+				<Drawer
+					data={selectedOrder}
+					onDrawerClose={handleOrderDrawerClose}
+					isOrderDrawerOpen={isOrderDrawerOpen}
+					DrawerInnerContent={DrawerInnerContent}
+				/>
+			) : null}
 		</Fragment>
 	);
 };
