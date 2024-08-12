@@ -2,10 +2,10 @@
 
 public enum OrderStatus
 {
-    Created,
-    PendingForPayment,
-    Paid,
-    InTransit,
-    Delivered,
-    Cancelled
+	Created,
+	PendingForPayment,
+	Paid,
+	InTransit,
+	Delivered,
+	Cancelled
 }

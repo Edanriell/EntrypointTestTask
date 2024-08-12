@@ -19,12 +19,28 @@ import {
 } from "@shared/ui/dropdown";
 import { Separator } from "@shared/ui/separator";
 import { ScrollArea } from "@shared/ui/scroll-area";
+import { useCopyToClipboard } from "@shared/lib/hooks";
+import { formatDateString } from "@shared/lib/functions";
 
 type OrderCardProps = {
 	order: any;
 };
 
+// TODO
+// In Creation order we need comboBox
+// TODO
+
 export const OrderCard: FC<OrderCardProps> = ({ order }) => {
+	const [copiedText, copyToClipboard] = useCopyToClipboard();
+
+	const handleCopyToClipboardButtonClick = (value: string) => {
+		copyToClipboard(value);
+	};
+
+	const handleEditOrderButtonClick = () => {};
+
+	const handleDeleteOrderButtonClick = () => {};
+
 	return (
 		<ScrollArea>
 			<Card className="overflow-hidden border-none" x-chunk="dashboard-05-chunk-4">
@@ -33,6 +49,7 @@ export const OrderCard: FC<OrderCardProps> = ({ order }) => {
 						<CardTitle className="group flex items-center gap-2 text-lg">
 							Order Id: {order?.id}
 							<Button
+								onClick={() => handleCopyToClipboardButtonClick(order?.id)}
 								size="icon"
 								variant="outline"
 								className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
@@ -41,7 +58,7 @@ export const OrderCard: FC<OrderCardProps> = ({ order }) => {
 								<span className="sr-only">Copy Order ID</span>
 							</Button>
 						</CardTitle>
-						<CardDescription>{order?.createdAt}</CardDescription>
+						<CardDescription>{formatDateString(order?.createdAt)}</CardDescription>
 					</div>
 					<div className="ml-auto flex items-center gap-1">
 						<DropdownMenu>
@@ -148,7 +165,7 @@ export const OrderCard: FC<OrderCardProps> = ({ order }) => {
 				</CardContent>
 				<CardFooter className="flex flex-row items-center border-t bg-muted/50 pt-6 pl-12 pr-6 pb-6">
 					<div className="text-xs text-muted-foreground">
-						Updated <time dateTime="2023-11-23">{order?.updatedAt}</time>
+						Updated <time dateTime="2023-11-23">{formatDateString(order?.updatedAt)}</time>
 					</div>
 				</CardFooter>
 			</Card>

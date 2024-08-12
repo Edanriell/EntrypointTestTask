@@ -7,43 +7,44 @@ namespace Web;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebServices(this IServiceCollection services)
-    {
-        services.AddDatabaseDeveloperPageExceptionFilter();
+	public static IServiceCollection AddWebServices(this IServiceCollection services)
+	{
+		services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services.AddScoped<IUser, CurrentUser>();
+		services.AddScoped<IUser, CurrentUser>();
 
-        services.AddHttpContextAccessor();
+		services.AddHttpContextAccessor();
 
-        services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>();
+		services.AddHealthChecks()
+		   .AddDbContextCheck<ApplicationDbContext>();
 
-        services.AddExceptionHandler<CustomExceptionHandler>();
+		services.AddExceptionHandler<CustomExceptionHandler>();
 
-        services.AddRazorPages();
+		services.AddRazorPages();
 
-        // Customise default API behaviour
-        services.Configure<ApiBehaviorOptions>(options =>
-            options.SuppressModelStateInvalidFilter = true);
+		// Customise default API behaviour
+		services.Configure<ApiBehaviorOptions>(options =>
+			options.SuppressModelStateInvalidFilter = true);
 
-        services.AddEndpointsApiExplorer();
+		services.AddEndpointsApiExplorer();
 
-        services.AddOpenApiDocument((configure, sp) =>
-        {
-            configure.Title = "CleanArchitecture API";
+		services.AddOpenApiDocument((configure, sp) =>
+		{
+			configure.Title = "CleanArchitecture API";
 
-            // Add JWT
-            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-            {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
+			// Add JWT
+			configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+																	 {
+																		 Type = OpenApiSecuritySchemeType.ApiKey,
+																		 Name = "Authorization",
+																		 In   = OpenApiSecurityApiKeyLocation.Header,
+																		 Description =
+																			 "Type into the textbox: Bearer {your JWT token}."
+																	 });
 
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-        });
+			configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+		});
 
-        return services;
-    }
+		return services;
+	}
 }

@@ -1,29 +1,28 @@
 ﻿namespace Domain.Entities;
 
-[Table("Orders")]
 public class Order : BaseAuditableEntity
 {
-    [Required] public string UserId { get; set; }
+	[Key] [Required] public int         Id              { get; set; }
+	public                  DateTime    CreatedAt       { get; set; }
+	public                  DateTime    UpdatedAt       { get; set; }
+	public                  OrderStatus Status          { get; set; }
+	public                  string      ShippingName    { get; set; } = string.Empty;
+	public                  Address     ShippingAddress { get; set; } = new();
+	public                  Address     BillingAddress  { get; set; } = new();
 
-    [Required] public DateTime CreatedAt { get; set; }
+	public string? AdditionalInformation { get; set; }
 
-    [Required] public DateTime UpdatedAt { get; set; }
+	// TODO Needs more testing here
+	[JsonIgnore] public string UserId { get; set; } = string.Empty;
+	[JsonIgnore] public User   User   { get; set; } = new();
 
-    [Required] public OrderStatus Status { get; set; } = OrderStatus.Created;
+	[JsonIgnore] public List<Product>? Products { get; set; }
 
-    [Required] [StringLength(80)] public string ShipAddress { get; set; } = null!;
+	// This entity must be tested, do we need JsonIgnore here or upper
+	// TODO Needs more testing here 
+	[JsonIgnore] public List<ProductOrderLink>? OrderProducts { get; set; }
 
-    [Required] [MaxLength(400)] public string OrderInformation { get; set; } = null!;
-
-    [JsonIgnore] public User User { get; set; } = null!;
-
-    [JsonIgnore] public List<Product>? Products { get; set; } = new();
-
-    public List<ProductOrderLink>? OrderProducts { get; set; } = new();
-
-    [Key] [Required] public int Id { get; set; }
-    // Old
-    // public ICollection<ProductOrderLink>? OrderProducts { get; set; }
+	public List<Payment>? Payments { get; set; }
+	// Old
+	// public ICollection<ProductOrderLink>? OrderProducts { get; set; }
 }
-
-// User field must be renamed to Customer =)

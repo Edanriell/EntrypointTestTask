@@ -235,3 +235,8 @@ export const OrderTabs: FC = () => {
 		</Tabs>
 	);
 };
+
+// TODO
+// This component must be reusable and universal
+// Cards in dashboard must be reusable and universal
+// TODO
