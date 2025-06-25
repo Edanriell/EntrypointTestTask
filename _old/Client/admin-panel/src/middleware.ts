@@ -1,6 +1,6 @@
-import { getToken } from "next-auth/jwt";
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import {getToken} from "next-auth/jwt";
+import {withAuth} from "next-auth/middleware";
+import {NextResponse} from "next/server";
 
 export default withAuth(
 	async function middleware(req) {
@@ -15,8 +15,8 @@ export default withAuth(
 		// Check if the current route requires authentication
 		const isAccessingSensitiveRoute = sensitiveRoutes.some((route) => pathname.startsWith(route));
 
-		// Handle redirection for login page
-		if (pathname.startsWith("/login")) {
+		// Handle redirection for auth page
+		if (pathname.startsWith("/auth")) {
 			if (token) {
 				return NextResponse.redirect(new URL("/dashboard", req.url));
 			}
@@ -26,7 +26,7 @@ export default withAuth(
 		// Handle redirection for protected routes
 		if (isAccessingSensitiveRoute) {
 			if (!token) {
-				return NextResponse.redirect(new URL("/login", req.url));
+				return NextResponse.redirect(new URL("/auth", req.url));
 			}
 
 			const userHasAllowedRole = (token.roles as Array<string>)?.some((role) =>
@@ -64,5 +64,5 @@ export default withAuth(
 );
 
 export const config = {
-	matcher: ["/", "/login", "/dashboard/:path*", "/access-denied"]
+	matcher: ["/", "/auth", "/dashboard/:path*", "/access-denied"]
 };

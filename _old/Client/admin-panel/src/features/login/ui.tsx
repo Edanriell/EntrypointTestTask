@@ -1,15 +1,15 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {signIn} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {toast} from "sonner";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
 
-import { Input } from "@shared/ui/input";
-import { Button } from "@shared/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@shared/ui/form";
+import {Input} from "@shared/ui/input";
+import {Button} from "@shared/ui/button";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@shared/ui/form";
 
 const FormSchema = z.object({
 	username: z.string().min(4, {
@@ -43,7 +43,7 @@ export const Login = () => {
 				redirect: false
 			});
 
-			if (signInResult?.status === 401) toast.error("Unsuccessful login attempt.");
+			if (signInResult?.status === 401) toast.error("Unsuccessful auth attempt.");
 
 			if (signInResult?.ok) {
 				router.push("/dashboard");

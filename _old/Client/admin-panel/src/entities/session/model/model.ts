@@ -1,9 +1,9 @@
-import { getServerSession, NextAuthOptions } from "next-auth";
+import {getServerSession, NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { validateObjectFields } from "@shared/lib";
+import {validateObjectFields} from "@shared/lib";
 
-import { getUserInfo, login, refreshTokens } from "@entities/session";
+import {getUserInfo, login, refreshTokens} from "@entities/session";
 
 export interface Session {
 	accessToken: string;
@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
 		strategy: "jwt"
 	},
 	pages: {
-		signIn: "/login"
+		signIn: "/auth"
 	},
 	providers: [
 		CredentialsProvider({
