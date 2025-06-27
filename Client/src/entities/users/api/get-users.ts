@@ -1,4 +1,4 @@
-import { httpClient } from "@shared/lib/http-client";
+import { httpClient } from "@shared/api/api-client";
 import { User, UserListQuery, UserResponse } from "../model";
 
 // Get all users (to be implemented in backend)

@@ -6,11 +6,21 @@ declare module "next-auth" {
 		accessToken?: string;
 		refreshToken?: string;
 		error?: string;
+		user: {
+			id: string;
+			email: string;
+			name: string;
+			image?: string;
+			roles?: string[];
+			permissions?: string[];
+		} & DefaultSession["user"];
 	}
 
 	interface User extends DefaultUser {
 		accessToken?: string;
 		refreshToken?: string;
+		roles?: string[];
+		permissions?: string[];
 	}
 }
 
@@ -21,6 +31,8 @@ declare module "next-auth/jwt" {
 		expiresAt?: number;
 		idToken?: string;
 		error?: string;
+		roles?: string[];
+		permissions?: string[];
 	}
 }
 
@@ -31,4 +43,6 @@ export interface AuthUser {
 	image?: string;
 	accessToken?: string;
 	refreshToken?: string;
+	roles?: string[];
+	permissions?: string[];
 }

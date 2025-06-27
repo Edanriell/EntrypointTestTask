@@ -7,7 +7,7 @@ import { Card, CardContent } from "@shared/ui/card";
 import { Input } from "@shared/ui/input";
 import { Label } from "@shared/ui/label";
 
-export function Login({ className, ...props }: ComponentProps<"div">) {
+export function SignIn({ className, ...props }: ComponentProps<"div">) {
 	return (
 		<div className={cn("flex flex-col gap-6", className)} {...props}>
 			<Card className="overflow-hidden p-0">

@@ -1,6 +1,6 @@
-import { getSession, signIn, signOut, useSession } from "next-auth/react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 
 export const useAuth = () => {
 	const { data: session, status } = useSession();
@@ -43,12 +43,52 @@ export const useAuth = () => {
 };
 
 export const useRequireAuth = () => {
-	const { isAuthenticated, isLoading } = useAuth();
-	const router = useRouter();
+	const {
+		user,
+		isAuthenticated,
+		isLoading,
+		session,
+		accessToken,
+		refreshToken,
+		login,
+		logout,
+		refreshSession
+	} = useAuth();
 
-	if (!isLoading && !isAuthenticated) {
-		router.push("/auth/signin");
-	}
+	const [error, setError] = useState<string | null>(null);
 
-	return { isAuthenticated, isLoading };
+	useEffect(() => {
+		// Clear any previous errors when auth state changes
+		setError(null);
+
+		// Handle authentication errors from session
+		if (session?.error) {
+			switch (session.error) {
+				case "RefreshAccessTokenError":
+					setError("Your session has expired. Please sign in again.");
+					break;
+				case "AccessDenied":
+					setError("Access denied. You don't have permission to access this resource.");
+					break;
+				case "InvalidToken":
+					setError("Invalid authentication token. Please sign in again.");
+					break;
+				default:
+					setError(`Authentication error: ${session.error}`);
+			}
+		}
+	}, [session?.error]);
+
+	return {
+		user,
+		isAuthenticated,
+		isLoading,
+		error,
+		session,
+		accessToken,
+		refreshToken,
+		login,
+		logout,
+		refreshSession
+	};
 };
