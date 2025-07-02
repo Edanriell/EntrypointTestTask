@@ -11,3 +11,4 @@ public record ProductResponse(
     string Status,
     DateTime CreatedAt,
     DateTime LastUpdatedAt);
+ 

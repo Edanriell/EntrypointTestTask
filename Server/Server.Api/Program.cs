@@ -17,6 +17,17 @@ builder.Host.UseSerilog((context, loggerConfig) =>
     )
 );
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowedOrigins", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // Add your frontend URLs
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -30,6 +41,8 @@ builder.Services.AddInfrastructure(
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 WebApplication app = builder.Build();
+
+app.UseCors("AllowedOrigins");
 
 if (app.Environment.IsDevelopment())
 {

@@ -13,7 +13,7 @@ internal sealed class CacheService : ICacheService
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        var bytes = await _cache.GetAsync(
+        byte[]? bytes = await _cache.GetAsync(
             key,
             cancellationToken
         );
@@ -31,7 +31,7 @@ internal sealed class CacheService : ICacheService
         TimeSpan? expiration = null,
         CancellationToken cancellationToken = default)
     {
-        var bytes = Serialize(
+        byte[] bytes = Serialize(
             value
         );
 

@@ -1,22 +1,29 @@
-import { httpClient } from "@shared/api/api-client";
-import { User, UserListQuery, UserResponse } from "../model";
+import { apiClient } from "@shared/api";
+import type { User, UserListQuery, UserResponse } from "../model";
 
-// Get all users (to be implemented in backend)
-export const getUsers = async (params?: UserListQuery): Promise<User[]> => {
-	return httpClient.get("/users/all", { params });
+export const getUsers = async (query?: UserListQuery): Promise<User[]> => {
+	const params = new URLSearchParams();
+
+	// TODO
+	// Implement cursor pagination ?
+	// if (query?.page) params.append("page", query.page.toString());
+	// if (query?.limit) params.append("limit", query.limit.toString());
+	// if (query?.search) params.append("search", query.search);
+
+	const queryString = params.toString();
+	const url = queryString ? `/users?${queryString}` : "/users";
+
+	return apiClient.get<User[]>(url);
 };
 
-// Get user by ID (to be implemented in backend)
-export const getUserById = async (userId: string): Promise<User> => {
-	return httpClient.get(`/users/${userId}`);
+export const getUserById = async (id: string): Promise<User> => {
+	return apiClient.get<User>(`/users/${id}`);
 };
 
-// Get logged in user
 export const getLoggedInUser = async (): Promise<UserResponse> => {
-	return httpClient.get("/users/me");
+	return apiClient.get<UserResponse>("/users/me");
 };
 
-// Get clients
-export const getClients = async (): Promise<UserResponse[]> => {
-	return httpClient.get("/users");
+export const getClients = async (): Promise<User[]> => {
+	return apiClient.get<User[]>("/users");
 };

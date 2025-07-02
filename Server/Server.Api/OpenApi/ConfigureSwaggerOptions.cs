@@ -13,13 +13,15 @@ internal sealed class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGe
 
     public void Configure(SwaggerGenOptions options)
     {
-        foreach (var description in _provider.ApiVersionDescriptions)
+        foreach (ApiVersionDescription description in _provider.ApiVersionDescriptions)
+        {
             options.SwaggerDoc(
                 description.GroupName,
                 CreateVersionInfo(
                     description
                 )
             );
+        }
     }
 
     public void Configure(string? name, SwaggerGenOptions options)
@@ -38,7 +40,9 @@ internal sealed class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGe
         };
 
         if (apiVersionDescription.IsDeprecated)
+        {
             openApiInfo.Description += " This API version has been deprecated.";
+        }
 
         return openApiInfo;
     }

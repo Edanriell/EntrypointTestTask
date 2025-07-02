@@ -2,7 +2,6 @@
 
 import { FC } from "react";
 
-import { OrderRowCard, OrderStatus } from "@entities/orders";
 import { CreateOrder } from "@features/orders/create";
 import { EditOrder } from "@features/orders/edit";
 import { DeleteOrder } from "@features/orders/delete";
@@ -12,6 +11,9 @@ import { ShipOrder } from "@features/orders/ship";
 import { ReturnOrder } from "@features/orders/return";
 import { CancelOrder } from "@features/orders/cancel";
 import { RefundPaymentWithOrderUpdate } from "@features/payments/refund";
+import { AuthGuard } from "@features/authentication/general";
+
+import { OrderRowCard, OrderStatus } from "@entities/orders";
 
 const mockOrders = [
 	{
@@ -164,7 +166,7 @@ export const OrdersPage: FC = () => {
 	};
 
 	return (
-		<>
+		<AuthGuard>
 			<div className="flex flex-1 flex-col gap-4 p-4">
 				<CreateOrder />
 				{mockOrders.map((order) => (
@@ -195,6 +197,6 @@ export const OrdersPage: FC = () => {
 					</OrderRowCard>
 				))}
 			</div>
-		</>
+		</AuthGuard>
 	);
 };

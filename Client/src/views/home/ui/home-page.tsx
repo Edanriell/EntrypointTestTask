@@ -1,6 +1,8 @@
+"use client";
+
 import { FC } from "react";
 
-import { AuthGuard } from "@widgets/auth-guard";
+import { AuthGuard } from "@features/authentication/general";
 
 export const HomePage: FC = () => {
 	return (

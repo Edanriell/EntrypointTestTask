@@ -19,7 +19,7 @@ internal sealed class AdminAuthorizationDelegatingHandler : DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        var authorizationToken = await GetAuthorizationToken(
+        AuthorizationToken authorizationToken = await GetAuthorizationToken(
             cancellationToken
         );
 
@@ -28,7 +28,7 @@ internal sealed class AdminAuthorizationDelegatingHandler : DelegatingHandler
             authorizationToken.AccessToken
         );
 
-        var httpResponseMessage = await base.SendAsync(
+        HttpResponseMessage httpResponseMessage = await base.SendAsync(
             request,
             cancellationToken
         );
@@ -74,7 +74,7 @@ internal sealed class AdminAuthorizationDelegatingHandler : DelegatingHandler
             Content = authorizationRequestContent
         };
 
-        var authorizationResponse = await base.SendAsync(
+        HttpResponseMessage authorizationResponse = await base.SendAsync(
             authorizationRequest,
             cancellationToken
         );

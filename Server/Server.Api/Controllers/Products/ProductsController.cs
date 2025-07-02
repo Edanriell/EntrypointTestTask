@@ -160,7 +160,7 @@ public class ProductsController : ControllerBase
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
-
+ 
     /// <summary>
     ///     Update product reserved stock
     /// </summary>

@@ -7,3 +7,4 @@ public record UpdateProductRequest(
     string? Currency,
     int? Stock,
     int? Reserved);
+ 

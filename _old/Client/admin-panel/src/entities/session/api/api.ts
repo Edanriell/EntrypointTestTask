@@ -1,5 +1,5 @@
 type LoginParameters = {
-	username: string;
+	email: string;
 	password: string;
 };
 
@@ -8,14 +8,14 @@ type RefreshTokensParameters = {
 	refreshToken: string;
 };
 
-export const login = async ({ username, password }: LoginParameters) => {
+export const login = async ({ email, password }: LoginParameters) => {
 	return await fetch(
-		"https://localhost:5001/api/Users/login?UseCookies=false&UseSessionCookies=false",
+		"https://localhost:5001/api/v1/users/login",
 		{
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				userName: username,
+				email: email,
 				password: password
 			})
 		}

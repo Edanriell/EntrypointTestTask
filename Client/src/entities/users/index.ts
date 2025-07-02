@@ -1,6 +1,5 @@
 export * from "./ui";
 
-// Types
 export type {
 	User,
 	UserResponse,
@@ -16,11 +15,10 @@ export type {
 export { usersQueries } from "./api/users.query";
 
 // Mutations
-export { useCreateUser, useUpdateUser, useDeleteUser, useLoginUser } from "./api/mutations";
+export { useCreateUser, useUpdateUser, useDeleteUser } from "./api/mutations";
 
 // API functions (if needed for direct usage)
 export { getUsers, getUserById, getLoggedInUser, getClients } from "./api/get-users";
 export { createUser } from "./api/create-user";
 export { updateUser } from "./api/update-user";
 export { deleteUser } from "./api/delete-user";
-export { loginUser } from "./api/login-user";

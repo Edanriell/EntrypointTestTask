@@ -6,3 +6,4 @@ public record UpdateOrderShippingAddressRequest(
     string ZipCode,
     string Country
 );
+ 

@@ -3,3 +3,4 @@
 public record RemoveProductsFromOrderRequest(
     IReadOnlyList<Guid> ProductIds
 );
+ 

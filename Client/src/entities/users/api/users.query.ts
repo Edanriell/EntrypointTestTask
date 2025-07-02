@@ -6,33 +6,34 @@ export const usersQueries = {
 	all: () => ["users"] as const,
 
 	lists: () => [...usersQueries.all(), "list"] as const,
-	list: (params?: UserListQuery) =>
+	list: (query?: UserListQuery) =>
 		queryOptions({
-			queryKey: [...usersQueries.lists(), params],
-			queryFn: () => getUsers(params),
-			placeholderData: keepPreviousData,
-			staleTime: 30000 // 30 seconds
+			queryKey: [...usersQueries.lists(), query],
+			queryFn: () => getUsers(query),
+			placeholderData: keepPreviousData
+		}),
+
+	clients: () => [...usersQueries.all(), "clients"] as const,
+	clientsList: () =>
+		queryOptions({
+			queryKey: [...usersQueries.clients()],
+			queryFn: () => getClients(),
+			placeholderData: keepPreviousData
 		}),
 
 	details: () => [...usersQueries.all(), "detail"] as const,
-	detail: (query: UserDetailQuery) =>
+	detail: (query?: UserDetailQuery) =>
 		queryOptions({
-			queryKey: [...usersQueries.details(), query.id],
-			queryFn: () => getUserById(query.id),
-			staleTime: 5000
+			queryKey: [...usersQueries.details(), query?.id],
+			queryFn: () => getUserById(query?.id!),
+			enabled: !!query?.id,
+			staleTime: 5 * 60 * 1000 // 5 minutes
 		}),
 
 	me: () =>
 		queryOptions({
 			queryKey: [...usersQueries.all(), "me"],
-			queryFn: getLoggedInUser,
-			staleTime: 60000 // 1 minute
-		}),
-
-	clients: () =>
-		queryOptions({
-			queryKey: [...usersQueries.all(), "clients"],
-			queryFn: getClients,
-			staleTime: 30000 // 30 seconds
+			queryFn: () => getLoggedInUser(),
+			staleTime: 10 * 60 * 1000 // 10 minutes
 		})
 };

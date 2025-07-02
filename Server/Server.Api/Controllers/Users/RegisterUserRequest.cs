@@ -13,3 +13,4 @@ public sealed record RegisterUserRequest(
     string ZipCode,
     string Street,
     string Password);
+ 

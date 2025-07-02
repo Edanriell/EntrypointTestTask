@@ -5,7 +5,7 @@ public record CreateOrderRequest(
     ShippingAddressRequest ShippingAddress,
     IReadOnlyList<OrderItemRequest> OrderItems
 );
-
+ 
 public record ShippingAddressRequest(
     string Country,
     string City,

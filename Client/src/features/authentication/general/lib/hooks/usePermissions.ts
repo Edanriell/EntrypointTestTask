@@ -1,7 +1,12 @@
-import { useRequireAuth } from "@shared/lib/auth";
+import { useAuthUser } from "@features/authentication/general/lib/hooks";
+import type { AuthStrategy } from "@features/authentication/general/model";
 
-export const usePermissions = () => {
-	const { user } = useRequireAuth();
+type UsePermissionsOptions = {
+	strategy?: AuthStrategy;
+};
+
+export const usePermissions = (options?: UsePermissionsOptions) => {
+	const { user } = useAuthUser(options?.strategy);
 
 	const hasPermission = (permission: string): boolean => {
 		return user?.permissions?.includes(permission) ?? false;

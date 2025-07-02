@@ -13,3 +13,4 @@ public sealed record UpdateUserRequest(
     string? City,
     string? ZipCode,
     string? Street);
+ 

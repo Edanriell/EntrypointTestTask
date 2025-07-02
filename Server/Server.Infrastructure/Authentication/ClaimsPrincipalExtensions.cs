@@ -7,13 +7,13 @@ internal static class ClaimsPrincipalExtensions
 {
     public static Guid GetUserId(this ClaimsPrincipal? principal)
     {
-        var userId = principal?.FindFirstValue(
+        string? userId = principal?.FindFirstValue(
             JwtRegisteredClaimNames.Sub
         );
 
         return Guid.TryParse(
             userId,
-            out var parsedUserId
+            out Guid parsedUserId
         )
             ? parsedUserId
             : throw new ApplicationException(

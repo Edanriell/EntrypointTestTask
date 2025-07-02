@@ -60,7 +60,6 @@ public class PaymentsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-
     /// <summary>
     ///     Refund payment with order update
     /// </summary>

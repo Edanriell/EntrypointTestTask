@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Server.Domain.Users;
 using Server.Infrastructure.Authentication;
 
 namespace Server.Infrastructure.Authorization;
@@ -18,19 +19,21 @@ internal sealed class CustomClaimsTransformation : IClaimsTransformation
             {
                 IsAuthenticated: true
             }
-            || (principal.HasClaim(claim => claim.Type == ClaimTypes.Role
-                )
-                && principal.HasClaim(claim => claim.Type == JwtRegisteredClaimNames.Sub
-                )))
+            || principal.HasClaim(claim => claim.Type == ClaimTypes.Role
+            )
+            && principal.HasClaim(claim => claim.Type == JwtRegisteredClaimNames.Sub
+            ))
+        {
             return principal;
+        }
 
-        using var scope = _serviceProvider.CreateScope();
+        using IServiceScope scope = _serviceProvider.CreateScope();
 
-        var authorizationService = scope.ServiceProvider.GetRequiredService<AuthorizationService>();
+        AuthorizationService authorizationService = scope.ServiceProvider.GetRequiredService<AuthorizationService>();
 
-        var identityId = principal.GetIdentityId();
+        string identityId = principal.GetIdentityId();
 
-        var userRoles = await authorizationService.GetRolesForUserAsync(
+        UserRolesResponse userRoles = await authorizationService.GetRolesForUserAsync(
             identityId
         );
 
@@ -43,13 +46,15 @@ internal sealed class CustomClaimsTransformation : IClaimsTransformation
             )
         );
 
-        foreach (var role in userRoles.Roles)
+        foreach (Role role in userRoles.Roles)
+        {
             claimsIdentity.AddClaim(
                 new Claim(
                     ClaimTypes.Role,
                     role.Name
                 )
             );
+        }
 
         principal.AddIdentity(
             claimsIdentity

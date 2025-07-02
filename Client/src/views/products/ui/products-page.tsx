@@ -2,13 +2,15 @@
 
 import { FC } from "react";
 
-import { ProductRowCard } from "@entities/products";
 import { CreateProduct } from "@features/products/create";
 import { EditProduct } from "@features/products/edit";
 import { DeleteProduct } from "@features/products/delete";
 import { UpdateProductPrice } from "@features/products/update-price";
 import { UpdateProductStock } from "@features/products/update-stock";
 import { UpdateProductReservedStock } from "@features/products/update-reserved-stock";
+import { AuthGuard } from "@features/authentication/general";
+
+import { ProductRowCard } from "@entities/products";
 
 const mockProducts = [
 	{
@@ -124,7 +126,7 @@ export const ProductsPage: FC = () => {
 	};
 
 	return (
-		<>
+		<AuthGuard>
 			<div className="flex flex-1 flex-col gap-4 p-4">
 				<CreateProduct />
 				{mockProducts.map((product) => (
@@ -148,6 +150,6 @@ export const ProductsPage: FC = () => {
 					</ProductRowCard>
 				))}
 			</div>
-		</>
+		</AuthGuard>
 	);
 };

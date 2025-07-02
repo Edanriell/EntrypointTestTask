@@ -7,3 +7,4 @@ public record CreateProductRequest(
     string Currency,
     int Stock,
     int? Reserved);
+ 

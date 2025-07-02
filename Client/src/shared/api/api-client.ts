@@ -1,9 +1,28 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
 
+// TODO FSD CONFLICT HERE
+import { TokenManager } from "@features/authentication/general/lib/classes";
+// TODO FSD CONFLICT HERE
 import { API_CONFIG } from "@shared/config/api";
 
 export class ApiClient {
+	// private instance: AxiosInstance;
+	// private readonly baseUrl: string;
+	//
+	// constructor(baseUrl?: string) {
+	// 	this.baseUrl = baseUrl || `${API_CONFIG.BASE_URL}/${API_CONFIG.VERSION}`;
+	//
+	// 	this.instance = axios.create({
+	// 		baseURL: this.baseUrl,
+	// 		timeout: 10000,
+	// 		headers: {
+	// 			"Content-Type": "application/json"
+	// 		}
+	// 	});
+	//
+	// 	this.setupInterceptors();
+	// }
 	private instance: AxiosInstance;
 	private readonly baseUrl: string;
 
@@ -106,13 +125,48 @@ export class ApiClient {
 		throw new Error(errorMessage);
 	}
 
+	// private setupInterceptors() {
+	// 	// Request interceptor to add auth token
+	// 	this.instance.interceptors.request.use(
+	// 		async (config) => {
+	// 			const session = await getSession();
+	// 			if (session?.accessToken) {
+	// 				config.headers.Authorization = `Bearer ${session.accessToken}`;
+	// 			}
+	// 			return config;
+	// 		},
+	// 		(error) => Promise.reject(error)
+	// 	);
+	//
+	// 	// Response interceptor for global error handling
+	// 	this.instance.interceptors.response.use(
+	// 		(response) => response,
+	// 		(error) => Promise.reject(error)
+	// 	);
+	// }
 	private setupInterceptors() {
-		// Request interceptor to add auth token
+		// Request interceptor with optimized token handling
 		this.instance.interceptors.request.use(
 			async (config) => {
-				const session = await getSession();
-				if (session?.accessToken) {
-					config.headers.Authorization = `Bearer ${session.accessToken}`;
+				// Try to get token from server-side if available
+				if (typeof window === "undefined") {
+					// Server-side: get fresh token
+					try {
+						const token = await TokenManager.getAccessToken();
+						if (token) {
+							config.headers.Authorization = `Bearer ${token}`;
+						}
+					} catch (error) {
+						console.error("Error getting server-side token:", error);
+					}
+				} else {
+					// Client-side: use session
+					const session = await getSession();
+					if (session?.user) {
+						// For client-side requests, we'll need to get token differently
+						// You might want to create an API route to get fresh tokens
+						console.warn("Client-side requests may need fresh token handling");
+					}
 				}
 				return config;
 			},
@@ -122,7 +176,15 @@ export class ApiClient {
 		// Response interceptor for global error handling
 		this.instance.interceptors.response.use(
 			(response) => response,
-			(error) => Promise.reject(error)
+			async (error) => {
+				if (error.response?.status === 401) {
+					// Handle token expiration
+					if (typeof window !== "undefined") {
+						window.location.href = "/sign-in";
+					}
+				}
+				return Promise.reject(error);
+			}
 		);
 	}
 }

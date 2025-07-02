@@ -2,13 +2,7 @@ import { useMutation, UseMutationOptions, useQueryClient } from "@tanstack/react
 import { createUser } from "./create-user";
 import { updateUser } from "./update-user";
 import { deleteUser } from "./delete-user";
-import { loginUser } from "./login-user";
-import {
-	AccessTokenResponse,
-	LoginUserRequest,
-	RegisterUserRequest,
-	UpdateUserRequest
-} from "../model";
+import { RegisterUserRequest, UpdateUserRequest } from "../model";
 import { usersQueries } from "./users.query";
 
 export const useCreateUser = (options?: UseMutationOptions<string, Error, RegisterUserRequest>) => {
@@ -19,6 +13,7 @@ export const useCreateUser = (options?: UseMutationOptions<string, Error, Regist
 		onSuccess: () => {
 			// Invalidate and refetch users list
 			queryClient.invalidateQueries({ queryKey: usersQueries.lists() });
+			queryClient.invalidateQueries({ queryKey: usersQueries.clients() });
 		},
 		...options
 	});
@@ -32,6 +27,7 @@ export const useUpdateUser = (options?: UseMutationOptions<void, Error, UpdateUs
 		onSuccess: (_, variables) => {
 			// Invalidate and refetch users list and specific user
 			queryClient.invalidateQueries({ queryKey: usersQueries.lists() });
+			queryClient.invalidateQueries({ queryKey: usersQueries.clients() });
 			queryClient.invalidateQueries({
 				queryKey: usersQueries.details()
 			});
@@ -51,6 +47,7 @@ export const useDeleteUser = (options?: UseMutationOptions<void, Error, string>)
 		onSuccess: (_, userId) => {
 			// Invalidate and refetch users list
 			queryClient.invalidateQueries({ queryKey: usersQueries.lists() });
+			queryClient.invalidateQueries({ queryKey: usersQueries.clients() });
 			// Remove the specific user from cache
 			queryClient.removeQueries({
 				queryKey: [...usersQueries.details(), userId]
@@ -60,11 +57,52 @@ export const useDeleteUser = (options?: UseMutationOptions<void, Error, string>)
 	});
 };
 
-export const useLoginUser = (
-	options?: UseMutationOptions<AccessTokenResponse, Error, LoginUserRequest>
-) => {
-	return useMutation({
-		mutationFn: loginUser,
-		...options
-	});
-};
+// /**/
+// import { useCreateUser } from '@entities/users';
+// import { toast } from 'sonner';
+//
+// export const UserManagement = () => {
+//   const { mutate: createUser, isPending, error, reset } = useCreateUser({
+//     // Custom success handler
+//     onSuccess: (userId: string, variables: { firstName: string }) => {
+//       toast.success(`User ${variables.firstName} created successfully!`);
+//       // Additional logic...
+//     },
+//
+//     // Custom error handler
+//     onError: (error: Error, variables: { firstName: string }) => {
+//       toast.error(`Failed to create user ${variables.firstName}: ${error.message}`);
+//     },
+//
+//     // Custom settings handler
+//     onSettled: (
+//       data: unknown,
+//       error: Error | null,
+//       variables: { email: string }
+//     ) => {
+//       // This runs after both success and error
+//       console.log('Mutation completed for:', variables.email);
+//     },
+//
+//     // Retry configuration
+//     retry: 2,
+//     retryDelay: 1000,
+//   });
+//
+//   // Reset error state when needed
+//   const handleReset = () => {
+//     reset();
+//   };
+//
+//   return (
+//     <div>
+//       {/* Your form */}
+//       {error && (
+//         <div className="error">
+//           <p>Error: {error.message}</p>
+//           <button onClick={handleReset}>Try Again</button>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };

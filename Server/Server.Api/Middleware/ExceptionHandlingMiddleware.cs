@@ -32,7 +32,7 @@ internal sealed class ExceptionHandlingMiddleware
                 exception.Message
             );
 
-            var exceptionDetails = GetExceptionDetails(
+            ExceptionDetails exceptionDetails = GetExceptionDetails(
                 exception
             );
 
@@ -45,7 +45,9 @@ internal sealed class ExceptionHandlingMiddleware
             };
 
             if (exceptionDetails.Errors is not null)
+            {
                 problemDetails.Extensions["errors"] = exceptionDetails.Errors;
+            }
 
             context.Response.StatusCode = exceptionDetails.Status;
 

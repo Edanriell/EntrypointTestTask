@@ -1,3 +1,5 @@
+"use client";
+
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
@@ -11,6 +13,7 @@ import {
 	DropdownMenuTrigger
 } from "@shared/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@shared/ui/sidebar";
+import { useCredentialsAuth } from "@features/authentication/general/lib/hooks";
 
 export function DashboardSidebarUserNavigation({
 	user
@@ -22,6 +25,8 @@ export function DashboardSidebarUserNavigation({
 	};
 }) {
 	const { isMobile } = useSidebar();
+
+	const { logout } = useCredentialsAuth();
 
 	return (
 		<SidebarMenu>
@@ -69,7 +74,7 @@ export function DashboardSidebarUserNavigation({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={logout}>
 							<LogOut />
 							Log out
 						</DropdownMenuItem>

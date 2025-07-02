@@ -305,7 +305,7 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> CancelOrder(
         Guid id,
         CancellationToken cancellationToken)
-    {
+    { 
         var command = new CancelOrderCommand { OrderId = id };
 
         Result result = await _sender.Send(

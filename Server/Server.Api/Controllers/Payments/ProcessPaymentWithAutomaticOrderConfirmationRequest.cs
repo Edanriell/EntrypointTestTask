@@ -4,3 +4,4 @@ public record ProcessPaymentWithAutomaticOrderConfirmationRequest(
     Guid OrderId,
     decimal PaymentAmount
 );
+ 

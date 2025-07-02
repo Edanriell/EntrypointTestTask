@@ -5,6 +5,7 @@ import { FC } from "react";
 import { CreateUser } from "@features/users/create";
 import { EditUser } from "@features/users/edit";
 import { DeleteUser } from "@features/users/delete";
+import { AuthGuard } from "@features/authentication/general";
 
 import { ClientRowCard } from "@entities/users";
 
@@ -50,7 +51,7 @@ const mockClients = [
 
 export const ClientsPage: FC = () => {
 	return (
-		<>
+		<AuthGuard>
 			<div className="flex flex-1 flex-col gap-4 p-4">
 				<CreateUser />
 				{mockClients.map((client) => (
@@ -62,6 +63,6 @@ export const ClientsPage: FC = () => {
 					</ClientRowCard>
 				))}
 			</div>
-		</>
+		</AuthGuard>
 	);
 };

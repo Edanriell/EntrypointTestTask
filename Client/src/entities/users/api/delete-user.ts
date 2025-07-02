@@ -1,5 +1,5 @@
-import { httpClient } from "@shared/api/api-client";
+import { apiClient } from "@shared/api";
 
 export const deleteUser = async (userId: string): Promise<void> => {
-	return httpClient.delete(`/users/delete/${userId}`);
+	return apiClient.delete<void>(`/users/delete/${userId}`);
 };

@@ -73,7 +73,7 @@ public class UsersController : ControllerBase
             request.ZipCode,
             request.Street,
             request.Password);
-
+ 
         Result<Guid> result = await _sender.Send(
             command,
             cancellationToken

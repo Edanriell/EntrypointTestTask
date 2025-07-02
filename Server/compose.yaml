@@ -43,8 +43,8 @@
         volumes:
             - ./.containers/identity:/opt/keycloak/data
             #            - Keycloak finds all `.json` files** in the import directory
-            - ./.files:/opt/keycloak/data/import
-        #            - ./.files/server-realm-export.json:/opt/keycloak/data/import/server-realm-export.json:ro
+            #            - ./.files:/opt/keycloak/data/import
+            - ./.files/server-realm-export.json:/opt/keycloak/data/import/server-realm-export.json:ro
         ports:
             - 18080:8080
     
