@@ -31,7 +31,7 @@ internal sealed class UpdateProductReservedStockCommandHandler : ICommandHandler
             return Result.Failure(ProductErrors.NotFound);
         }
 
-        Result<Quantity> reservedStockResult = Quantity.CreateQuantity(request.ReservedStock);
+        Result<Quantity> reservedStockResult = Quantity.CreateStock(request.ReservedStock);
         if (reservedStockResult.IsFailure)
         {
             return Result.Failure(reservedStockResult.Error);

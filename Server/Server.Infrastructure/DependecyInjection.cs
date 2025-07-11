@@ -11,7 +11,6 @@ using Server.Application.Abstractions.Authentication;
 using Server.Application.Abstractions.Caching;
 using Server.Application.Abstractions.Clock;
 using Server.Application.Abstractions.Data;
-using Server.Application.Abstractions.Email;
 using Server.Domain.Abstractions;
 using Server.Domain.Orders;
 using Server.Domain.Payments;
@@ -22,7 +21,6 @@ using Server.Infrastructure.Authorization;
 using Server.Infrastructure.Caching;
 using Server.Infrastructure.Clock;
 using Server.Infrastructure.Data;
-using Server.Infrastructure.Email;
 using Server.Infrastructure.Repositories;
 using AuthenticationOptions = Server.Infrastructure.Authentication.AuthenticationOptions;
 using AuthenticationService = Server.Infrastructure.Authentication.AuthenticationService;
@@ -37,8 +35,6 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-
-        services.AddTransient<IEmailService, EmailService>();
 
         AddPersistence(
             services,

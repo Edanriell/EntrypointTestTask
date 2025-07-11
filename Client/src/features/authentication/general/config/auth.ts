@@ -5,7 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authConfig: NextAuthOptions = {
 	providers: [
-		// Keep your existing Keycloak provider
+		// Custom Keycloak provider
 		{
 			id: "keycloak",
 			name: "Keycloak",
@@ -40,7 +40,7 @@ export const authConfig: NextAuthOptions = {
 				};
 			}
 		},
-		// Add credentials provider for direct login
+		// Credentials provider (email, password)
 		CredentialsProvider({
 			id: "credentials",
 			name: "credentials",
@@ -53,7 +53,7 @@ export const authConfig: NextAuthOptions = {
 				}
 
 				try {
-					// Verify the token with your backend or decode JWT
+					// Verify the token with our backend or decode JWT
 					const payload = JSON.parse(
 						Buffer.from(credentials.token.split(".")[1], "base64").toString()
 					);
@@ -62,6 +62,7 @@ export const authConfig: NextAuthOptions = {
 						id: payload.sub || payload.userId,
 						name: payload.name || payload.username,
 						email: payload.email,
+						image: payload.picture,
 						roles: payload.roles || [],
 						permissions: payload.permissions || []
 					};
@@ -81,10 +82,11 @@ export const authConfig: NextAuthOptions = {
 				token.name = user.name;
 				token.roles = user.roles;
 				token.permissions = user.permissions;
+
 				return token;
 			}
 
-			// Keep existing Keycloak logic
+			// Handle Keycloak provider
 			if (account && user && account.provider === "keycloak") {
 				token.accessTokenHash = account.access_token
 					? Buffer.from(account.access_token).toString("base64").slice(0, 32)
@@ -122,7 +124,7 @@ export const authConfig: NextAuthOptions = {
 				return token;
 			}
 
-			// Check if token needs refresh (only for Keycloak)
+			// Check if the token needs refresh (only for Keycloak)
 			if (token.expiresAt && Date.now() < (token.expiresAt as number) * 1000) {
 				return token;
 			}
@@ -133,9 +135,11 @@ export const authConfig: NextAuthOptions = {
 			if (url.startsWith("/")) {
 				return `${baseUrl}${url}`;
 			}
+
 			if (new URL(url).origin === baseUrl) {
 				return url;
 			}
+
 			return baseUrl;
 		},
 		async session({ session, token }) {
@@ -151,8 +155,7 @@ export const authConfig: NextAuthOptions = {
 		}
 	},
 	pages: {
-		signIn: "/sign-in",
-		error: "/auth/error"
+		signIn: "/sign-in"
 	},
 	session: {
 		strategy: "jwt",
@@ -175,7 +178,6 @@ export const authConfig: NextAuthOptions = {
 	debug: process.env.NODE_ENV === "development"
 };
 
-// Keep existing refreshAccessToken function
 async function refreshAccessToken(token: JWT) {
 	try {
 		const response = await fetch(
@@ -233,6 +235,7 @@ async function refreshAccessToken(token: JWT) {
 		};
 	} catch (error) {
 		console.error("Error refreshing access token:", error);
+
 		return {
 			...token,
 			error: "RefreshAccessTokenError"

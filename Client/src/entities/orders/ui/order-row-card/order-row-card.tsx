@@ -6,7 +6,7 @@ import { Calendar, MapPin, RefreshCw, ShoppingCart, User } from "lucide-react";
 import { Card, CardContent } from "@shared/ui/card";
 import { Badge } from "@shared/ui/badge";
 import { getStatusInfo } from "@entities/orders/lib/functions";
-import { formatCurrency, formatFullDate } from "@shared/lib/functions";
+import { formatCurrency, formatDate } from "@shared/lib/utils";
 import { ManagementActions } from "@entities/orders/ui/order-row-card/management-actions";
 import { ContextActions } from "@entities/orders/ui/order-row-card/context-actions";
 
@@ -179,11 +179,15 @@ export const OrderRowCard: OrderRowCard = ({
 					<div className="hidden lg:flex flex-col gap-1 text-xs text-muted-foreground flex-shrink-0">
 						<div className="flex items-center gap-1">
 							<Calendar className="h-3 w-3" />
-							<span>Created: {formatFullDate(order.createdAt)}</span>
+							<span>
+								Created: {formatDate(order.createdAt, { includeTime: true })}
+							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<RefreshCw className="h-3 w-3" />
-							<span>Updated: {formatFullDate(order.updatedAt)}</span>
+							<span>
+								Updated: {formatDate(order.updatedAt, { includeTime: true })}
+							</span>
 						</div>
 					</div>
 

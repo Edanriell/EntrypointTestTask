@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using Server.Application.Abstractions.Messaging;
 using Server.Application.Exceptions;
@@ -28,16 +29,23 @@ internal sealed class ValidationBehavior<TRequest, TResponse>
             request
         );
 
-        var validationErrors = _validators.Select(validator => validator.Validate(
-                context
-            )
-        ).Where(validationResult => validationResult.Errors.Any()
-        ).SelectMany(validationResult => validationResult.Errors
-        ).Select(validationFailure => new ValidationError(
+        // Execute all validations concurrently
+        IEnumerable<Task<ValidationResult>> validationTasks = _validators.Select(validator =>
+            validator.ValidateAsync(context, cancellationToken)
+        );
+
+        // Wait for all validations to complete
+        ValidationResult[] validationResults = await Task.WhenAll(validationTasks);
+
+        // Process the results
+        var validationErrors = validationResults
+            .Where(validationResult => validationResult.Errors.Any())
+            .SelectMany(validationResult => validationResult.Errors)
+            .Select(validationFailure => new ValidationError(
                 validationFailure.PropertyName,
                 validationFailure.ErrorMessage
-            )
-        ).ToList();
+            ))
+            .ToList();
 
         if (validationErrors.Any())
         {

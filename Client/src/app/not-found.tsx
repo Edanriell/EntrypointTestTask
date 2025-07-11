@@ -4,7 +4,7 @@ import { metadata, NotFoundLayout } from "@widgets/layout/not-found";
 
 export { metadata };
 
-export default function NotFound() {
+export default async function NotFound() {
 	return (
 		<NotFoundLayout>
 			<NotFoundPage />

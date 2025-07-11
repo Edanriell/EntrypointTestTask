@@ -1,6 +1,7 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Search, X } from "lucide-react";
 
 import { CreateProduct } from "@features/products/create";
 import { EditProduct } from "@features/products/edit";
@@ -11,144 +12,400 @@ import { UpdateProductReservedStock } from "@features/products/update-reserved-s
 import { AuthGuard } from "@features/authentication/general";
 
 import { ProductRowCard } from "@entities/products";
+import { ProductStatus } from "@entities/products/model";
 
-const mockProducts = [
-	{
-		id: 1,
-		code: "LAPTOP-001",
-		productName: "Dell XPS 13 Laptop",
-		description: "13-inch ultrabook with Intel i7 processor, 16GB RAM, 512GB SSD",
-		unitPrice: 1299.99,
-		unitsInStock: 25,
-		unitsOnOrder: 5,
-		createdAt: "2024-01-10"
-	},
-	{
-		id: 2,
-		code: "MOUSE-002",
-		productName: "Logitech MX Master 3S",
-		description: "Advanced wireless mouse with precision tracking and ergonomic design",
-		unitPrice: 99.99,
-		unitsInStock: 150,
-		unitsOnOrder: 20,
-		createdAt: "2024-01-15"
-	},
-	{
-		id: 3,
-		code: "MONITOR-003",
-		productName: 'Samsung 27" 4K Monitor',
-		description: "27-inch 4K UHD monitor with HDR support and USB-C connectivity",
-		unitPrice: 399.99,
-		unitsInStock: 8,
-		unitsOnOrder: 12,
-		createdAt: "2024-02-01"
-	},
-	{
-		id: 4,
-		code: "KEYBOARD-004",
-		productName: "Mechanical Gaming Keyboard",
-		description: "RGB backlit mechanical keyboard with Cherry MX switches",
-		unitPrice: 149.99,
-		unitsInStock: 45,
-		unitsOnOrder: 8,
-		createdAt: "2024-01-20"
-	},
-	{
-		id: 5,
-		code: "WEBCAM-005",
-		productName: "Logitech C920 HD Webcam",
-		description: "1080p HD webcam with auto-focus and built-in microphone",
-		unitPrice: 79.99,
-		unitsInStock: 0,
-		unitsOnOrder: 15,
-		createdAt: "2024-02-10"
-	},
-	{
-		id: 6,
-		code: "HEADSET-006",
-		productName: "Sony WH-1000XM5 Headphones",
-		description: "Wireless noise-canceling headphones with 30-hour battery life",
-		unitPrice: 349.99,
-		unitsInStock: 12,
-		unitsOnOrder: 2,
-		createdAt: "2024-01-25"
-	},
-	{
-		id: 7,
-		code: "TABLET-007",
-		productName: "iPad Air 10.9-inch",
-		description: "10.9-inch iPad Air with M1 chip, 64GB storage, Wi-Fi",
-		unitPrice: 599.99,
-		unitsInStock: 30,
-		unitsOnOrder: 25,
-		createdAt: "2024-02-05"
-	},
-	{
-		id: 8,
-		code: "PHONE-008",
-		productName: "iPhone 15 Pro",
-		description: "6.1-inch iPhone 15 Pro with 128GB storage and titanium design",
-		unitPrice: 999.99,
-		unitsInStock: 18,
-		unitsOnOrder: 22,
-		createdAt: "2024-02-12"
-	}
-];
+import { Button } from "@shared/ui/button";
+import { Input } from "@shared/ui/input";
+import { Label } from "@shared/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
+import { Separator } from "@shared/ui/separator";
+import { Spinner } from "@shared/ui/spinner";
+
+import { useProductsList } from "../api";
 
 export const ProductsPage: FC = () => {
-	const handleEditProduct = (productId: number) => {
-		console.log("Edit product:", productId);
-		// Implement your edit-user logic here
-		// e.g., navigate to edit-user page or open modal
+	const [showFilters, setShowFilters] = useState<boolean>(false);
+	const [searchTerm, setSearchTerm] = useState<string>("");
+	const [descriptionFilter, setDescriptionFilter] = useState<string>("");
+	const [minPrice, setMinPrice] = useState<string>("");
+	const [maxPrice, setMaxPrice] = useState<string>("");
+	const [minStock, setMinStock] = useState<string>("");
+	const [maxStock, setMaxStock] = useState<string>("");
+	const [statusFilter, setStatusFilter] = useState<string>("");
+	const [hasStock, setHasStock] = useState<string>("");
+	const [isReserved, setIsReserved] = useState<string>("");
+
+	const {
+		products,
+		isLoading,
+		error,
+		hasNextPage,
+		hasPreviousPage,
+		goToNextPage,
+		goToPreviousPage,
+		setSort,
+		setFilters,
+		resetFilters,
+		queryParams,
+		totalCount
+	} = useProductsList({
+		initialPageSize: 10,
+		initialSortBy: "createdAt",
+		initialSortDirection: "desc"
+	});
+
+	const handleSearch = () => {
+		setFilters({
+			nameFilter: searchTerm || undefined,
+			descriptionFilter: descriptionFilter || undefined,
+			minPrice: minPrice ? Number(minPrice) : undefined,
+			maxPrice: maxPrice ? Number(maxPrice) : undefined,
+			minStock: minStock ? Number(minStock) : undefined,
+			maxStock: maxStock ? Number(maxStock) : undefined,
+			statusFilter: statusFilter === "all" ? undefined : statusFilter,
+			hasStock: hasStock === "all" ? undefined : hasStock === "true",
+			isReserved: isReserved === "all" ? undefined : isReserved === "true"
+		});
 	};
 
-	const handleUpdatePrice = (productId: number, newPrice: number) => {
-		console.log("Update product price:", productId, "New price:", newPrice);
-		// Implement UpdateProductPrice command here
-		// e.g., call API to update price
+	const handleClearFilters = () => {
+		setSearchTerm("");
+		setDescriptionFilter("");
+		setMinPrice("");
+		setMaxPrice("");
+		setMinStock("");
+		setMaxStock("");
+		setStatusFilter("");
+		setHasStock("");
+		setIsReserved("");
+		resetFilters();
 	};
 
-	const handleUpdateStock = (productId: number, newStock: number) => {
-		console.log("Update product stock:", productId, "New stock:", newStock);
-		// Implement UpdateProductStock command here
-		// e.g., call API to update stock
+	const handleSortChange = (field: string) => {
+		const isCurrentField = queryParams.sortBy === field;
+		const newDirection = isCurrentField && queryParams.sortDirection === "asc" ? "desc" : "asc";
+		setSort(field, newDirection);
 	};
 
-	const handleUpdateReservedStock = (productId: number, newReservedStock: number) => {
-		console.log(
-			"Update product reserved stock:",
-			productId,
-			"New reserved stock:",
-			newReservedStock
+	const getSortIcon = (field: string) => {
+		if (queryParams.sortBy === field) {
+			return queryParams.sortDirection === "asc" ? (
+				<ChevronUp className="h-4 w-4" />
+			) : (
+				<ChevronDown className="h-4 w-4" />
+			);
+		}
+		return null;
+	};
+
+	if (error) {
+		return (
+			<AuthGuard>
+				<div className="flex flex-1 flex-col gap-4 p-4">
+					<Card>
+						<CardContent className="pt-6">
+							<div className="text-center text-red-500">
+								Error loading products. Please try again.
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			</AuthGuard>
 		);
-		// Implement UpdateProductReservedStock command here
-		// e.g., call API to update reserved stock
-	};
+	}
 
 	return (
 		<AuthGuard>
 			<div className="flex flex-1 flex-col gap-4 p-4">
-				<CreateProduct />
-				{mockProducts.map((product) => (
-					<ProductRowCard
-						key={product.id}
-						product={product}
-						onEdit={handleEditProduct}
-						onUpdatePrice={handleUpdatePrice}
-						onUpdateStock={handleUpdateStock}
-						onUpdateReservedStock={handleUpdateReservedStock}
-					>
-						<ProductRowCard.ManagementActions>
-							<EditProduct />
-							<DeleteProduct />
-						</ProductRowCard.ManagementActions>
-						<ProductRowCard.QuickActions>
-							<UpdateProductPrice />
-							<UpdateProductStock />
-							<UpdateProductReservedStock />
-						</ProductRowCard.QuickActions>
-					</ProductRowCard>
-				))}
+				{/* Header */}
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-2xl font-bold">Products</h1>
+						<p className="text-muted-foreground">
+							{totalCount ? `${totalCount} products total` : "Manage your products"}
+						</p>
+					</div>
+					<CreateProduct />
+				</div>
+
+				{/* Search and Filters */}
+				<Card>
+					<CardHeader>
+						<div className="flex items-center justify-between">
+							<CardTitle className="text-lg">Search & Filters</CardTitle>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setShowFilters(!showFilters)}
+							>
+								<Filter className="h-4 w-4 mr-2" />
+								{showFilters ? "Hide Filters" : "Show Filters"}
+							</Button>
+						</div>
+					</CardHeader>
+					<CardContent>
+						{/* Search Bar */}
+						<div className="flex gap-2 mb-4">
+							<div className="flex-1 relative">
+								<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+								<Input
+									placeholder="Search products by name..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="pl-9"
+									onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+								/>
+							</div>
+							<Button onClick={handleSearch}>Search</Button>
+						</div>
+
+						{/* Advanced Filters */}
+						{showFilters && (
+							<>
+								<Separator className="mb-4" />
+								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+									<div>
+										<Label htmlFor="description">Description</Label>
+										<Input
+											id="description"
+											placeholder="Filter by description"
+											value={descriptionFilter}
+											onChange={(e) => setDescriptionFilter(e.target.value)}
+										/>
+									</div>
+									<div>
+										<Label htmlFor="minPrice">Min Price</Label>
+										<Input
+											id="minPrice"
+											type="number"
+											placeholder="0"
+											value={minPrice}
+											onChange={(e) => setMinPrice(e.target.value)}
+										/>
+									</div>
+									<div>
+										<Label htmlFor="maxPrice">Max Price</Label>
+										<Input
+											id="maxPrice"
+											type="number"
+											placeholder="1000"
+											value={maxPrice}
+											onChange={(e) => setMaxPrice(e.target.value)}
+										/>
+									</div>
+									<div>
+										<Label htmlFor="minStock">Min Stock</Label>
+										<Input
+											id="minStock"
+											type="number"
+											placeholder="0"
+											value={minStock}
+											onChange={(e) => setMinStock(e.target.value)}
+										/>
+									</div>
+									<div>
+										<Label htmlFor="maxStock">Max Stock</Label>
+										<Input
+											id="maxStock"
+											type="number"
+											placeholder="100"
+											value={maxStock}
+											onChange={(e) => setMaxStock(e.target.value)}
+										/>
+									</div>
+									<div>
+										<Label htmlFor="status">Status</Label>
+										<Select
+											value={statusFilter}
+											onValueChange={(value) => setStatusFilter(value)}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="All statuses" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="all">All statuses</SelectItem>
+												<SelectItem value={ProductStatus.Available}>
+													Available
+												</SelectItem>
+												<SelectItem value={ProductStatus.OutOfStock}>
+													Out of Stock
+												</SelectItem>
+												<SelectItem value={ProductStatus.Discontinued}>
+													Discontinued
+												</SelectItem>
+												<SelectItem value={ProductStatus.Deleted}>
+													Deleted
+												</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div>
+										<Label htmlFor="hasStock">Has Stock</Label>
+										<Select
+											value={hasStock}
+											onValueChange={(value) => setHasStock(value)}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="All products" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="all">All products</SelectItem>
+												<SelectItem value="true">In Stock</SelectItem>
+												<SelectItem value="false">Out of Stock</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div>
+										<Label htmlFor="isReserved">Reserved</Label>
+										<Select
+											value={isReserved}
+											onValueChange={(value) => setIsReserved(value)}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="All products" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="all">All products</SelectItem>
+												<SelectItem value="true">Reserved</SelectItem>
+												<SelectItem value="false">Not Reserved</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+								</div>
+								<div className="flex gap-2 mt-4">
+									<Button onClick={handleSearch}>Apply Filters</Button>
+									<Button variant="outline" onClick={handleClearFilters}>
+										<X className="h-4 w-4 mr-2" />
+										Clear All
+									</Button>
+								</div>
+							</>
+						)}
+					</CardContent>
+				</Card>
+
+				{/* Sorting Controls */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-lg">Sort By</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="flex flex-wrap gap-2">
+							<Button
+								variant={queryParams.sortBy === "name" ? "default" : "outline"}
+								size="sm"
+								onClick={() => handleSortChange("name")}
+								className="flex items-center gap-1"
+							>
+								Name
+								{getSortIcon("name")}
+							</Button>
+							<Button
+								variant={queryParams.sortBy === "price" ? "default" : "outline"}
+								size="sm"
+								onClick={() => handleSortChange("price")}
+								className="flex items-center gap-1"
+							>
+								Price
+								{getSortIcon("price")}
+							</Button>
+							<Button
+								variant={queryParams.sortBy === "stock" ? "default" : "outline"}
+								size="sm"
+								onClick={() => handleSortChange("stock")}
+								className="flex items-center gap-1"
+							>
+								Stock
+								{getSortIcon("stock")}
+							</Button>
+							<Button
+								variant={queryParams.sortBy === "createdAt" ? "default" : "outline"}
+								size="sm"
+								onClick={() => handleSortChange("createdAt")}
+								className="flex items-center gap-1"
+							>
+								Created Date
+								{getSortIcon("createdAt")}
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Loading State */}
+				{isLoading && (
+					<Card>
+						<CardContent className="pt-6">
+							<div className="flex items-center justify-center py-8">
+								<Spinner />
+								<span className="ml-2">Loading products...</span>
+							</div>
+						</CardContent>
+					</Card>
+				)}
+
+				{/* Products List */}
+				{!isLoading && (
+					<>
+						{products.length === 0 ? (
+							<Card>
+								<CardContent className="pt-6">
+									<div className="text-center text-muted-foreground py-8">
+										No products found. Try adjusting your search or filters.
+									</div>
+								</CardContent>
+							</Card>
+						) : (
+							<div className="space-y-4">
+								{products.map((product) => (
+									<ProductRowCard key={product.id} product={product}>
+										<ProductRowCard.ManagementActions>
+											<EditProduct />
+											<DeleteProduct />
+										</ProductRowCard.ManagementActions>
+										<ProductRowCard.QuickActions>
+											<UpdateProductPrice />
+											<UpdateProductStock />
+											<UpdateProductReservedStock />
+										</ProductRowCard.QuickActions>
+									</ProductRowCard>
+								))}
+							</div>
+						)}
+
+						{/* Pagination */}
+						<Card>
+							<CardContent className="pt-6">
+								<div className="flex items-center justify-between">
+									<div className="text-sm text-muted-foreground">
+										Showing {products.length} products
+										{totalCount && ` of ${totalCount} total`}
+									</div>
+									<div className="flex items-center gap-2">
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={goToPreviousPage}
+											disabled={!hasPreviousPage}
+										>
+											<ChevronLeft className="h-4 w-4 mr-1" />
+											Previous
+										</Button>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={goToNextPage}
+											disabled={!hasNextPage}
+										>
+											Next
+											<ChevronRight className="h-4 w-4 ml-1" />
+										</Button>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					</>
+				)}
 			</div>
 		</AuthGuard>
 	);

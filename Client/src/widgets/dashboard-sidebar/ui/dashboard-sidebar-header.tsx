@@ -1,13 +1,10 @@
-// IMPORTANT!
-// This is a minimally adjusted ShadCn <TeamSwitcher /> component, according to business needs
-
-import * as React from "react";
+import { FC } from "react";
 import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 
 import { SidebarMenuButton } from "@shared/ui/sidebar";
 
-export function DashboardSidebarHeader() {
+export const DashboardSidebarHeader: FC = () => {
 	return (
 		<Link href="/">
 			<SidebarMenuButton
@@ -24,4 +21,4 @@ export function DashboardSidebarHeader() {
 			</SidebarMenuButton>
 		</Link>
 	);
-}
+};

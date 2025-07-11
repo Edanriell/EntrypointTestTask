@@ -16,8 +16,9 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
 
         // Maybe we can remove it ?
-        builder.Property(order => order.PaymentId)
-            .IsRequired(false);
+        // MANY PAYMENTS
+        // builder.Property(order => order.PaymentId)
+        //     .IsRequired(false);
 
         builder.Property(order => order.OrderNumber)
             .HasMaxLength(50)
@@ -113,6 +114,16 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         //     .WithOne()
         //     .HasForeignKey<Payment>(payment => payment.OrderId)
         //     .OnDelete(DeleteBehavior.Restrict);
+        // builder.HasOne(order => order.Payment)
+        //     .WithOne(payment => payment.Order)
+        //     .HasForeignKey<Order>(order => order.PaymentId) // FK on Order side
+        //     .OnDelete(DeleteBehavior.Restrict);
+
+        // MANY PAYMENTS
+        builder.HasMany(order => order.Payments)
+            .WithOne(payment => payment.Order)
+            .HasForeignKey(payment => payment.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(order => order.OrderProducts)
             .WithOne()

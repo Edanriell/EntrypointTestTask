@@ -39,7 +39,43 @@ public sealed class User : Entity
     // Navigation property
     public List<Order>? Orders { get; private set; }
 
-    public static User Create(
+    public static User CreateUser(
+        FirstName firstName,
+        LastName lastName,
+        Email email,
+        PhoneNumber phoneNumber,
+        Gender gender,
+        Address address,
+        IEnumerable<Role>? roles = null)
+    {
+        var user = new User(
+            Guid.NewGuid(),
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            gender,
+            address,
+            DateTime.UtcNow
+        );
+
+        user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
+
+        List<Role> rolesList = roles?.ToList() ?? new List<Role>();
+
+        if (rolesList.Count > 0)
+        {
+            user._roles.AddRange(rolesList);
+        }
+        else
+        {
+            user._roles.Add(Role.Guest);
+        }
+
+        return user;
+    }
+
+    public static User CreateCustomer(
         FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber, Gender gender, Address address)
     {
         var user = new User(
@@ -56,7 +92,7 @@ public sealed class User : Entity
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         user._roles.Add(
-            Role.Registered
+            Role.Customer
         );
 
         return user;
@@ -121,6 +157,32 @@ public sealed class User : Entity
         return Result.Success();
     }
 
+    public Result AddRole(Role role)
+    {
+        if (_roles.Contains(role))
+        {
+            return Result.Failure(UserErrors.RoleAlreadyAssigned);
+        }
+
+        _roles.Add(role);
+        RaiseDomainEvent(new UserRoleAddedDomainEvent(Id, role.Id));
+
+        return Result.Success();
+    }
+
+    public Result RemoveRole(Role role)
+    {
+        if (!_roles.Contains(role))
+        {
+            return Result.Failure(UserErrors.RoleNotAssigned);
+        }
+
+        _roles.Remove(role);
+        RaiseDomainEvent(new UserRoleRemovedDomainEvent(Id, role.Id));
+
+        return Result.Success();
+    }
+
     public void SetIdentityId(string identityId)
     {
         if (string.IsNullOrWhiteSpace(identityId))
@@ -129,5 +191,25 @@ public sealed class User : Entity
         }
 
         IdentityId = identityId;
+    }
+
+    public bool HasPermission(Permission permission)
+    {
+        return _roles.Any(role => role.Permissions.Contains(permission));
+    }
+
+    public bool HasAnyPermission(params Permission[] permissions)
+    {
+        return permissions.Any(HasPermission);
+    }
+
+    public bool HasAllPermissions(params Permission[] permissions)
+    {
+        return permissions.All(HasPermission);
+    }
+
+    public IEnumerable<Permission> GetAllPermissions()
+    {
+        return _roles.SelectMany(role => role.Permissions).Distinct();
     }
 }

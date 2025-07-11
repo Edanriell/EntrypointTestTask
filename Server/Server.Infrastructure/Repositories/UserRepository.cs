@@ -5,7 +5,6 @@ using Server.Domain.Users;
 
 namespace Server.Infrastructure.Repositories;
 
-// TODO Needs testing 100% errors here
 internal sealed class UserRepository
     : Repository<User>,
         IUserRepository
@@ -28,6 +27,14 @@ internal sealed class UserRepository
             .Include(u => u.Roles)
             .Include(u => u.Orders)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+    }
+
+    public async Task<User?> GetByPhoneNumberAsync(
+        PhoneNumber phoneNumber, CancellationToken cancellationToken = default)
+    {
+        return await DbContext
+            .Set<User>()
+            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
     }
 
     public override void Add(User user)
@@ -59,4 +66,12 @@ internal sealed class UserRepository
     }
 
     public void Remove(User user) { DbContext.Remove(user); }
+
+    public async Task<User?> GetByEmailAsync(
+        Email email, CancellationToken cancellationToken = default)
+    {
+        return await DbContext
+            .Set<User>()
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+    }
 }

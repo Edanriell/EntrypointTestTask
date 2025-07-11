@@ -26,7 +26,11 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var user = User.Create(
+        List<Role>? roles = request.RoleNames?.Any() == true
+            ? Role.FromNames(request.RoleNames).ToList()
+            : null;
+
+        var user = User.CreateUser(
             new FirstName(
                 request.FirstName
             ),
@@ -43,7 +47,8 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
                 request.Country,
                 request.City,
                 request.ZipCode,
-                request.Street)
+                request.Street),
+            roles
         );
 
         string identityId = await _authenticationService.RegisterAsync(
@@ -52,17 +57,11 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
             cancellationToken
         );
 
-        user.SetIdentityId(
-            identityId
-        );
+        user.SetIdentityId(identityId);
 
-        _userRepository.Add(
-            user
-        );
+        _userRepository.Add(user);
 
-        await _unitOfWork.SaveChangesAsync(
-            cancellationToken
-        );
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return user.Id;
     }

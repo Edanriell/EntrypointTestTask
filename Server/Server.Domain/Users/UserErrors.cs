@@ -9,7 +9,7 @@ public static class UserErrors
         "Cannot delete user that has active orders");
 
     public static readonly Error NotFound = new(
-        "User.Found",
+        "User.NotFound",
         "The user with the specified identifier was not found"
     );
 
@@ -27,4 +27,21 @@ public static class UserErrors
         "User.DeleteFailed",
         "Failed to delete user from authentication service"
     );
+
+    public static readonly Error RoleAlreadyAssigned = new(
+        "User.RoleAlreadyAssigned",
+        "Role is already assigned to user"
+    );
+
+    public static readonly Error RoleNotAssigned = new(
+        "User.RoleNotAssigned",
+        "Role is not assigned to user");
+
+    public static readonly Error PasswordChangeFailed = new(
+        "Users.PasswordChangeFailed",
+        "Failed to change user password");
+
+    public static readonly Error IdentityNotFound = new(
+        "Users.IdentityNotFound",
+        "User identity not found in the system");
 }

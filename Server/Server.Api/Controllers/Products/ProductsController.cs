@@ -28,14 +28,33 @@ public class ProductsController : ControllerBase
     ///     Get all products
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllProducts(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllProducts(
+        [FromQuery] GetProductsRequest request, CancellationToken cancellationToken)
     {
-        var query = new GetProductsQuery();
+        var query = new GetProductsQuery
+        {
+            PageSize = request.PageSize,
+            Cursor = request.Cursor,
+            SortBy = request.SortBy,
+            SortDirection = request.SortDirection,
+            NameFilter = request.NameFilter,
+            DescriptionFilter = request.DescriptionFilter,
+            MinPrice = request.MinPrice,
+            MaxPrice = request.MaxPrice,
+            MinStock = request.MinStock,
+            MaxStock = request.MaxStock,
+            StatusFilter = request.StatusFilter,
+            CreatedAfter = request.CreatedAfter,
+            CreatedBefore = request.CreatedBefore,
+            LastUpdatedAfter = request.LastUpdatedAfter,
+            LastUpdatedBefore = request.LastUpdatedBefore,
+            LastRestockedAfter = request.LastRestockedAfter,
+            LastRestockedBefore = request.LastRestockedBefore,
+            HasStock = request.HasStock,
+            IsReserved = request.IsReserved
+        };
 
-        Result<IReadOnlyList<ProductsResponse>> result = await _sender.Send(
-            query,
-            cancellationToken
-        );
+        Result<GetProductsResponse> result = await _sender.Send(query, cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
@@ -160,7 +179,7 @@ public class ProductsController : ControllerBase
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
- 
+
     /// <summary>
     ///     Update product reserved stock
     /// </summary>
@@ -179,7 +198,6 @@ public class ProductsController : ControllerBase
             command,
             cancellationToken
         );
-
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }

@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 
 import { Input } from "@shared/ui/input";
-import { formatCurrency } from "@shared/lib/functions";
+import { formatCurrency } from "@shared/lib/utils";
 
 export const UpdateProductPrice: FC = () => {
 	const [editingPrice, setEditingPrice] = useState(false);

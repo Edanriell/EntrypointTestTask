@@ -1,16 +1,16 @@
-2025-06-20 17:46:53.778273Z jdbc[3]: exception
+2025-07-06 14:48:12.128151Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "MIGRATION_MODEL" not found (this database is empty); SQL statement:
 SELECT ID, VERSION FROM MIGRATION_MODEL ORDER BY UPDATE_TIME DESC [42104-230]
-2025-06-20 17:46:54.148909Z jdbc[3]: exception
+2025-07-06 14:48:12.640401Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOG" not found (this database is empty); SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOG [42104-230]
-2025-06-20 17:46:54.257077Z jdbc[4]: exception
+2025-07-06 14:48:12.755316Z jdbc[4]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOGLOCK" not found (this database is empty); SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOGLOCK [42104-230]
-2025-06-20 17:46:54.273888Z jdbc[3]: exception
+2025-07-06 14:48:12.771385Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOG" not found; SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOG [42102-230]
-2025-06-20 17:46:55.685726Z jdbc[3]: exception
+2025-07-06 14:48:14.201847Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "T.DETAILS_JSON" not found; SQL statement:
 select t.DETAILS_JSON from PUBLIC.ADMIN_EVENT_ENTITY t where 0=1 [42122-230]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
@@ -75,13 +75,14 @@ select t.DETAILS_JSON from PUBLIC.ADMIN_EVENT_ENTITY t where 0=1 [42122-230]
 	at org.keycloak.quarkus.runtime.storage.database.jpa.QuarkusJpaConnectionProviderFactory.update(QuarkusJpaConnectionProviderFactory.java:281)
 	at org.keycloak.quarkus.runtime.storage.database.jpa.QuarkusJpaConnectionProviderFactory.createOrUpdateSchema(QuarkusJpaConnectionProviderFactory.java:247)
 	at org.keycloak.quarkus.runtime.storage.database.jpa.QuarkusJpaConnectionProviderFactory.postInit(QuarkusJpaConnectionProviderFactory.java:124)
-	at org.keycloak.services.DefaultKeycloakSessionFactory.initializeProviders(DefaultKeycloakSessionFactory.java:168)
-	at org.keycloak.services.DefaultKeycloakSessionFactory.initializeProviders(DefaultKeycloakSessionFactory.java:165)
-	at org.keycloak.services.DefaultKeycloakSessionFactory.initProviderFactories(DefaultKeycloakSessionFactory.java:145)
-	at org.keycloak.services.DefaultKeycloakSessionFactory.initProviderFactories(DefaultKeycloakSessionFactory.java:126)
+	at org.keycloak.services.DefaultKeycloakSessionFactory.initializeProviders(DefaultKeycloakSessionFactory.java:167)
+	at org.keycloak.services.DefaultKeycloakSessionFactory.initializeProviders(DefaultKeycloakSessionFactory.java:164)
+	at org.keycloak.services.DefaultKeycloakSessionFactory.initializeProviders(DefaultKeycloakSessionFactory.java:164)
+	at org.keycloak.services.DefaultKeycloakSessionFactory.initProviderFactories(DefaultKeycloakSessionFactory.java:141)
+	at org.keycloak.services.DefaultKeycloakSessionFactory.initProviderFactories(DefaultKeycloakSessionFactory.java:125)
 	at org.keycloak.quarkus.runtime.integration.QuarkusKeycloakSessionFactory.init(QuarkusKeycloakSessionFactory.java:87)
 	at org.keycloak.quarkus.runtime.integration.jaxrs.QuarkusKeycloakApplication.createSessionFactory(QuarkusKeycloakApplication.java:67)
-	at org.keycloak.services.resources.KeycloakApplication.startup(KeycloakApplication.java:90)
+	at org.keycloak.services.resources.KeycloakApplication.startup(KeycloakApplication.java:74)
 	at org.keycloak.quarkus.runtime.integration.jaxrs.QuarkusKeycloakApplication.onStartupEvent(QuarkusKeycloakApplication.java:52)
 	at org.keycloak.quarkus.runtime.integration.jaxrs.QuarkusKeycloakApplication_Observer_onStartupEvent_GNZ8m5QenZ9h9VNelo7awjUZFDE.notify(Unknown Source)
 	at io.quarkus.arc.impl.EventImpl$Notifier.notifyObservers(EventImpl.java:365)
@@ -95,8 +96,8 @@ select t.DETAILS_JSON from PUBLIC.ADMIN_EVENT_ENTITY t where 0=1 [42122-230]
 	at io.quarkus.runtime.Application.start(Application.java:101)
 	at io.quarkus.runtime.ApplicationLifecycleManager.run(ApplicationLifecycleManager.java:121)
 	at io.quarkus.runtime.Quarkus.run(Quarkus.java:77)
-	at org.keycloak.quarkus.runtime.KeycloakMain.start(KeycloakMain.java:145)
-	at org.keycloak.quarkus.runtime.cli.Picocli.start(Picocli.java:1000)
+	at org.keycloak.quarkus.runtime.KeycloakMain.start(KeycloakMain.java:133)
+	at org.keycloak.quarkus.runtime.cli.Picocli.start(Picocli.java:1014)
 	at org.keycloak.quarkus.runtime.cli.command.AbstractStartCommand.run(AbstractStartCommand.java:49)
 	at picocli.CommandLine.executeUserObject(CommandLine.java:2030)
 	at picocli.CommandLine.access$1500(CommandLine.java:148)
@@ -106,8 +107,8 @@ select t.DETAILS_JSON from PUBLIC.ADMIN_EVENT_ENTITY t where 0=1 [42122-230]
 	at picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277)
 	at picocli.CommandLine$RunLast.execute(CommandLine.java:2421)
 	at picocli.CommandLine.execute(CommandLine.java:2174)
-	at org.keycloak.quarkus.runtime.cli.Picocli.parseAndRun(Picocli.java:128)
-	at org.keycloak.quarkus.runtime.KeycloakMain.main(KeycloakMain.java:116)
-	at org.keycloak.quarkus.runtime.KeycloakMain.main(KeycloakMain.java:71)
+	at org.keycloak.quarkus.runtime.cli.Picocli.parseAndRun(Picocli.java:130)
+	at org.keycloak.quarkus.runtime.KeycloakMain.main(KeycloakMain.java:104)
+	at org.keycloak.quarkus.runtime.KeycloakMain.main(KeycloakMain.java:78)
 	at io.quarkus.bootstrap.runner.QuarkusEntryPoint.doRun(QuarkusEntryPoint.java:68)
 	at io.quarkus.bootstrap.runner.QuarkusEntryPoint.main(QuarkusEntryPoint.java:36)

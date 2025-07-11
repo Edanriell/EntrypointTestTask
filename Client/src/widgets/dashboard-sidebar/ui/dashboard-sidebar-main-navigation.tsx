@@ -1,43 +1,18 @@
-import Link from "next/link";
-import { type LucideIcon } from "lucide-react";
+import type { FC, ReactNode } from "react";
 
-import { Collapsible, CollapsibleTrigger } from "@shared/ui/collapsible";
-import {
-	SidebarGroup,
-	SidebarGroupLabel,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem
-} from "@shared/ui/sidebar";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu } from "@shared/ui/sidebar";
 
-export function DashboardSidebarMainNavigation({
-	items
-}: {
-	items: {
-		title: string;
-		url: string;
-		icon?: LucideIcon;
-	}[];
-}) {
+type DashboardSidebarMainNavigationProps = {
+	children: ReactNode;
+};
+
+export const DashboardSidebarMainNavigation: FC<DashboardSidebarMainNavigationProps> = ({
+	children
+}) => {
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Navigation</SidebarGroupLabel>
-			<SidebarMenu>
-				{items.map((item) => (
-					<Collapsible key={item.title} asChild className="group/collapsible">
-						<SidebarMenuItem>
-							<CollapsibleTrigger asChild>
-								<Link href={item.url}>
-									<SidebarMenuButton tooltip={item.title}>
-										{item.icon && <item.icon />}
-										<span>{item.title}</span>
-									</SidebarMenuButton>
-								</Link>
-							</CollapsibleTrigger>
-						</SidebarMenuItem>
-					</Collapsible>
-				))}
-			</SidebarMenu>
+			<SidebarMenu>{children}</SidebarMenu>
 		</SidebarGroup>
 	);
-}
+};

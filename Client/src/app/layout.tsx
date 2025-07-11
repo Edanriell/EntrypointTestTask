@@ -1,16 +1,18 @@
 import { ReactNode } from "react";
 
-import { AuthProvider, QueryProvider } from "@app/_providers";
+import { AuthProvider, QueryProvider, ToasterProvider } from "@app/_providers";
 
 import { DefaultLayout, metadata } from "@widgets/layout/default";
 
 export { metadata };
 
-export default ({ children }: { children: ReactNode }) => {
+export default async ({ children }: { children: ReactNode }) => {
 	return (
 		<AuthProvider>
 			<QueryProvider>
-				<DefaultLayout>{children}</DefaultLayout>
+				<ToasterProvider>
+					<DefaultLayout>{children}</DefaultLayout>
+				</ToasterProvider>
 			</QueryProvider>
 		</AuthProvider>
 	);

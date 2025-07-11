@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { getCurrentSession } from "@features/authentication/general/lib/functions";
+import { getCurrentSession } from "@features/authentication/general";
 
 export const authQueries = {
 	all: () => ["auth"] as const,
@@ -10,6 +10,9 @@ export const authQueries = {
 		queryOptions({
 			queryKey: [...authQueries.session()],
 			queryFn: () => getCurrentSession(),
-			staleTime: 5 * 60 * 1000 // 5 minutes
+			staleTime: 5 * 60 * 1000, // 5 minutes
+			retry: false,
+			refetchOnMount: false,
+			refetchIntervalInBackground: false
 		})
 };

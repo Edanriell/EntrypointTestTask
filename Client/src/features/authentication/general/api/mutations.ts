@@ -1,9 +1,11 @@
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
-import { AccessTokenResponse } from "@features/authentication/general/model/access-token-response";
-import { LoginUserRequest } from "@features/authentication/general/model";
+import {
+	AccessTokenResponse,
+	LoginUserRequest,
+	LogoutRequest
+} from "@features/authentication/general/model";
 import { loginUser } from "@features/authentication/general/api/login-user";
 import { logoutUser } from "@features/authentication/general/api/logout-user";
-import { LogoutRequest } from "@features/authentication/general/model/logout-request";
 
 export const useLoginMutation = (
 	options?: UseMutationOptions<AccessTokenResponse, Error, LoginUserRequest>

@@ -13,4 +13,5 @@ public sealed record RegisterUserCommand(
     string City,
     string ZipCode,
     string Street,
-    string Password) : ICommand<Guid>;
+    string Password,
+    IEnumerable<string>? RoleNames = null) : ICommand<Guid>;

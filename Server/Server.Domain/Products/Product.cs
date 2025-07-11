@@ -34,9 +34,6 @@ public sealed class Product : Entity
 
     public DateTime? LastRestockedAt { get; private set; }
 
-    // Helper property
-    public bool IsAvailable => Status == ProductStatus.Available && Stock.Value > 0;
-
     // Helper method
     public bool HasSufficientStock(Quantity quantity)
     {

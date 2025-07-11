@@ -1,8 +1,9 @@
+import { FC } from "react";
 import Link from "next/link";
 
 import { Button } from "@shared/ui/button";
 
-export const NotFoundPage = () => {
+export const NotFoundPage: FC = () => {
 	return (
 		<section className="flex flex-col items-center justify-center">
 			<div className="text-center">

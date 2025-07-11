@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 import { Calendar, Mail, MapPin, Phone } from "lucide-react";
 
-import { getInitials } from "@entities/users/lib/functions";
+import { getInitials } from "@entities/users/lib";
 
 import { Card, CardContent } from "@shared/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
 // 	DropdownMenuGroup,
 // 	DropdownMenuTrigger
 // } from "@shared/ui/dropdown-menu";
-import { formatCurrency, formatDate } from "@shared/lib/functions";
+import { formatCurrency, formatDate } from "@shared/lib/utils";
 
 import { ManagementActions } from "@entities/users/ui/client-row-card/management-actions";
 

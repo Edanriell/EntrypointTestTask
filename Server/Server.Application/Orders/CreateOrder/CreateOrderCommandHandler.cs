@@ -3,7 +3,6 @@ using Server.Domain.Abstractions;
 using Server.Domain.OrderItems;
 using Server.Domain.OrderProducts;
 using Server.Domain.Orders;
-using Server.Domain.Payments;
 using Server.Domain.Products;
 using Server.Domain.Shared;
 using Server.Domain.Users;
@@ -12,10 +11,14 @@ namespace Server.Application.Orders.CreateOrder;
 
 internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, Guid>
 {
-    private readonly OrderPaymentService _orderPaymentService;
+    // MANY PAYMENTS
+    // private readonly OrderPaymentService _orderPaymentService;
     private readonly OrderProductService _orderProductService;
+
     private readonly IOrderRepository _orderRepository;
-    private readonly IPaymentRepository _paymentRepository;
+
+    // MANY PAYMENTS
+    // private readonly IPaymentRepository _paymentRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
@@ -24,16 +27,19 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         IOrderRepository orderRepository,
         IUserRepository userRepository,
         IProductRepository productRepository,
-        IPaymentRepository paymentRepository,
+        // MANY PAYMENTS
+        // IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _userRepository = userRepository;
         _productRepository = productRepository;
-        _paymentRepository = paymentRepository;
+        // MANY PAYMENTS
+        // _paymentRepository = paymentRepository;
         _unitOfWork = unitOfWork;
         _orderProductService = new OrderProductService();
-        _orderPaymentService = new OrderPaymentService();
+        // MANY PAYMENTS
+        // _orderPaymentService = new OrderPaymentService();
     }
 
     public async Task<Result<Guid>> Handle(
@@ -113,24 +119,39 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         }
 
         // Create unpaid payment
-        Result<Payment> paymentResult = Payment.Create(order.Id);
-        if (paymentResult.IsFailure)
-        {
-            return Result.Failure<Guid>(paymentResult.Error);
-        }
+        // MANY PAYMENTS
+        // Result<Payment> paymentResult = Payment.Create(order.Id);
+        // if (paymentResult.IsFailure)
+        // {
+        //     return Result.Failure<Guid>(paymentResult.Error);
+        // }
 
-        Payment payment = paymentResult.Value;
+        // MANY PAYMENTS
+        // Payment payment = paymentResult.Value;
+        // FIX ALL TODO222 Currency issues everything should work
+        // Migrate to payments multiple !
+        // TODO222 Test
+        // MANY PAYMENTS
+        // Result paymentResult2 = order.SetPaymentId(payment.Id);
+        // if (paymentResult2.IsFailure)
+        // {
+        // return Result.Failure<Guid>(paymentResult2.Error);
+        // }
 
         // Update payment TotalAmount using OrderPaymentService
-        Result updatePaymentResult = _orderPaymentService.UpdatePaymentTotalFromOrder(payment, order);
-        if (updatePaymentResult.IsFailure)
-        {
-            return Result.Failure<Guid>(updatePaymentResult.Error);
-        }
+        // MANY PAYMENTS
+        // Result updatePaymentResult = _orderPaymentService.UpdatePaymentTotalFromOrder(payment, order);
+        // if (updatePaymentResult.IsFailure)
+        // {
+        //     return Result.Failure<Guid>(updatePaymentResult.Error);
+        // }
+
+        // order.PaymentId = payment.Id;
 
         // Add entities to repositories for tracking
+        // MANY PAYMENTS
+        // _paymentRepository.Add(payment);
         _orderRepository.Add(order);
-        _paymentRepository.Add(payment);
 
         // Save changes in database
         await _unitOfWork.SaveChangesAsync(cancellationToken);

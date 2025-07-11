@@ -30,7 +30,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(400)
             .HasConversion(
                 email => email.Value,
-                value => new Domain.Users.Email(value)
+                value => new Email(value)
             );
 
         builder.Property(user => user.PhoneNumber)
@@ -74,8 +74,8 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         // One-to-many relationship with Orders
         builder.HasMany(user => user.Orders)
-            .WithOne()
-            .HasForeignKey("UserId")
+            .WithOne(order => order.Client)
+            .HasForeignKey(order => order.ClientId)
             // Ideally, delete behavior must be restricted
             // Which means that when our user is deleted, user orders are untouched
             // DeleteBehavior is set to Cascade only because it is one of the test task requirements

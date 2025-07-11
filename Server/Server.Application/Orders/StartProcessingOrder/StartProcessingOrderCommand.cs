@@ -2,7 +2,4 @@
 
 namespace Server.Application.Orders.StartProcessingOrder;
 
-public sealed record StartProcessingOrderCommand : ICommand
-{
-    public Guid OrderId { get; init; }
-}
+public sealed record StartProcessingOrderCommand(Guid OrderId) : ICommand;

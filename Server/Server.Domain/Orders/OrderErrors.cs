@@ -32,9 +32,9 @@ public static class OrderErrors
         "Order.CannotRemoveLastProduct",
         "Cannot remove the last product from order");
 
-    public static readonly Error InvalidStatusTransition = new(
-        "Order.InvalidStatusTransition",
-        "Invalid order status transition");
+    // public static readonly Error InvalidStatusTransition = new(
+    //     "Order.InvalidStatusTransition",
+    //     "Invalid order status transition");
 
     public static readonly Error CannotCancelShippedOrder = new(
         "Order.CannotCancelShipped",
@@ -87,4 +87,35 @@ public static class OrderErrors
     public static readonly Error CannotProcessPaymentForNonPendingOrder = new(
         "Order.CannotProcessPaymentForNonPendingOrder",
         "Cannot process payment for non-pending order");
+
+    // public static readonly Error CannotAssignPaymentToInactiveOrder = new(
+    //     "Order.CannotAssignPaymentToInactiveOrder",
+    //     "Cannot assign payment to inactive order");
+    //
+    // public static readonly Error PaymentAlreadyAssigned = new(
+    //     "Order.PaymentAlreadyAssigned", "Payment already assigned");
+
+    public static readonly Error OrderProductsCurrencyMismatch = new(
+        "Order.OrderProductsCurrencyMismatch",
+        "All order products must have the same currency");
+
+    public static Error CannotAddPaymentToInactiveOrder => new(
+        "Order.CannotAddPaymentToInactiveOrder",
+        "Cannot add payment to cancelled or returned order");
+
+    public static Error CannotAssignPaymentToInactiveOrder => new(
+        "Order.CannotAssignPaymentToInactiveOrder",
+        "Cannot assign payment to inactive order");
+
+    public static Error PaymentAlreadyAssigned => new(
+        "Order.PaymentAlreadyAssigned",
+        "Payment is already assigned to this order");
+
+    public static Error CannotCompleteOrderWithinReturnWindow => new(
+        "Order.CannotCompleteOrderWithinReturnWindow",
+        "Cannot complete order within return window period");
+
+    public static Error InvalidStatusTransition => new(
+        "Order.InvalidStatusTransition",
+        "Invalid order status transition");
 }

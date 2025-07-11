@@ -28,8 +28,6 @@ internal sealed class LogInUserCommandHandler : ICommandHandler<LogInUserCommand
             );
         }
 
-        return new AccessTokenResponse(
-            result.Value
-        );
+        return new AccessTokenResponse(result.Value);
     }
 }

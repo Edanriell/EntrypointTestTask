@@ -48,4 +48,32 @@ public static class PaymentErrors
     public static Error InvalidRefundReason => new(
         "Payment.InvalidRefundReason",
         "Invalid refund reason provided");
+
+    public static Error PaymentAlreadyProcessed => new(
+        "Payment.AlreadyProcessed",
+        "Payment has already been processed");
+
+    public static Error RefundAlreadyProcessed => new(
+        "Payment.RefundAlreadyProcessed",
+        "Refund has already been processed");
+
+    public static Error InvalidStatusTransition => new(
+        "Payment.InvalidStatusTransition",
+        "Invalid payment status transition");
+
+    public static Error CannotCancelProcessedPayment => new(
+        "Payment.CannotCancelProcessedPayment",
+        "Cannot cancel a payment that has already been processed");
+
+    public static Error CannotDisputeUnpaidPayment => new(
+        "Payment.CannotDisputeUnpaidPayment",
+        "Cannot dispute a payment that hasn't been paid");
+
+    public static Error CannotExpireProcessedPayment => new(
+        "Payment.CannotExpireProcessedPayment",
+        "Cannot expire a payment that has already been processed");
+
+    public static Error NotFound => new(
+        "Payment.NotFound",
+        "Payment not found");
 }

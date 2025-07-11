@@ -1,24 +1,17 @@
 export * from "./ui";
 
 export type {
-	User,
+	Customer,
 	UserResponse,
-	RegisterUserRequest,
+	RegisterCustomerRequest,
 	UpdateUserRequest,
-	LoginUserRequest,
-	AccessTokenResponse,
-	UserListQuery,
-	UserDetailQuery
+	UserDetailQuery,
+	UpdateUserData
 } from "./model";
 
-// Query factory
 export { usersQueries } from "./api/users.query";
 
-// Mutations
-export { useCreateUser, useUpdateUser, useDeleteUser } from "./api/mutations";
-
-// API functions (if needed for direct usage)
-export { getUsers, getUserById, getLoggedInUser, getClients } from "./api/get-users";
-export { createUser } from "./api/create-user";
+export { getUserById, getLoggedInUser } from "./api/get-users";
+export { createCustomer } from "./api/create-customer";
 export { updateUser } from "./api/update-user";
 export { deleteUser } from "./api/delete-user";

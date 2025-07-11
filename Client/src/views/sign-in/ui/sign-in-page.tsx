@@ -1,8 +1,8 @@
-"use client";
+import { FC } from "react";
 
 import { SignIn } from "@features/authentication/sign-in";
 
-export const SignInPage = () => {
+export const SignInPage: FC = () => {
 	return (
 		<section>
 			<SignIn />

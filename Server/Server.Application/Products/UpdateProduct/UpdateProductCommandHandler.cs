@@ -68,7 +68,7 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
         Quantity? stockChange = null;
         if (request.StockChange.HasValue)
         {
-            Result<Quantity> stockResult = Quantity.CreateQuantity(request.StockChange.Value);
+            Result<Quantity> stockResult = Quantity.CreateStock(request.StockChange.Value);
             if (stockResult.IsFailure)
             {
                 return Result.Failure(stockResult.Error);
@@ -80,7 +80,7 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
         Quantity? reservedChange = null;
         if (request.ReservedChange.HasValue)
         {
-            Result<Quantity> reservedResult = Quantity.CreateQuantity(request.ReservedChange.Value);
+            Result<Quantity> reservedResult = Quantity.CreateStock(request.ReservedChange.Value);
             if (reservedResult.IsFailure)
             {
                 return Result.Failure(reservedResult.Error);

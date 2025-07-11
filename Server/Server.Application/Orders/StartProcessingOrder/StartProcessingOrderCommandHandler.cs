@@ -27,10 +27,10 @@ internal sealed class StartProcessingOrderCommandHandler : ICommandHandler<Start
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        Result result = order.StartProcessing();
-        if (result.IsFailure)
+        Result processingResult = order.StartProcessing();
+        if (processingResult.IsFailure)
         {
-            return Result.Failure(result.Error);
+            return processingResult;
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

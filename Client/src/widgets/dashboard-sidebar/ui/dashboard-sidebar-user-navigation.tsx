@@ -1,32 +1,34 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
+import type { FC, ReactNode } from "react";
+import { ChevronsUpDown } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
 	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger
 } from "@shared/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@shared/ui/sidebar";
-import { useCredentialsAuth } from "@features/authentication/general/lib/hooks";
+import { getInitials } from "@shared/lib/utils";
 
-export function DashboardSidebarUserNavigation({
-	user
-}: {
-	user: {
-		name: string;
-		email: string;
-		avatar: string;
-	};
-}) {
+export type UserData = {
+	name: string;
+	email: string;
+	avatar: string;
+};
+
+type DashboardSidebarUserNavigationProps = {
+	user: UserData;
+	children: ReactNode;
+};
+
+export const DashboardSidebarUserNavigation: FC<DashboardSidebarUserNavigationProps> = ({
+	user,
+	children
+}) => {
 	const { isMobile } = useSidebar();
-
-	const { logout } = useCredentialsAuth();
 
 	return (
 		<SidebarMenu>
@@ -39,7 +41,9 @@ export function DashboardSidebarUserNavigation({
 						>
 							<Avatar className="h-8 w-8 rounded-lg">
 								<AvatarImage src={user.avatar} alt={user.name} />
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+								<AvatarFallback className="rounded-lg">
+									{getInitials(user.name)}
+								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">{user.name}</span>
@@ -58,7 +62,9 @@ export function DashboardSidebarUserNavigation({
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
 									<AvatarImage src={user.avatar} alt={user.name} />
-									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+									<AvatarFallback className="rounded-lg">
+										{getInitials(user.name)}
+									</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">{user.name}</span>
@@ -66,21 +72,10 @@ export function DashboardSidebarUserNavigation({
 								</div>
 							</div>
 						</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<BadgeCheck />
-								Settings
-							</DropdownMenuItem>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={logout}>
-							<LogOut />
-							Log out
-						</DropdownMenuItem>
+						{children}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>
 		</SidebarMenu>
 	);
-}
+};

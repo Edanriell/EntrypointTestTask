@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 import type { Metadata } from "next";
 
-import { generateStaticMetadata } from "@shared/lib/functions";
+import { generateStaticMetadata } from "@shared/lib/utils";
 
 export const metadata: Metadata = generateStaticMetadata({
 	title: "Sign In",

@@ -3,12 +3,15 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Server.Application.Orders.AddProductToOrder;
 using Server.Application.Orders.CancelOrder;
+using Server.Application.Orders.CompleteOrder;
 using Server.Application.Orders.CreateOrder;
 using Server.Application.Orders.DeleteOrder;
 using Server.Application.Orders.GetOrderById;
 using Server.Application.Orders.GetOrderByNumber;
 using Server.Application.Orders.GetOrders;
 using Server.Application.Orders.MarkOrderAsDelivered;
+using Server.Application.Orders.MarkOutForDelivery;
+using Server.Application.Orders.MarkReadyForShipment;
 using Server.Application.Orders.RemoveProductFromOrder;
 using Server.Application.Orders.ReturnOrder;
 using Server.Application.Orders.ShipOrder;
@@ -29,9 +32,6 @@ public class OrdersController : ControllerBase
 
     public OrdersController(ISender sender) { _sender = sender; }
 
-    /// <summary>
-    ///     Get all orders
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
     {
@@ -45,9 +45,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Get order by ID
-    /// </summary>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetOrderById(
         Guid id,
@@ -63,9 +60,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Get order by order number
-    /// </summary>
     [HttpGet("number/{orderNumber}")]
     public async Task<IActionResult> GetOrderByNumber(
         Guid orderNumber,
@@ -81,9 +75,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Create a new order
-    /// </summary>
     [HttpPost]
     public async Task<IActionResult> CreateOrder(
         CreateOrderRequest request,
@@ -124,9 +115,6 @@ public class OrdersController : ControllerBase
         );
     }
 
-    /// <summary>
-    ///     Add product to order
-    /// </summary>
     [HttpPost("{id:guid}/products")]
     public async Task<IActionResult> AddProductToOrder(
         Guid id,
@@ -151,9 +139,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Remove product from order
-    /// </summary>
     [HttpDelete("{id:guid}/products")]
     public async Task<IActionResult> RemoveProductsFromOrder(
         Guid id,
@@ -174,9 +159,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Update product quantity in order
-    /// </summary>
     [HttpPatch("{id:guid}/products/{productId:guid}/quantity")]
     public async Task<IActionResult> UpdateOrderProductQuantity(
         Guid id,
@@ -199,9 +181,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Update order shipping address
-    /// </summary>
     [HttpPatch("{id:guid}/shipping-address")]
     public async Task<IActionResult> UpdateOrderShippingAddress(
         Guid id,
@@ -225,15 +204,12 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Start processing order
-    /// </summary>
     [HttpPatch("{id:guid}/start-processing")]
     public async Task<IActionResult> StartProcessingOrder(
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new StartProcessingOrderCommand { OrderId = id };
+        var command = new StartProcessingOrderCommand(id);
 
         Result result = await _sender.Send(
             command,
@@ -243,16 +219,28 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Ship order
-    /// </summary>
+    [HttpPatch("{id:guid}/ready-for-shipment")]
+    public async Task<IActionResult> MarkReadyForShipment(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new MarkReadyForShipmentCommand(id);
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
     [HttpPatch("{id:guid}/ship")]
     public async Task<IActionResult> ShipOrder(
         Guid id,
         ShipOrderRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ShipOrderCommand { OrderId = id, TrackingNumber = request.TrackingNumber };
+        var command = new ShipOrderCommand(id, request.TrackingNumber);
 
         Result result = await _sender.Send(
             command,
@@ -262,15 +250,27 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Mark order as delivered
-    /// </summary>
+    [HttpPatch("{id:guid}/out-for-delivery")]
+    public async Task<IActionResult> MarkOutForDelivery(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new MarkOutForDeliveryCommand(id);
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
     [HttpPatch("{id:guid}/deliver")]
     public async Task<IActionResult> MarkOrderAsDelivered(
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new MarkOrderAsDeliveredCommand { OrderId = id };
+        var command = new MarkOrderAsDeliveredCommand(id);
 
         Result result = await _sender.Send(
             command,
@@ -280,9 +280,21 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Return order
-    /// </summary>
+    [HttpPatch("{id:guid}/complete")]
+    public async Task<IActionResult> CompleteOrder(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CompleteOrderCommand(id);
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
     [HttpPost("{id:guid}/return")]
     public async Task<IActionResult> ReturnOrder(
         Guid id,
@@ -298,14 +310,11 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Cancel order
-    /// </summary>
     [HttpPatch("{id:guid}/cancel")]
     public async Task<IActionResult> CancelOrder(
         Guid id,
         CancellationToken cancellationToken)
-    { 
+    {
         var command = new CancelOrderCommand { OrderId = id };
 
         Result result = await _sender.Send(
@@ -316,9 +325,6 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Delete order (hard delete)
-    /// </summary>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteOrder(
         Guid id,
@@ -334,3 +340,16 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 }
+
+// POST /api/v1/orders                     → Create order (Pending)
+// PATCH /api/v1/orders/{id}/confirm       → Confirm order (Confirmed)
+// PATCH /api/v1/orders/{id}/start-processing → Start processing (Processing)
+// PATCH /api/v1/orders/{id}/ready-for-shipment → Ready for shipment (ReadyForShipment)
+// PATCH /api/v1/orders/{id}/ship          → Ship order (Shipped)
+// PATCH /api/v1/orders/{id}/out-for-delivery → Out for delivery (OutForDelivery)
+// PATCH /api/v1/orders/{id}/deliver       → Mark as delivered (Delivered)
+//     PATCH /api/v1/orders/{id}/complete      → Complete order (Completed)
+//
+// // Exception flows:
+// PATCH /api/v1/orders/{id}/cancel        → Cancel order (Cancelled)
+// POST /api/v1/orders/{id}/return         → Return order (Returned)

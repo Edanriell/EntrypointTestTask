@@ -9,9 +9,5 @@ internal sealed class UpdateProductStockCommandValidator : AbstractValidator<Upd
         RuleFor(x => x.ProductId)
             .NotEmpty()
             .WithMessage("Product ID is required");
-
-        RuleFor(x => x.Stock)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Product stock cannot be negative");
     }
 }

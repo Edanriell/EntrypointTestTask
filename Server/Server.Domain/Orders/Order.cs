@@ -11,10 +11,14 @@ public sealed class Order : Entity
 {
     private readonly List<OrderProduct>? _orderProducts = new();
 
+    // MANY PAYMENTS
+    private readonly List<Payment>? _payments = new();
+
     private Order(
         Guid id,
         Guid clientId,
-        Guid? paymentId,
+        // MANY PAYMENTS
+        // Guid? paymentId,
         OrderNumber orderNumber,
         Address shippingAddress,
         DateTime createdAt,
@@ -22,7 +26,8 @@ public sealed class Order : Entity
     ) : base(id)
     {
         ClientId = clientId;
-        PaymentId = paymentId;
+        // MANY PAYMENTS
+        // PaymentId = paymentId;
         OrderNumber = orderNumber;
         ShippingAddress = shippingAddress;
         CreatedAt = createdAt;
@@ -32,7 +37,9 @@ public sealed class Order : Entity
     private Order() { }
 
     public Guid ClientId { get; }
-    public Guid? PaymentId { get; private set; }
+
+    // MANY PAYMENTS
+    // public Guid? PaymentId { get; private set; }
     public OrderNumber OrderNumber { get; private set; }
     public OrderStatus Status { get; private set; }
     public Address ShippingAddress { get; private set; }
@@ -48,7 +55,10 @@ public sealed class Order : Entity
 
     // Navigation property
     public User Client { get; private set; }
-    public Payment? Payment { get; private set; }
+
+    // MANY PAYMENTS
+    // public Payment? Payment { get; private set; }
+    public IReadOnlyCollection<Payment> Payments => _payments?.AsReadOnly();
     public IReadOnlyCollection<OrderProduct> OrderProducts => _orderProducts?.AsReadOnly();
     public bool CanBeShipped => Status == OrderStatus.Confirmed;
 
@@ -60,7 +70,8 @@ public sealed class Order : Entity
         var order = new Order(
             Guid.NewGuid(),
             clientId,
-            null,
+            // MANY PAYMENTS
+            // null,
             orderNumber,
             shippingAddress,
             DateTime.UtcNow,
@@ -131,6 +142,60 @@ public sealed class Order : Entity
         // return Result.Success();
     }
 
+    // MANY PAYMENTS
+    public Result AddPayment(Payment payment)
+    {
+        if (Status == OrderStatus.Cancelled || Status == OrderStatus.Returned)
+        {
+            return Result.Failure(OrderErrors.CannotAddPaymentToInactiveOrder);
+        }
+
+        _payments?.Add(payment);
+        return Result.Success();
+    }
+
+    // Pass Currency as argument if multiple
+    // currencies are supported
+    public Money GetTotalPaidAmount()
+    {
+        if (!_payments?.Any() ?? true)
+        {
+            return Money.Zero(Currency.Eur);
+        }
+
+        // Get currency from order total to ensure consistency
+        Money orderTotal = CalculateTotal();
+        Currency currency = orderTotal.Currency;
+
+        decimal totalPaid = _payments
+            .Where(p => p.PaymentStatus == PaymentStatus.Paid)
+            .Sum(p => p.Amount.Amount);
+
+        return new Money(totalPaid, currency);
+    }
+
+    public Money GetTotalOutstandingAmount()
+    {
+        Money orderTotal = CalculateTotal();
+        Money totalPaid = GetTotalPaidAmount();
+
+        return new Money(orderTotal.Amount - totalPaid.Amount, orderTotal.Currency);
+    }
+
+    public bool IsFullyPaid()
+    {
+        Money orderTotal = CalculateTotal();
+        Money totalPaid = GetTotalPaidAmount();
+
+        return totalPaid.Amount >= orderTotal.Amount;
+    }
+
+    public bool HasPartialPayment()
+    {
+        Money totalPaid = GetTotalPaidAmount();
+        return totalPaid.Amount > 0 && !IsFullyPaid();
+    }
+
     public Result RemoveProduct(Guid productId)
     {
         if (Status is not OrderStatus.Pending)
@@ -147,7 +212,7 @@ public sealed class Order : Entity
         _orderProducts?.Remove(orderProduct);
         RecalculateTotal();
 
-        if (_orderProducts is not { Count: > 1 })
+        if (_orderProducts is not { Count: > 0 })
         {
             return Result.Failure(OrderErrors.CannotRemoveLastProduct);
         }
@@ -193,6 +258,27 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
+    public Result ConfirmOrder()
+    {
+        if (Status is not OrderStatus.Pending)
+        {
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
+        }
+
+        if (_orderProducts is not { Count: > 0 })
+        {
+            return Result.Failure(OrderErrors.EmptyOrder);
+        }
+
+        Status = OrderStatus.Confirmed;
+        ConfirmedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new OrderConfirmedDomainEvent(Id, ClientId, CalculateTotal()));
+
+        return Result.Success();
+    }
+
+
     public Result ConfirmWithoutPaymentCheck()
     {
         if (Status is not OrderStatus.Pending)
@@ -226,9 +312,180 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
-    public Result Ship(TrackingNumber trackingNumber)
+    // public Result Ship(TrackingNumber trackingNumber)
+    // {
+    //     if (Status != OrderStatus.Processing)
+    //     {
+    //         return Result.Failure(OrderErrors.InvalidStatusTransition);
+    //     }
+    //
+    //     if (string.IsNullOrWhiteSpace(trackingNumber.Value))
+    //     {
+    //         return Result.Failure(OrderErrors.InvalidTrackingNumber);
+    //     }
+    //
+    //     Status = OrderStatus.Shipped;
+    //     ShippedAt = DateTime.UtcNow;
+    //     TrackingNumber = trackingNumber;
+    //
+    //     RaiseDomainEvent(new OrderShippedDomainEvent(Id));
+    //
+    //     return Result.Success();
+    // }
+
+    // public Result MarkAsDelivered()
+    // {
+    //     if (Status != OrderStatus.Shipped)
+    //     {
+    //         return Result.Failure(OrderErrors.InvalidStatusTransition);
+    //     }
+    //
+    //     Status = OrderStatus.Delivered;
+    //     DeliveredAt = DateTime.UtcNow;
+    //
+    //     RaiseDomainEvent(new OrderDeliveredDomainEvent(Id, ClientId));
+    //
+    //     return Result.Success();
+    // }
+
+    // public Result Cancel(CancellationReason reason)
+    // {
+    //     if (Status is OrderStatus.Shipped or OrderStatus.Delivered or OrderStatus.Returned)
+    //     {
+    //         return Result.Failure(OrderErrors.CannotCancelShippedOrder);
+    //     }
+    //
+    //     Status = OrderStatus.Cancelled;
+    //     CancelledAt = DateTime.UtcNow;
+    //     CancellationReason = reason;
+    //
+    //     RaiseDomainEvent(new OrderCancelledDomainEvent(Id, Status, reason));
+    //
+    //     return Result.Success();
+    // }
+
+    // public Result Return(ReturnReason reason)
+    // {
+    //     if (Status != OrderStatus.Delivered)
+    //     {
+    //         return Result.Failure(OrderErrors.CanOnlyReturnDeliveredOrders);
+    //     }
+    //
+    //     int daysSinceDelivery = (DateTime.UtcNow - DeliveredAt!.Value).Days;
+    //     if (daysSinceDelivery > 30)
+    //     {
+    //         return Result.Failure(OrderErrors.ReturnWindowExpired);
+    //     }
+    //
+    //     Status = OrderStatus.Returned;
+    //     RaiseDomainEvent(new OrderReturnedDomainEvent(Id, ClientId, reason));
+    //
+    //     return Result.Success();
+    // }
+
+    public Result MarkAsReturnedDueToRefund(RefundReason refundReason)
+    {
+        if (Status is OrderStatus.Cancelled or OrderStatus.Returned)
+        {
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
+        }
+
+        if (Status is not (OrderStatus.Delivered or OrderStatus.Confirmed or OrderStatus.Shipped))
+        {
+            return Result.Failure(OrderErrors.CannotReturnOrderInCurrentStatus);
+        }
+
+        Status = OrderStatus.Returned;
+        ReturnReason = ReturnReason.Create(refundReason.Value);
+
+        RaiseDomainEvent(new OrderReturnedDomainEvent(Id, ClientId, ReturnReason));
+
+        return Result.Success();
+    }
+
+    // Important !
+    // Ideally, if our system supports many currencies,
+    // we need to create parameter Currency currency and pass it to Aggregate
+    // this is necessary, for propper reduce
+    public Money CalculateTotal()
+    {
+        return _orderProducts?
+            .Select(op => op.TotalPrice)
+            .Aggregate(Money.Zero(Currency.Eur), (total, price) => total + price);
+    }
+    // public Money CalculateTotal()
+    // {
+    //     if (!OrderProducts.Any())
+    //     {
+    //         return Money.Zero(Currency.Eur);
+    //     }
+    //
+    //     // Get currency from first product
+    //     Currency currency = OrderProducts.First().TotalPrice.Currency;
+    //
+    //     // Sum all total prices
+    //     decimal totalAmount = OrderProducts.Sum(op => op.TotalPrice.Amount);
+    //
+    //     return new Money(totalAmount, currency);
+    // }
+
+
+    private void RecalculateTotal()
+    {
+        Money newTotal = CalculateTotal();
+        RaiseDomainEvent(new OrderTotalChangedDomainEvent(Id, newTotal));
+    }
+
+    public bool HasProduct(Guid productId)
+    {
+        return _orderProducts?.Any(op => op.ProductId == productId) ?? false;
+    }
+
+    public Result<Quantity> GetProductQuantity(Guid productId)
+    {
+        return _orderProducts?.FirstOrDefault(op => op.ProductId == productId)?.Quantity ?? Quantity.CreateQuantity(0);
+    }
+
+    public Result<Money> GetProductTotal(Guid productId)
+    {
+        return _orderProducts?.FirstOrDefault(op => op.ProductId == productId)?.TotalPrice ?? Money.Zero();
+    }
+
+    // MANY PAYMENTS
+    // public Result SetPaymentId(Guid paymentId)
+    // {
+    //     // Check for invalid order status (optional, adjust as needed)
+    //     if (Status == OrderStatus.Cancelled || Status == OrderStatus.Returned)
+    //     {
+    //         return Result.Failure(OrderErrors.CannotAssignPaymentToInactiveOrder);
+    //     }
+    //
+    //     // Prevent reassignment if already assigned
+    //     if (PaymentId.HasValue)
+    //     {
+    //         return Result.Failure(OrderErrors.PaymentAlreadyAssigned);
+    //     }
+    //
+    //     PaymentId = paymentId;
+    //     return Result.Success();
+    // }
+
+    public Result MarkReadyForShipment()
     {
         if (Status != OrderStatus.Processing)
+        {
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
+        }
+
+        Status = OrderStatus.ReadyForShipment;
+        RaiseDomainEvent(new OrderReadyForShipmentDomainEvent(Id));
+
+        return Result.Success();
+    }
+
+    public Result Ship(TrackingNumber trackingNumber)
+    {
+        if (Status != OrderStatus.ReadyForShipment)
         {
             return Result.Failure(OrderErrors.InvalidStatusTransition);
         }
@@ -247,9 +504,22 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
-    public Result MarkAsDelivered()
+    public Result MarkOutForDelivery()
     {
         if (Status != OrderStatus.Shipped)
+        {
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
+        }
+
+        Status = OrderStatus.OutForDelivery;
+        RaiseDomainEvent(new OrderOutForDeliveryDomainEvent(Id));
+
+        return Result.Success();
+    }
+
+    public Result MarkAsDelivered()
+    {
+        if (Status != OrderStatus.OutForDelivery)
         {
             return Result.Failure(OrderErrors.InvalidStatusTransition);
         }
@@ -262,9 +532,30 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
+    public Result CompleteOrder()
+    {
+        if (Status != OrderStatus.Delivered)
+        {
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
+        }
+
+        // Check if return window has expired (e.g., 30 days)
+        int daysSinceDelivery = (DateTime.UtcNow - DeliveredAt!.Value).Days;
+        if (daysSinceDelivery < 30)
+        {
+            return Result.Failure(OrderErrors.CannotCompleteOrderWithinReturnWindow);
+        }
+
+        Status = OrderStatus.Completed;
+        RaiseDomainEvent(new OrderCompletedDomainEvent(Id, ClientId));
+
+        return Result.Success();
+    }
+
     public Result Cancel(CancellationReason reason)
     {
-        if (Status is OrderStatus.Shipped or OrderStatus.Delivered or OrderStatus.Returned)
+        if (Status is OrderStatus.Shipped or OrderStatus.OutForDelivery or OrderStatus.Delivered
+            or OrderStatus.Completed or OrderStatus.Returned)
         {
             return Result.Failure(OrderErrors.CannotCancelShippedOrder);
         }
@@ -292,57 +583,9 @@ public sealed class Order : Entity
         }
 
         Status = OrderStatus.Returned;
+        ReturnReason = reason;
         RaiseDomainEvent(new OrderReturnedDomainEvent(Id, ClientId, reason));
 
         return Result.Success();
-    }
-
-    public Result MarkAsReturnedDueToRefund(RefundReason refundReason)
-    {
-        if (Status is OrderStatus.Cancelled or OrderStatus.Returned)
-        {
-            return Result.Failure(OrderErrors.InvalidStatusTransition);
-        }
-
-        if (Status is not (OrderStatus.Delivered or OrderStatus.Confirmed or OrderStatus.Shipped))
-        {
-            return Result.Failure(OrderErrors.CannotReturnOrderInCurrentStatus);
-        }
-
-        Status = OrderStatus.Returned;
-        ReturnReason = ReturnReason.Create(refundReason.Value);
-
-        RaiseDomainEvent(new OrderReturnedDomainEvent(Id, ClientId, ReturnReason));
-
-        return Result.Success();
-    }
-
-    public Money CalculateTotal()
-    {
-        return _orderProducts?
-            .Select(op => op.TotalPrice)
-            .Aggregate(Money.Zero(), (total, price) => total + price);
-    }
-
-    private void RecalculateTotal()
-    {
-        Money newTotal = CalculateTotal();
-
-        RaiseDomainEvent(new OrderTotalChangedDomainEvent(Id, newTotal));
-    }
-
-    public bool HasProduct(Guid productId)
-    {
-        return _orderProducts?.Any(op => op.ProductId == productId) ?? false;
-    }
-
-    public Result<Quantity> GetProductQuantity(Guid productId)
-    {
-        return _orderProducts?.FirstOrDefault(op => op.ProductId == productId)?.Quantity ?? Quantity.CreateQuantity(0);
-    }
-
-    public Result<Money> GetProductTotal(Guid productId)
-    {
-        return _orderProducts?.FirstOrDefault(op => op.ProductId == productId)?.TotalPrice ?? Money.Zero();
     }
 }

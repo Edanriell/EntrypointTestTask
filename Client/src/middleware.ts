@@ -173,24 +173,24 @@ export default withAuth(
 		// Data Injection - Untrusted content blocked
 		// Clickjacking - Frame embedding prevented
 		// Mixed Content - HTTP resources blocked on HTTPS
-		const keycloakUrl = process.env.KEYCLOAK_ISSUER || "http://localhost:18080";
-		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-		const cspDirectives = [
-			"default-src 'self'",
-			"script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Add back 'unsafe-inline' for Next.js
-			"style-src 'self' 'unsafe-inline'",
-			"img-src 'self' data: blob: https:",
-			"font-src 'self' data: https:",
-			`connect-src 'self' ${keycloakUrl} ${apiUrl}`,
-			"frame-ancestors 'none'",
-			"base-uri 'self'",
-			"form-action 'self'",
-			"object-src 'none'",
-			"upgrade-insecure-requests"
-		];
-
-		response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
+		// const keycloakUrl = process.env.KEYCLOAK_ISSUER || "http://localhost:18080";
+		// const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+		//
+		// const cspDirectives = [
+		// 	"default-src 'self'",
+		// 	"script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Add back 'unsafe-inline' for Next.js
+		// 	"style-src 'self' 'unsafe-inline'",
+		// 	"img-src 'self' data: blob: https:",
+		// 	"font-src 'self' data: https:",
+		// 	`connect-src 'self' ${keycloakUrl} ${apiUrl}`,
+		// 	"frame-ancestors 'none'",
+		// 	"base-uri 'self'",
+		// 	"form-action 'self'",
+		// 	"object-src 'none'",
+		// 	"upgrade-insecure-requests"
+		// ];
+		//
+		// response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
 
 		return response;
 	},

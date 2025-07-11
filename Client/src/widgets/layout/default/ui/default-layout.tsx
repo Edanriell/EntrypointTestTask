@@ -4,7 +4,7 @@ import { FC, ReactNode } from "react";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 
-import { generateStaticMetadata } from "@shared/lib/functions";
+import { generateStaticMetadata } from "@shared/lib/utils";
 
 const roboto = Roboto({
 	subsets: ["latin"]

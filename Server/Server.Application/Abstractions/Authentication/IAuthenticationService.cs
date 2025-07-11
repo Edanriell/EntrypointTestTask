@@ -9,6 +9,30 @@ public interface IAuthenticationService
         string password,
         CancellationToken cancellationToken = default);
 
+    Task<string> LoginAsync(
+        string email,
+        string password,
+        CancellationToken cancellationToken = default);
+
+    Task ChangePasswordAsync(
+        string identityId,
+        string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken = default);
+
+    Task ResetPasswordAsync(
+        string identityId,
+        string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken = default);
+
+    Task AdminResetPasswordAsync(
+        string identityId,
+        string newPassword,
+        bool isTemporary = false,
+        CancellationToken cancellationToken = default);
+
+    // Mirrors fields in KeyCloak
     Task UpdateUserAsync(
         string identityId,
         string email,

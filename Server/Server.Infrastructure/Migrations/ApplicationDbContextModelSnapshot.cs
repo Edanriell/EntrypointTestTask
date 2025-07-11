@@ -149,10 +149,6 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("tracking_number");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
                     b.HasKey("Id")
                         .HasName("pk_orders");
 
@@ -172,9 +168,6 @@ namespace Server.Infrastructure.Migrations
                     b.HasIndex("TrackingNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_orders_tracking_number");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_orders_user_id");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -286,19 +279,21 @@ namespace Server.Infrastructure.Migrations
             modelBuilder.Entity("Server.Domain.Users.Permission", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.HasKey("Id")
                         .HasName("pk_permissions");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_permissions_name");
 
                     b.ToTable("permissions", (string)null);
 
@@ -307,6 +302,106 @@ namespace Server.Infrastructure.Migrations
                         {
                             Id = 1,
                             Name = "users:read"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "users:write"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "users:delete"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "users:manage"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "clients:read"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "clients:write"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "clients:delete"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "clients:manage"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "products:read"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "products:write"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "products:delete"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "products:manage"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "orders:read"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "orders:write"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "orders:delete"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "orders:process"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "orders:manage"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "payments:read"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "payments:write"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "payments:refund"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "payments:manage"
                         });
                 });
 
@@ -333,7 +428,42 @@ namespace Server.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Registered"
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Manager"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "OrderManager"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "ProductManager"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "UserManager"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "PaymentManager"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Customer"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Guest"
                         });
                 });
 
@@ -359,7 +489,192 @@ namespace Server.Infrastructure.Migrations
                         new
                         {
                             RoleId = 1,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 8
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 12
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 17
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 21
+                        },
+                        new
+                        {
+                            RoleId = 2,
                             PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 10
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 16
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 18
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            PermissionId = 7
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            PermissionId = 10
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            PermissionId = 11
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 15
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 16
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 18
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 19
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 20
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            PermissionId = 18
+                        },
+                        new
+                        {
+                            RoleId = 8,
+                            PermissionId = 9
                         });
                 });
 
@@ -526,18 +841,11 @@ namespace Server.Infrastructure.Migrations
             modelBuilder.Entity("Server.Domain.Orders.Order", b =>
                 {
                     b.HasOne("Server.Domain.Users.User", "Client")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_orders_users_client_id");
-
-                    b.HasOne("Server.Domain.Users.User", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_users_user_id");
+                        .HasConstraintName("fk_orders_user_client_id");
 
                     b.OwnsOne("Server.Domain.Shared.Address", "ShippingAddress", b1 =>
                         {

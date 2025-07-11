@@ -27,15 +27,15 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
                                 id AS Id,
                                 name As Name,
                                 description AS Description,
-                                price AS Price,
-                                quantity AS Quantity,
+                                price_amount AS Price,
+                                reserved AS Reserved,
                                 stock AS Stock,
                                 status AS Status,
                                 created_at AS CreatedAt,
                                 last_updated_at AS LastUpdatedAt,
                                 last_restocked_at AS LastRestockedAt
-                            FROM products
-                            WHERE id = @ProductId
+                                FROM products
+                                WHERE id = @ProductId
                            """;
 
         ProductResponse?

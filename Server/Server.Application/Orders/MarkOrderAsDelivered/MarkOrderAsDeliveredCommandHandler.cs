@@ -29,7 +29,6 @@ internal sealed class MarkOrderAsDeliveredCommandHandler : ICommandHandler<MarkO
 
         // Could be much more complex
         Result result = order.MarkAsDelivered();
-
         if (result.IsFailure)
         {
             return Result.Failure(result.Error);

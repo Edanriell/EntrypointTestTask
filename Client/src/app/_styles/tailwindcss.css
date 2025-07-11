@@ -110,6 +110,35 @@
 	--sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer utilities {
+	.spinner-container {
+		@apply inline-flex items-center justify-center mr-2;
+	}
+
+	.spinner-svg {
+		@apply animate-spin text-current;
+	}
+
+	.spinner-circle {
+		animation: spinner-dash 1.5s ease-in-out infinite;
+	}
+}
+
+@keyframes spinner-dash {
+	0% {
+		stroke-dasharray: 1, 150;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -35;
+	}
+	100% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -124;
+	}
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 import { CreditCard } from "lucide-react";
 
 import { Input } from "@shared/ui/input";
-import { formatCurrency } from "@shared/lib/functions";
+import { formatCurrency } from "@shared/lib/utils";
 import { Button } from "@shared/ui/button";
 import { OrderStatus } from "@entities/orders";
 

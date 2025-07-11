@@ -8,18 +8,22 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable(
-            "roles"
-        );
+        builder.ToTable("roles");
 
-        builder.HasKey(role => role.Id
-        );
+        builder.HasKey(role => role.Id);
 
-        builder.HasMany(role => role.Permissions
-        ).WithMany().UsingEntity<RolePermission>();
+        builder.HasMany(role => role.Permissions).WithMany().UsingEntity<RolePermission>();
 
+        // Seed roles
         builder.HasData(
-            Role.Registered
+            Role.Admin,
+            Role.Manager,
+            Role.OrderManager,
+            Role.ProductManager,
+            Role.UserManager,
+            Role.PaymentManager,
+            Role.Customer,
+            Role.Guest
         );
     }
 }

@@ -2,9 +2,9 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
 
 // TODO FSD CONFLICT HERE
-import { TokenManager } from "@features/authentication/general/lib/classes";
-// TODO FSD CONFLICT HERE
-import { API_CONFIG } from "@shared/config/api";
+import { TokenManager } from "@features/authentication/general";
+
+import { API_CONFIG } from "@shared/config";
 
 export class ApiClient {
 	// private instance: AxiosInstance;
@@ -109,20 +109,35 @@ export class ApiClient {
 		return response.data;
 	}
 
+	// private async handleError(error: AxiosError): Promise<never> {
+	// 	if (error.response?.status === 401) {
+	// 		// Token might be expired, try to refresh
+	// 		const session = await getSession();
+	// 		if (session?.error === "RefreshAccessTokenError") {
+	// 			// Redirect to login
+	// 			window.location.href = "/sign-in";
+	// 		}
+	// 	}
+	//
+	// 	throw error;
+	// }
+
 	private async handleError(error: AxiosError): Promise<never> {
 		if (error.response?.status === 401) {
-			// Token might be expired, try to refresh
-			const session = await getSession();
-			if (session?.error === "RefreshAccessTokenError") {
-				// Redirect to login
-				window.location.href = "/sign-in";
+			// Check if this is a login request - don't redirect for login failures
+			const isLoginRequest = error.config?.url?.includes("/users/login");
+
+			if (!isLoginRequest) {
+				// Only redirect for non-login 401s (token expiration)
+				const session = await getSession();
+				if (session?.error === "RefreshAccessTokenError") {
+					window.location.href = "/sign-in";
+				}
 			}
 		}
 
-		// You can add more error handling logic here
-		const errorMessage =
-			(error.response?.data as any)?.message || error.message || "An error occurred";
-		throw new Error(errorMessage);
+		// Always throw the error so the mutation can handle it
+		throw error;
 	}
 
 	// private setupInterceptors() {
@@ -148,9 +163,9 @@ export class ApiClient {
 		// Request interceptor with optimized token handling
 		this.instance.interceptors.request.use(
 			async (config) => {
-				// Try to get token from server-side if available
+				// Try to get a token from server-side if available
 				if (typeof window === "undefined") {
-					// Server-side: get fresh token
+					// Server-side: get a fresh token
 					try {
 						const token = await TokenManager.getAccessToken();
 						if (token) {
@@ -164,7 +179,7 @@ export class ApiClient {
 					const session = await getSession();
 					if (session?.user) {
 						// For client-side requests, we'll need to get token differently
-						// You might want to create an API route to get fresh tokens
+						// We might want to create an API route to get fresh tokens
 						console.warn("Client-side requests may need fresh token handling");
 					}
 				}
@@ -174,12 +189,27 @@ export class ApiClient {
 		);
 
 		// Response interceptor for global error handling
+		// this.instance.interceptors.response.use(
+		// 	(response) => response,
+		// 	async (error) => {
+		// 		if (error.response?.status === 401) {
+		// 			// Handle token expiration
+		// 			if (typeof window !== "undefined") {
+		// 				window.location.href = "/sign-in";
+		// 			}
+		// 		}
+		// 		return Promise.reject(error);
+		// 	}
+		// );
+
 		this.instance.interceptors.response.use(
 			(response) => response,
 			async (error) => {
 				if (error.response?.status === 401) {
-					// Handle token expiration
-					if (typeof window !== "undefined") {
+					// Don't redirect for login requests
+					const isLoginRequest = error.config?.url?.includes("/users/login");
+
+					if (!isLoginRequest && typeof window !== "undefined") {
 						window.location.href = "/sign-in";
 					}
 				}
@@ -193,4 +223,4 @@ export class ApiClient {
 export const apiClient = new ApiClient();
 
 // Keep backward compatibility
-export const httpClient = apiClient;
+// export const httpClient = apiClient;

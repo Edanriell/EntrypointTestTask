@@ -36,7 +36,6 @@ internal sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderCom
 
         Result result = order.Cancel(
             cancellationReasonResult.Value);
-
         if (result.IsFailure)
         {
             return Result.Failure(result.Error);

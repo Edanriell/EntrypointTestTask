@@ -1,35 +1,21 @@
 "use client";
 
-import { Children, FC, isValidElement, ReactElement, ReactNode, useState } from "react";
+import { Children, FC, isValidElement, ReactElement, ReactNode } from "react";
 import { Calendar, Package } from "lucide-react";
-
-import { Card, CardContent } from "@shared/ui/card";
-import { Badge } from "@shared/ui/badge";
-import { getStockStatus } from "@entities/products/lib/functions";
-import { formatDate } from "@shared/lib/functions";
 
 import { ManagementActions } from "@entities/products/ui/product-row-card/management-actions";
 import { QuickActions } from "@entities/products/ui/product-row-card/quick-actions";
+import { Product } from "@entities/products/model";
+import { getStockStatus } from "@entities/products/lib/functions";
+
+import { Card, CardContent } from "@shared/ui/card";
+import { Badge } from "@shared/ui/badge";
+import { formatDate } from "@shared/lib/utils";
 
 interface ProductRowCardProps {
-	product: {
-		id: number;
-		code: string;
-		productName: string;
-		description: string;
-		unitPrice: number;
-		unitsInStock: number;
-		unitsOnOrder: number;
-		createdAt?: string | Date;
-	};
-	onEdit: (productId: number) => void;
-	onUpdatePrice: (productId: number, newPrice: number) => void;
-	onUpdateStock: (productId: number, newStock: number) => void;
-	onUpdateReservedStock: (productId: number, newReservedStock: number) => void;
+	product: Product;
 	children: ReactNode;
 }
-
-const onDelete = (id: number) => {};
 
 type ProductRowCardComponents = {
 	ManagementActions: typeof ManagementActions;
@@ -38,54 +24,8 @@ type ProductRowCardComponents = {
 
 type ProductRowCard = FC<ProductRowCardProps> & ProductRowCardComponents;
 
-export const ProductRowCard: ProductRowCard = ({
-	product,
-	onEdit,
-	onUpdatePrice,
-	onUpdateStock,
-	onUpdateReservedStock,
-	children
-}) => {
-	const [editingPrice, setEditingPrice] = useState(false);
-	const [editingStock, setEditingStock] = useState(false);
-	const [editingReservedStock, setEditingReservedStock] = useState(false);
-
-	const [tempPrice, setTempPrice] = useState(product.unitPrice.toString());
-	const [tempStock, setTempStock] = useState(product.unitsInStock.toString());
-	const [tempReservedStock, setTempReservedStock] = useState(product.unitsOnOrder.toString());
-
-	const handlePriceSubmit = () => {
-		const newPrice = parseFloat(tempPrice);
-		if (!isNaN(newPrice) && newPrice >= 0) {
-			onUpdatePrice(product.id, newPrice);
-		} else {
-			setTempPrice(product.unitPrice.toString());
-		}
-		setEditingPrice(false);
-	};
-
-	const handleStockSubmit = () => {
-		const newStock = parseInt(tempStock);
-		if (!isNaN(newStock) && newStock >= 0) {
-			onUpdateStock(product.id, newStock);
-		} else {
-			setTempStock(product.unitsInStock.toString());
-		}
-		setEditingStock(false);
-	};
-
-	const handleReservedStockSubmit = () => {
-		const newReservedStock = parseInt(tempReservedStock);
-		if (!isNaN(newReservedStock) && newReservedStock >= 0) {
-			onUpdateReservedStock(product.id, newReservedStock);
-		} else {
-			setTempReservedStock(product.unitsOnOrder.toString());
-		}
-		setEditingReservedStock(false);
-	};
-
-	const stockInfo = getStockStatus(product.unitsInStock, product.unitsOnOrder);
-	const availableStock = product.unitsInStock - product.unitsOnOrder;
+export const ProductRowCard: ProductRowCard = ({ product, children }) => {
+	const stockInfo = getStockStatus(product.stock, product.reserved);
 
 	const childrenArray = Children.toArray(children);
 
@@ -111,7 +51,7 @@ export const ProductRowCard: ProductRowCard = ({
 						<div className="flex-1 min-w-0">
 							<div className="flex items-center gap-2 mb-1">
 								<h3 className="font-semibold text-foreground truncate">
-									{product.productName}
+									{product.name}
 								</h3>
 								<Badge className={stockInfo.color} variant="secondary">
 									{stockInfo.status}
@@ -224,7 +164,9 @@ export const ProductRowCard: ProductRowCard = ({
 					{/* Available Stock Display */}
 					<div className="hidden lg:flex flex-col gap-1 text-sm min-w-0 flex-shrink-0 xl:mr-8">
 						<div className="text-center">
-							<div className="font-semibold text-foreground">{availableStock}</div>
+							<div className="font-semibold text-foreground">
+								{product.availableQuantity}
+							</div>
 							<div className="text-xs text-muted-foreground">Available</div>
 						</div>
 					</div>
