@@ -2,3 +2,4 @@
 
 public record UpdateProductReservedStockRequest(int ReservedStock);
  
+ 

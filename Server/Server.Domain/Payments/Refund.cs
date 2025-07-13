@@ -22,13 +22,14 @@ public sealed class Refund : Entity
 
     private Refund() { }
 
-    public Guid PaymentId { get; }
-    public Money Amount { get; }
-    public RefundReason Reason { get; }
+    public Guid PaymentId { get; private set; }
+    public Money Amount { get; private set; }
+    public RefundReason Reason { get; private set; }
     public RefundStatus Status { get; private set; }
-    public DateTime CreatedAt { get; }
+    public DateTime CreatedAt { get; private set; }
     public DateTime? ProcessedAt { get; private set; }
     public string? RefundReference { get; private set; }
+    public string? RefundFailureReason { get; private set; }
 
     // Navigation property
     public Payment Payment { get; private set; }
@@ -74,6 +75,7 @@ public sealed class Refund : Entity
             return Result.Failure(PaymentErrors.RefundAlreadyProcessed);
         }
 
+        RefundFailureReason = reason;
         Status = RefundStatus.Failed;
         ProcessedAt = DateTime.UtcNow;
 

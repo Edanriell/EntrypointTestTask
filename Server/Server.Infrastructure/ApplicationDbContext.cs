@@ -33,8 +33,6 @@ public sealed class ApplicationDbContext
     {
         try
         {
-            // AddDomainEventsAsOutboxMessages();
-
             int result = await base.SaveChangesAsync(
                 cancellationToken
             );
@@ -60,32 +58,4 @@ public sealed class ApplicationDbContext
             modelBuilder
         );
     }
-
-    // private void AddDomainEventsAsOutboxMessages()
-    // {
-    //     var outboxMessages = ChangeTracker.Entries<Entity>().Select(entry => entry.Entity
-    //     ).SelectMany(entity =>
-    //         {
-    //             var domainEvents = entity.GetDomainEvents();
-    //
-    //             entity.ClearDomainEvents();
-    //
-    //             return domainEvents;
-    //         }
-    //     ).Select(
-    //         selector: domainEvent => new OutboxMessage(
-    //             id: Guid.NewGuid(),
-    //             occurredOnUtc: _dateTimeProvider.UtcNow,
-    //             type: domainEvent.GetType().Name,
-    //             content: JsonConvert.SerializeObject(
-    //                 value: domainEvent,
-    //                 settings: JsonSerializerSettings
-    //             )
-    //         )
-    //     ).ToList();
-    //
-    //     AddRange(
-    //         outboxMessages
-    //     );
-    // }
 }

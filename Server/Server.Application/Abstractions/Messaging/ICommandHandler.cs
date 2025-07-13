@@ -12,3 +12,4 @@ public interface ICommandHandler<TCommand, TResponse> : IRequestHandler<TCommand
     where TCommand : ICommand<TResponse>
 {
 }
+ 

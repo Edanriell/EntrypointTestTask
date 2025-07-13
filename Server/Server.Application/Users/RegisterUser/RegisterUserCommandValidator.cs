@@ -2,7 +2,7 @@
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterUser;
-
+ 
 internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
     private static readonly string[] ValidRoleNames =

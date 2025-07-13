@@ -3,7 +3,7 @@ using Server.Application.Users.RegisterCustomer;
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterUser;
-
+ 
 internal sealed class RegisterCustomerCommandValidator : AbstractValidator<RegisterCustomerCommand>
 {
     private readonly IUserRepository _userRepository;

@@ -61,7 +61,7 @@ internal sealed class ChangeUserPasswordCommandHandler : ICommandHandler<ChangeU
         {
             return Result.Failure(UserErrors.PasswordChangeFailed);
         }
-
+ 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

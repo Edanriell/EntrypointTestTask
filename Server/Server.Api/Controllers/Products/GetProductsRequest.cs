@@ -20,3 +20,4 @@ public sealed record GetProductsRequest(
     bool? HasStock,
     bool? IsReserved,
     int PageSize = 10);
+ 

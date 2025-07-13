@@ -69,13 +69,6 @@ internal sealed class OrderProductConfiguration : IEntityTypeConfiguration<Order
                 );
         });
 
-        // builder.OwnsOne(op => op.TotalPrice,
-        //     priceBuilder =>
-        //     {
-        //         priceBuilder.Property(money => money.Currency)
-        //             .HasConversion(currency => currency.Code, code => Currency.FromCode(code));
-        //     });
-
         builder.Property(op => op.Quantity)
             .IsRequired()
             .HasConversion(
@@ -94,9 +87,14 @@ internal sealed class OrderProductConfiguration : IEntityTypeConfiguration<Order
             .HasForeignKey(op => op.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Indexes
         builder.HasIndex(op => op.OrderId);
         builder.HasIndex(op => op.ProductId);
         builder.HasIndex(op => new { op.OrderId, op.ProductId }).IsUnique();
+        builder.HasIndex(op => op.OrderId)
+            .HasDatabaseName("ix_order_products_order_id");
+        builder.HasIndex(op => op.ProductId)
+            .HasDatabaseName("ix_order_products_product_id");
+        builder.HasIndex(op => new { op.OrderId, op.TotalPrice })
+            .HasDatabaseName("ix_order_products_order_id_total_price");
     }
 }

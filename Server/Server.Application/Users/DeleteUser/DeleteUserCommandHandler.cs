@@ -5,8 +5,6 @@ using Server.Domain.Users;
 
 namespace Server.Application.Users.DeleteUser;
 
-// Doubt that user delete command works, probably there will be issues with keycloak
-
 internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
 {
     private readonly IAuthenticationService _authenticationService;

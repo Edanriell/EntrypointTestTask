@@ -13,4 +13,4 @@ public sealed class HasRoleAttribute : AuthorizeAttribute
             roles
         );
     }
-}
+} 

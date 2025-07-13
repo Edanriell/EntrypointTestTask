@@ -9,7 +9,7 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.ToTable("permissions");
-
+ 
         builder.HasKey(permission => permission.Id);
 
         builder.Property(permission => permission.Id)

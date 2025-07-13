@@ -6,7 +6,7 @@ using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
 
 namespace Server.Application.Users.GetLoggedInUser;
-
+ 
 internal sealed class GetLoggedInUserQueryHandler
     : IQueryHandler<GetLoggedInUserQuery, UserResponse>
 {

@@ -11,7 +11,7 @@ public static class CacheOptions
                 1
             )
     };
-
+ 
     public static DistributedCacheEntryOptions Create(TimeSpan? expiration)
     {
         return expiration is not null

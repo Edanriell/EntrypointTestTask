@@ -5,7 +5,7 @@ using Server.Domain.Products;
 using Server.Domain.Shared;
 
 namespace Server.Domain.OrderItems;
-
+ 
 public sealed class OrderProduct : Entity
 {
     private OrderProduct(

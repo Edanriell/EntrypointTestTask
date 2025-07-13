@@ -11,3 +11,4 @@ internal sealed class DeleteUserCommandValidator : AbstractValidator<DeleteUserC
             .WithMessage("User ID is required");
     }
 }
+ 

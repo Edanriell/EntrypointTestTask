@@ -2,8 +2,6 @@
 
 namespace Server.Application.Users.GetClients;
 
-// public sealed record GetCustomersQuery : IQuery<GetCustomersResponse>;
-
 public sealed class GetCustomersQuery : IQuery<GetCustomersResponse>
 {
     public int PageSize { get; init; } = 20;

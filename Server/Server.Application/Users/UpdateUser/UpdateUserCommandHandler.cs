@@ -6,8 +6,6 @@ using Server.Domain.Users;
 
 namespace Server.Application.Users.UpdateUser;
 
-// Doubt that user update command works, probably there will be issues with keycloak
-
 internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand>
 {
     private readonly IAuthenticationService _authenticationService;

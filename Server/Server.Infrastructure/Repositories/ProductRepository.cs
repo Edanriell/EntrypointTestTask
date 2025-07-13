@@ -18,7 +18,7 @@ internal sealed class ProductRepository
             .OrderBy(p => p.Name)
             .ToListAsync(cancellationToken);
     }
-
+ 
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbContext

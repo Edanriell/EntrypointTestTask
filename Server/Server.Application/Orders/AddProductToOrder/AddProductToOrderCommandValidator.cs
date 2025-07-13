@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 namespace Server.Application.Orders.AddProductToOrder;
-
+ 
 public sealed class AddProductToOrderCommandValidator : AbstractValidator<AddProductToOrderCommand>
 {
     public AddProductToOrderCommandValidator()

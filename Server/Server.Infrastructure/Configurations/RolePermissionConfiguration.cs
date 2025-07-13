@@ -70,7 +70,7 @@ internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<Rol
             new RolePermission { RoleId = Role.Customer.Id, PermissionId = Permission.OrdersRead.Id },
             new RolePermission { RoleId = Role.Customer.Id, PermissionId = Permission.OrdersWrite.Id },
             new RolePermission { RoleId = Role.Customer.Id, PermissionId = Permission.PaymentsRead.Id },
-
+ 
             // Guest - Minimal access
             new RolePermission { RoleId = Role.Guest.Id, PermissionId = Permission.ProductsRead.Id }
         );

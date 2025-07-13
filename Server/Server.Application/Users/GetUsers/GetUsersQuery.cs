@@ -3,3 +3,4 @@
 namespace Server.Application.Users.GetClients;
 
 public sealed record GetUsersQuery : IQuery<GetUsersResponse>;
+ 

@@ -1,7 +1,7 @@
 ﻿using Server.Domain.Abstractions;
 
 namespace Server.Domain.Orders;
-
+ 
 public sealed record OrderNumber
 {
     private OrderNumber(string value) { Value = value; }

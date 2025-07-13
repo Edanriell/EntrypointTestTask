@@ -17,4 +17,4 @@ internal sealed class SqlConnectionFactory : ISqlConnectionFactory
 
         return connection;
     }
-}
+} 

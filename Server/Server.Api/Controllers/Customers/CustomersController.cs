@@ -9,7 +9,7 @@ using Server.Application.Users.RegisterCustomer;
 using Server.Domain.Abstractions;
 
 namespace Server.Api.Controllers.Clients;
-
+ 
 [ApiController]
 [ApiVersion(ApiVersions.V1)]
 [Route("api/v{version:apiVersion}/customers")]

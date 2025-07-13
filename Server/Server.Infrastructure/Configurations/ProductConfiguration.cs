@@ -29,15 +29,6 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                 value => ProductDescription.Create(value).Value
             );
 
-        // TODO 
-        // Needs testing
-        // builder.OwnsOne(product => product.Price,
-        //     priceBuilder =>
-        //     {
-        //         priceBuilder.Property(money => money.Currency)
-        //             .HasConversion(currency => currency.Code, code => Currency.FromCode(code));
-        //     });
-
         builder.OwnsOne(product => product.Price, priceBuilder =>
         {
             priceBuilder.Property(money => money.Amount)

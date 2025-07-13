@@ -4,11 +4,6 @@ namespace Server.Domain.Payments;
 
 public static class PaymentErrors
 {
-    public static readonly Error PaymentOrderMismatch = new(
-        "Payment.PaymentOrderMismatch",
-        "Payment does not belong to the specified order"
-    );
-
     public static Error PaymentAlreadyCompleted => new(
         "Payment.AlreadyCompleted",
         "Payment has already been completed");
@@ -76,4 +71,24 @@ public static class PaymentErrors
     public static Error NotFound => new(
         "Payment.NotFound",
         "Payment not found");
+
+    public static Error NoPaymentsFound => new(
+        "Payment.NoPaymentsFound",
+        "No payments found for the order");
+
+    public static Error CannotConfirmOrderWithFailedPayments => new(
+        "Payment.CannotConfirmOrderWithFailedPayments",
+        "Cannot confirm order with failed or disputed payments");
+
+    public static Error NoPaymentsToRefund => new(
+        "Payment.NoPaymentsToRefund",
+        "No payments available for refund");
+
+    public static Error PaymentOrderMismatch => new(
+        "Payment.PaymentOrderMismatch",
+        "Payment does not belong to the specified order");
+
+    public static Error InvalidPaymentMethod => new(
+        "Payment.InvalidPaymentMethod",
+        "Invalid payment method provided");
 }

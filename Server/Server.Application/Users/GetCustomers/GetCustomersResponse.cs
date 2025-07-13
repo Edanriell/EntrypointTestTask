@@ -1,8 +1,5 @@
 ﻿namespace Server.Application.Users.GetClients;
 
-// public sealed record GetCustomersResponse(
-//     IReadOnlyList<Customer> Customers
-// );
 public sealed record GetCustomersResponse
 {
     public IReadOnlyList<Customer> Customers { get; init; } = new List<Customer>();

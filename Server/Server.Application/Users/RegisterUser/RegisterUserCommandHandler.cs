@@ -5,7 +5,7 @@ using Server.Domain.Shared;
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterUser;
-
+ 
 internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, Guid>
 {
     private readonly IAuthenticationService _authenticationService;

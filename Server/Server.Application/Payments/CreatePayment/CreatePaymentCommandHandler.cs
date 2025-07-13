@@ -13,39 +13,41 @@ internal sealed class CreatePaymentCommandHandler : ICommandHandler<CreatePaymen
     private readonly IUnitOfWork _unitOfWork;
 
     public CreatePaymentCommandHandler(
-        IOrderRepository orderRepository,
         IPaymentRepository paymentRepository,
+        IOrderRepository orderRepository,
         IUnitOfWork unitOfWork)
     {
-        _orderRepository = orderRepository;
         _paymentRepository = paymentRepository;
+        _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<Guid>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
-        // Get the order
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure<Guid>(OrderErrors.NotFound);
         }
 
-        // Create currency
-        var currency = Currency.FromCode(request.Currency);
-
-        // Create money
-        Result<Money> moneyResult = Money.Create(request.Amount, currency);
-        if (moneyResult.IsFailure)
+        Result<Currency> currencyResult = Currency.FromCode(request.Currency);
+        if (currencyResult.IsFailure)
         {
-            return Result.Failure<Guid>(moneyResult.Error);
+            return Result.Failure<Guid>(currencyResult.Error);
         }
 
-        // Create payment
+        Result<PaymentMethod> paymentMethodResult = PaymentMethodExtensions.FromString(request.PaymentMethod);
+        if (paymentMethodResult.IsFailure)
+        {
+            return Result.Failure<Guid>(paymentMethodResult.Error);
+        }
+
+        var amount = new Money(request.Amount, currencyResult.Value);
+
         Result<Payment> paymentResult = Payment.Create(
             request.OrderId,
-            moneyResult.Value,
-            request.PaymentMethod,
+            amount,
+            paymentMethodResult.Value,
             request.PaymentReference);
 
         if (paymentResult.IsFailure)
@@ -62,10 +64,8 @@ internal sealed class CreatePaymentCommandHandler : ICommandHandler<CreatePaymen
             return Result.Failure<Guid>(addPaymentResult.Error);
         }
 
-        // Add to repository
         _paymentRepository.Add(payment);
 
-        // Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(payment.Id);

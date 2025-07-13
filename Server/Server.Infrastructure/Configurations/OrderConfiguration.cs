@@ -15,11 +15,6 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(order => order.ClientId)
             .IsRequired();
 
-        // Maybe we can remove it ?
-        // MANY PAYMENTS
-        // builder.Property(order => order.PaymentId)
-        //     .IsRequired(false);
-
         builder.Property(order => order.OrderNumber)
             .HasMaxLength(50)
             .IsRequired()
@@ -109,32 +104,36 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(order => order.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Handled in PaymentConfiguration
-        // builder.HasOne(order => order.Payment)
-        //     .WithOne()
-        //     .HasForeignKey<Payment>(payment => payment.OrderId)
-        //     .OnDelete(DeleteBehavior.Restrict);
-        // builder.HasOne(order => order.Payment)
-        //     .WithOne(payment => payment.Order)
-        //     .HasForeignKey<Order>(order => order.PaymentId) // FK on Order side
-        //     .OnDelete(DeleteBehavior.Restrict);
-
-        // MANY PAYMENTS
+        // Configure one-to-many relationship with Payments
         builder.HasMany(order => order.Payments)
             .WithOne(payment => payment.Order)
             .HasForeignKey(payment => payment.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure many-to-many relationship with Products through OrderProducts
         builder.HasMany(order => order.OrderProducts)
-            .WithOne()
-            .HasForeignKey("OrderId")
+            .WithOne(op => op.Order)
+            .HasForeignKey(op => op.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
-        builder.HasIndex(order => order.OrderNumber).IsUnique();
         builder.HasIndex(order => order.ClientId);
         builder.HasIndex(order => order.Status);
         builder.HasIndex(order => order.CreatedAt);
+        builder.HasIndex(order => order.OrderNumber).IsUnique();
         builder.HasIndex(order => order.TrackingNumber).IsUnique();
+        builder.HasIndex(order => order.ClientId)
+            .HasDatabaseName("ix_orders_client_id");
+        builder.HasIndex(order => order.Status)
+            .HasDatabaseName("ix_orders_status");
+        builder.HasIndex(order => order.CreatedAt)
+            .HasDatabaseName("ix_orders_created_at");
+        builder.HasIndex(order => new { order.ClientId, order.CreatedAt })
+            .HasDatabaseName("ix_orders_client_id_created_at");
+        builder.HasIndex(order => new { order.ClientId, order.Status })
+            .HasDatabaseName("ix_orders_client_id_status");
+        builder.HasIndex(order => new { order.CreatedAt, order.Status })
+            .HasDatabaseName("ix_orders_created_at_status");
+        builder.HasIndex(order => new { order.ClientId, order.Status, order.CreatedAt })
+            .HasDatabaseName("ix_orders_client_id_status_created_at");
     }
 }

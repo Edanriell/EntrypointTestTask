@@ -3,7 +3,7 @@
 public sealed record GetUsersResponse(
     IReadOnlyList<User> Users
 );
-
+ 
 public sealed class User
 {
     public Guid Id { get; init; }

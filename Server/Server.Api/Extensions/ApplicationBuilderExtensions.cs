@@ -14,7 +14,7 @@ internal static class ApplicationBuilderExtensions
 
         dbContext.Database.Migrate();
     }
- 
+  
     public static void UseCustomExceptionHandler(this IApplicationBuilder app)
     {
         app.UseMiddleware<ExceptionHandlingMiddleware>();

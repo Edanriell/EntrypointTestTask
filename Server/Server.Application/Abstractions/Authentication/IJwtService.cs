@@ -9,3 +9,4 @@ public interface IJwtService
         string password,
         CancellationToken cancellationToken = default);
 }
+ 

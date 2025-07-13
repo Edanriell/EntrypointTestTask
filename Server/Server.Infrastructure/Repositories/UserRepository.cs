@@ -61,7 +61,6 @@ internal sealed class UserRepository
             }
         }
 
-        // Update the user entity
         DbContext.Update(user);
     }
 

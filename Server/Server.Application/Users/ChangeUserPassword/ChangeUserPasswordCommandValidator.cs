@@ -58,3 +58,4 @@ internal sealed class ChangeUserPasswordCommandValidator : AbstractValidator<Cha
         return password.Any(specialCharacters.Contains);
     }
 }
+ 

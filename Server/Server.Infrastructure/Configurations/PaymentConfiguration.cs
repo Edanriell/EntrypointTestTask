@@ -14,23 +14,9 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasKey(payment => payment.Id);
 
         builder.Property(payment => payment.OrderId)
+            .HasColumnName("order_id")
             .IsRequired();
 
-        // MANY PAYMENTS
-        // builder.OwnsOne(payment => payment.TotalAmount, moneyBuilder =>
-        // {
-        //     moneyBuilder.Property(money => money.Amount)
-        //         .HasColumnName("total_amount")
-        //         .HasColumnType("decimal(18,2)");
-        //
-        //     moneyBuilder.Property(money => money.Currency)
-        //         .HasColumnName("total_currency")
-        //         .HasMaxLength(3)
-        //         .HasConversion(
-        //             currency => currency.Code,
-        //             code => Currency.FromCode(code))
-        //         .IsRequired();
-        // });
         builder.OwnsOne(payment => payment.Amount, moneyBuilder =>
         {
             moneyBuilder.Property(money => money.Amount)
@@ -47,105 +33,43 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
                 .IsRequired();
         });
 
-        // builder.OwnsOne(payment => payment.TotalAmount,
-        //     priceBuilder =>
-        //     {
-        //         priceBuilder.Property(money => money.Currency)
-        //             .HasConversion(currency => currency.Code, code => Currency.FromCode(code));
-        //     });
-
-        // MANY PAYMENTS
-        // builder.OwnsOne(payment => payment.PaidAmount, moneyBuilder =>
-        // {
-        //     moneyBuilder.Property(money => money.Amount)
-        //         .HasColumnName("paid_amount")
-        //         .HasColumnType("decimal(18,2)");
-        //
-        //     moneyBuilder.Property(money => money.Currency)
-        //         .HasColumnName("paid_currency")
-        //         .HasMaxLength(3)
-        //         .HasConversion(
-        //             currency => currency.Code,
-        //             code => Currency.FromCode(code))
-        //         .IsRequired();
-        // });
-
-        // builder.OwnsOne(payment => payment.PaidAmount,
-        //     priceBuilder =>
-        //     {
-        //         priceBuilder.Property(money => money.Currency)
-        //             .HasConversion(currency => currency.Code, code => Currency.FromCode(code));
-        //     });
-
-        // MANY PAYMENTS
-        // builder.OwnsOne(payment => payment.OutstandingAmount, moneyBuilder =>
-        // {
-        //     moneyBuilder.Property(money => money.Amount)
-        //         .HasColumnName("outstanding_amount")
-        //         .HasColumnType("decimal(18,2)");
-        //
-        //     moneyBuilder.Property(money => money.Currency)
-        //         .HasColumnName("outstanding_currency")
-        //         .HasMaxLength(3)
-        //         .HasConversion(
-        //             currency => currency.Code,
-        //             code => Currency.FromCode(code))
-        //         .IsRequired();
-        // });
-
-        // builder.OwnsOne(payment => payment.OutstandingAmount,
-        //     priceBuilder =>
-        //     {
-        //         priceBuilder.Property(money => money.Currency)
-        //             .HasConversion(currency => currency.Code, code => Currency.FromCode(code));
-        //     });
-
         builder.Property(payment => payment.PaymentStatus)
             .HasConversion<string>()
+            .HasColumnName("payment_status")
             .HasMaxLength(50)
             .IsRequired();
 
-        // MANY PAYMENTS
-        // builder.Property(payment => payment.PaymentCompletedAt)
-        //     .IsRequired(false);
-
-        // MANY PAYMENTS
         builder.Property(payment => payment.PaymentMethod)
             .HasConversion<string>()
+            .HasColumnName("payment_method")
             .HasMaxLength(50)
             .IsRequired();
 
-        // MANY PAYMENTS
         builder.Property(payment => payment.PaymentReference)
+            .HasColumnName("payment_reference")
             .HasMaxLength(200)
             .IsRequired(false);
 
         builder.Property(payment => payment.CreatedAt)
+            .HasColumnName("created_at")
             .IsRequired();
 
         builder.Property(payment => payment.PaymentCompletedAt)
+            .HasColumnName("payment_completed_at")
             .IsRequired(false);
 
-        // Relationships
-        // MANY PAYMENTS
-        // builder.HasOne(payment => payment.Order)
-        //     .WithOne(order => order.Payment)
-        //     .HasForeignKey<Payment>(payment => payment.OrderId)
-        //     .OnDelete(DeleteBehavior.Restrict);
-
-        // MANY PAYMENTS
-        builder.HasOne(payment => payment.Order)
-            .WithMany(order => order.Payments)
-            .HasForeignKey(payment => payment.OrderId)
+        builder.HasMany(payment => payment.Refunds)
+            .WithOne(refund => refund.Payment)
+            .HasForeignKey(refund => refund.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
         builder.HasIndex(payment => payment.OrderId)
-            .IsUnique();
+            .HasDatabaseName("ix_payments_order_id");
 
-        builder.HasIndex(payment => payment.PaymentStatus);
-        builder.HasIndex(payment => payment.PaymentCompletedAt);
-        // MANY PAYMENTS
-        builder.HasIndex(payment => payment.PaymentReference);
+        builder.HasIndex(payment => payment.PaymentStatus)
+            .HasDatabaseName("ix_payments_payment_status");
+
+        builder.HasIndex(payment => payment.CreatedAt)
+            .HasDatabaseName("ix_payments_created_at");
     }
 }

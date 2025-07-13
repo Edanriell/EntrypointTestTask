@@ -4,7 +4,7 @@ using Server.Domain.Abstractions;
 using Server.Domain.Users;
 
 namespace Server.Application.Users.LoginUser;
-
+ 
 internal sealed class LogInUserCommandHandler : ICommandHandler<LogInUserCommand, AccessTokenResponse>
 {
     private readonly IJwtService _jwtService;

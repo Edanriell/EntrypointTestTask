@@ -64,11 +64,6 @@ public static class DependencyInjection
             services
         );
 
-        // AddBackgroundJobs(
-        //     services,
-        //     configuration
-        // );
-
         return services;
     }
 
@@ -218,20 +213,4 @@ public static class DependencyInjection
             }
         );
     }
-
-    // private static void AddBackgroundJobs(IServiceCollection services, IConfiguration configuration)
-    // {
-    //     services.Configure<OutboxOptions>(
-    //         config: configuration.GetSection(
-    //             "Outbox"
-    //         )
-    //     );
-    //
-    //     services.AddQuartz();
-    //
-    //     services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true
-    //     );
-    //
-    //     services.ConfigureOptions<ProcessOutboxMessagesJobSetup>();
-    // }
 }

@@ -25,5 +25,8 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             Role.Customer,
             Role.Guest
         );
+
+        builder.HasIndex(role => role.Name)
+            .HasDatabaseName("ix_roles_name");
     }
 }

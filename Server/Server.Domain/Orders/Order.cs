@@ -12,7 +12,7 @@ public sealed class Order : Entity
     private readonly List<OrderProduct>? _orderProducts = new();
 
     // MANY PAYMENTS
-    private readonly List<Payment>? _payments = new();
+    private readonly List<Payment> _payments = new();
 
     private Order(
         Guid id,
@@ -52,13 +52,14 @@ public sealed class Order : Entity
     public ReturnReason? ReturnReason { get; private set; }
     public RefundReason? RefundReason { get; private set; }
     public TrackingNumber TrackingNumber { get; private set; }
+    public decimal TotalAmount => CalculateTotal().Amount;
 
     // Navigation property
     public User Client { get; private set; }
 
     // MANY PAYMENTS
     // public Payment? Payment { get; private set; }
-    public IReadOnlyCollection<Payment> Payments => _payments?.AsReadOnly();
+    public IReadOnlyCollection<Payment> Payments => _payments?.AsReadOnly() ?? new List<Payment>().AsReadOnly();
     public IReadOnlyCollection<OrderProduct> OrderProducts => _orderProducts?.AsReadOnly();
     public bool CanBeShipped => Status == OrderStatus.Confirmed;
 
@@ -158,21 +159,17 @@ public sealed class Order : Entity
     // currencies are supported
     public Money GetTotalPaidAmount()
     {
-        if (!_payments?.Any() ?? true)
+        if (_payments == null || !_payments.Any())
         {
-            return Money.Zero(Currency.Eur);
+            return Money.Zero(); // or Money.Zero(Currency.Default) if you have a default currency
         }
 
-        // Get currency from order total to ensure consistency
-        Money orderTotal = CalculateTotal();
-        Currency currency = orderTotal.Currency;
-
-        decimal totalPaid = _payments
+        return _payments
             .Where(p => p.PaymentStatus == PaymentStatus.Paid)
-            .Sum(p => p.Amount.Amount);
-
-        return new Money(totalPaid, currency);
+            .Select(p => p.Amount)
+            .Aggregate(Money.Zero(), (total, amount) => total + amount);
     }
+
 
     public Money GetTotalOutstandingAmount()
     {

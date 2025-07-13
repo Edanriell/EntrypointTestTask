@@ -6,72 +6,97 @@ namespace Server.Domain.Payments;
 
 public sealed class OrderPaymentService
 {
-    public Result ProcessPaymentWithAutomaticOrderConfirmation(Payment payment, Order order, Money paymentAmount)
+    public Result CanConfirmOrderWithPayments(Order order)
     {
-        if (payment.OrderId != order.Id)
+        if (order.Status != OrderStatus.Pending)
         {
-            return Result.Failure(PaymentErrors.PaymentOrderMismatch);
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
         }
 
-        Result paymentResult = payment.ProcessPayment(paymentAmount);
-        if (paymentResult.IsFailure)
+        if (!order.Payments.Any())
         {
-            return paymentResult;
+            return Result.Failure(PaymentErrors.NoPaymentsFound);
         }
 
-        if (payment.PaymentStatus == PaymentStatus.Paid)
+        // Check if order is fully paid
+        if (!order.IsFullyPaid())
         {
-            Result confirmResult = order.ConfirmWithoutPaymentCheck();
-            if (confirmResult.IsFailure)
-            {
-                return confirmResult;
-            }
+            return Result.Failure(OrderErrors.InsufficientPayment);
+        }
+
+        // Check if there are any failed or disputed payments
+        if (order.Payments.Any(p => p.PaymentStatus is PaymentStatus.Failed or PaymentStatus.Disputed))
+        {
+            return Result.Failure(PaymentErrors.CannotConfirmOrderWithFailedPayments);
         }
 
         return Result.Success();
     }
 
-    public Result RefundPaymentWithOrderUpdate(Payment payment, Order order, Money refundAmount, RefundReason reason)
+    public Result ProcessFullRefundForOrder(Order order, RefundReason reason)
     {
-        if (payment.OrderId != order.Id)
+        if (order.Status is OrderStatus.Cancelled or OrderStatus.Returned)
         {
-            return Result.Failure(PaymentErrors.PaymentOrderMismatch);
+            return Result.Failure(OrderErrors.InvalidStatusTransition);
         }
 
-        Result refundResult = payment.RefundPayment(refundAmount, reason);
-        if (refundResult.IsFailure)
+        var paidPayments = order.Payments
+            .Where(p => p.PaymentStatus is PaymentStatus.Paid or PaymentStatus.PartiallyRefunded)
+            .ToList();
+
+        if (!paidPayments.Any())
         {
-            return refundResult;
+            return Result.Failure(PaymentErrors.NoPaymentsToRefund);
         }
 
-        if (payment.PaymentStatus == PaymentStatus.Refunded)
+        // Process refunds for all paid payments
+        foreach (Payment payment in paidPayments)
         {
-            Result returnResult = order.MarkAsReturnedDueToRefund(reason);
-            if (returnResult.IsFailure)
+            Money remainingAmount = payment.GetRemainingAmount();
+            if (remainingAmount.Amount > 0)
             {
-                return returnResult;
+                Result<Refund> refundResult = payment.ProcessRefund(remainingAmount, reason);
+                if (refundResult.IsFailure)
+                {
+                    return Result.Failure(refundResult.Error);
+                }
             }
+        }
+
+        // Mark order as returned if all payments are fully refunded
+        bool allPaymentsRefunded = order.Payments.All(p =>
+            p.PaymentStatus is PaymentStatus.Refunded or PaymentStatus.Failed or PaymentStatus.Cancelled);
+
+        if (allPaymentsRefunded)
+        {
+            return order.MarkAsReturnedDueToRefund(reason);
         }
 
         return Result.Success();
     }
 
-    public Result UpdatePaymentTotalFromOrder(Payment payment, Order order)
+    public Money GetTotalPaidAmount(Order order)
     {
-        if (payment.OrderId != order.Id)
-        {
-            return Result.Failure(PaymentErrors.PaymentOrderMismatch);
-        }
-
-        Money orderTotal = order.CalculateTotal();
-
-        return payment.UpdateTotalAmount(orderTotal);
+        return order.GetTotalPaidAmount();
     }
 
-    public bool CanConfirmOrder(Payment payment, Order order)
+    public Money GetTotalOutstandingAmount(Order order)
     {
-        return payment.OrderId == order.Id &&
-            payment.PaymentStatus == PaymentStatus.Paid &&
-            order.Status == OrderStatus.Pending;
+        return order.GetTotalOutstandingAmount();
+    }
+
+    public bool HasPendingPayments(Order order)
+    {
+        return order.Payments.Any(p => p.PaymentStatus is PaymentStatus.Pending or PaymentStatus.Processing);
+    }
+
+    public bool HasFailedPayments(Order order)
+    {
+        return order.Payments.Any(p => p.PaymentStatus == PaymentStatus.Failed);
+    }
+
+    public bool HasDisputedPayments(Order order)
+    {
+        return order.Payments.Any(p => p.PaymentStatus == PaymentStatus.Disputed);
     }
 }

@@ -11,7 +11,7 @@ internal sealed class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
             (DateTime)value
         );
     }
-
+ 
     public override void SetValue(IDbDataParameter parameter, DateOnly value)
     {
         parameter.DbType = DbType.Date;

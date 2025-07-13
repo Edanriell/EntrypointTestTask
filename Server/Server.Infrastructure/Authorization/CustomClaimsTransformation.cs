@@ -10,7 +10,7 @@ namespace Server.Infrastructure.Authorization;
 internal sealed class CustomClaimsTransformation : IClaimsTransformation
 {
     private readonly IServiceProvider _serviceProvider;
-
+ 
     public CustomClaimsTransformation(IServiceProvider serviceProvider) { _serviceProvider = serviceProvider; }
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)

@@ -2,7 +2,7 @@
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterCustomer;
-
+ 
 public sealed record RegisterCustomerCommand(
     string FirstName,
     string LastName,

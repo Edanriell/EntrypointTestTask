@@ -10,7 +10,7 @@ internal abstract class Repository<T>
     protected readonly ApplicationDbContext DbContext;
 
     protected Repository(ApplicationDbContext dbContext) { DbContext = dbContext; }
-
+ 
     public async Task<T?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)

@@ -82,9 +82,25 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(user => user.Email).IsUnique();
-
         builder.HasIndex(user => user.IdentityId).IsUnique();
-
         builder.HasIndex(user => user.PhoneNumber).IsUnique();
+        builder.HasIndex(user => user.CreatedAt)
+            .HasDatabaseName("ix_users_created_at");
+        builder.HasIndex(user => user.FirstName)
+            .HasDatabaseName("ix_users_first_name");
+        builder.HasIndex(user => user.LastName)
+            .HasDatabaseName("ix_users_last_name");
+        builder.HasIndex("address_country")
+            .HasDatabaseName("ix_users_address_country");
+        builder.HasIndex("address_city")
+            .HasDatabaseName("ix_users_address_city");
+        builder.HasIndex(user => new { user.CreatedAt, user.FirstName })
+            .HasDatabaseName("ix_users_created_at_first_name");
+        builder.HasIndex(user => new { user.CreatedAt, user.LastName })
+            .HasDatabaseName("ix_users_created_at_last_name");
+        builder.HasIndex(user => new { user.CreatedAt, user.Email })
+            .HasDatabaseName("ix_users_created_at_email");
+        builder.HasIndex(user => new { user.FirstName, user.LastName })
+            .HasDatabaseName("ix_users_first_name_last_name");
     }
 }

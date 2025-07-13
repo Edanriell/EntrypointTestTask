@@ -1,5 +1,5 @@
 ﻿namespace Server.Api.Controllers;
-
+ 
 // Mirror's Realm roles > Associated roles (permissions) in keycloak 
 internal static class Permissions
 {

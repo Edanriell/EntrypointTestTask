@@ -5,3 +5,4 @@ public record CreateProductRequest(
     string Description,
     decimal Price,
     int Stock);
+ 

@@ -1,7 +1,7 @@
 ﻿using Server.Domain.Users;
 
 namespace Server.Api.Controllers.Customers;
-
+ 
 public sealed record RegisterCustomerRequest(
     string FirstName,
     string LastName,

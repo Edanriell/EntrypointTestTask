@@ -348,8 +348,7 @@ public class OrdersController : ControllerBase
 // PATCH /api/v1/orders/{id}/ship          → Ship order (Shipped)
 // PATCH /api/v1/orders/{id}/out-for-delivery → Out for delivery (OutForDelivery)
 // PATCH /api/v1/orders/{id}/deliver       → Mark as delivered (Delivered)
-//     PATCH /api/v1/orders/{id}/complete      → Complete order (Completed)
-//
+// PATCH /api/v1/orders/{id}/complete      → Complete order (Completed)
 // // Exception flows:
 // PATCH /api/v1/orders/{id}/cancel        → Cancel order (Cancelled)
 // POST /api/v1/orders/{id}/return         → Return order (Returned)

@@ -10,7 +10,7 @@ internal sealed class CacheService : ICacheService
     private readonly IDistributedCache _cache;
 
     public CacheService(IDistributedCache cache) { _cache = cache; }
-
+ 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         byte[]? bytes = await _cache.GetAsync(

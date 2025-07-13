@@ -24,9 +24,6 @@ public class ProductsController : ControllerBase
 
     public ProductsController(ISender sender) { _sender = sender; }
 
-    /// <summary>
-    ///     Get all products
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllProducts(
         [FromQuery] GetProductsRequest request, CancellationToken cancellationToken)
@@ -59,9 +56,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Get product by ID
-    /// </summary>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProductById(
         Guid id,
@@ -69,7 +63,7 @@ public class ProductsController : ControllerBase
     {
         var query = new GetProductByIdQuery(id);
 
-        Result<Application.Products.GetProductById.ProductResponse> result = await _sender.Send(
+        Result<ProductResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -77,9 +71,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Create a new product
-    /// </summary>
     [HttpPost]
     public async Task<IActionResult> CreateProduct(
         CreateProductRequest request,
@@ -109,9 +100,6 @@ public class ProductsController : ControllerBase
         );
     }
 
-    /// <summary>
-    ///     Update product
-    /// </summary>
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateProduct(
         Guid id,
@@ -135,9 +123,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Update product price
-    /// </summary>
     [HttpPatch("{id:guid}/price")]
     public async Task<IActionResult> UpdateProductPrice(
         Guid id,
@@ -158,9 +143,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Update product stock
-    /// </summary>
     [HttpPatch("{id:guid}/stock")]
     public async Task<IActionResult> UpdateProductStock(
         Guid id,
@@ -180,9 +162,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Update product reserved stock
-    /// </summary>
     [HttpPatch("{id:guid}/reserved-stock")]
     public async Task<IActionResult> UpdateProductReservedStock(
         Guid id,
@@ -202,9 +181,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Apply discount to product
-    /// </summary>
     [HttpPatch("{id:guid}/discount")]
     public async Task<IActionResult> DiscountProduct(
         Guid id,
@@ -224,9 +200,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Delete product (soft delete)
-    /// </summary>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProduct(
         Guid id,
@@ -242,9 +215,6 @@ public class ProductsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    /// <summary>
-    ///     Restore deleted product
-    /// </summary>
     [HttpPost("{id:guid}/restore")]
     public async Task<IActionResult> RestoreProduct(
         Guid id,

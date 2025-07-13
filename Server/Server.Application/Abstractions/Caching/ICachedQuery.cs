@@ -9,6 +9,5 @@ public interface ICachedQuery<TResponse>
 public interface ICachedQuery
 {
     string CacheKey { get; }
-
     TimeSpan? Expiration { get; }
 }

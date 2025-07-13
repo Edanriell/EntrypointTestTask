@@ -31,3 +31,4 @@ internal static class ClaimsPrincipalExtensions
             );
     }
 }
+ 

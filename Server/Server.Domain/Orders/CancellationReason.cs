@@ -13,3 +13,4 @@ public sealed record CancellationReason
         return new CancellationReason(value);
     }
 }
+ 

@@ -15,7 +15,7 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
     {
         _sqlConnectionFactory = sqlConnectionFactory;
     }
-
+ 
     public async Task<Result<CustomerResponse>> Handle(
         GetCustomerByIdQuery request,
         CancellationToken cancellationToken)

@@ -14,7 +14,7 @@ public interface ICommand<TReponse>
         IBaseCommand
 {
 }
-
+ 
 public interface IBaseCommand
 {
 }

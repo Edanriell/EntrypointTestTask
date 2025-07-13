@@ -7,3 +7,4 @@ public sealed class UserResponse
     public string FirstName { get; init; }
     public string LastName { get; init; }
 }
+ 

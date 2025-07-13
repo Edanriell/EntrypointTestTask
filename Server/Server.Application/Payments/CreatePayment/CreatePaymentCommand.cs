@@ -7,6 +7,5 @@ public sealed record CreatePaymentCommand(
     Guid OrderId,
     decimal Amount,
     string Currency,
-    PaymentMethod PaymentMethod,
-    string? PaymentReference = null
-) : ICommand<Guid>;
+    string PaymentMethod,  // This should be string, not PaymentMethod enum
+    string? PaymentReference = null) : ICommand<Guid>;

@@ -5,7 +5,7 @@ using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
 
 namespace Server.Application.Users.GetClients;
-
+ 
 internal sealed class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, GetUsersResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;

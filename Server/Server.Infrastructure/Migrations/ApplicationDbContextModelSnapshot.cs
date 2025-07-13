@@ -120,10 +120,6 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("order_number");
 
-                    b.Property<Guid?>("PaymentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("payment_id");
-
                     b.Property<string>("RefundReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -179,6 +175,10 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
@@ -186,6 +186,17 @@ namespace Server.Infrastructure.Migrations
                     b.Property<DateTime?>("PaymentCompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_completed_at");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("payment_reference");
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
@@ -196,17 +207,72 @@ namespace Server.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_payments");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_payments_order_id");
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_payments_created_at");
 
-                    b.HasIndex("PaymentCompletedAt")
-                        .HasDatabaseName("ix_payments_payment_completed_at");
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_payments_order_id");
 
                     b.HasIndex("PaymentStatus")
                         .HasDatabaseName("ix_payments_payment_status");
 
                     b.ToTable("payments", (string)null);
+                });
+
+            modelBuilder.Entity("Server.Domain.Payments.Refund", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("refund_reason");
+
+                    b.Property<string>("RefundFailureReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("refund_failure_reason");
+
+                    b.Property<string>("RefundReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("refund_reference");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("refund_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_refunds");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_refunds_created_at");
+
+                    b.HasIndex("PaymentId")
+                        .HasDatabaseName("ix_refunds_payment_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_refunds_status");
+
+                    b.ToTable("refunds", (string)null);
                 });
 
             modelBuilder.Entity("Server.Domain.Products.Product", b =>
@@ -895,13 +961,13 @@ namespace Server.Infrastructure.Migrations
             modelBuilder.Entity("Server.Domain.Payments.Payment", b =>
                 {
                     b.HasOne("Server.Domain.Orders.Order", "Order")
-                        .WithOne("Payment")
-                        .HasForeignKey("Server.Domain.Payments.Payment", "OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithMany("Payments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_payments_orders_order_id");
 
-                    b.OwnsOne("Server.Domain.Shared.Money", "OutstandingAmount", b1 =>
+                    b.OwnsOne("Server.Domain.Shared.Money", "Amount", b1 =>
                         {
                             b1.Property<Guid>("PaymentId")
                                 .HasColumnType("uuid")
@@ -909,13 +975,13 @@ namespace Server.Infrastructure.Migrations
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
-                                .HasColumnName("outstanding_amount");
+                                .HasColumnName("amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
-                                .HasColumnName("outstanding_currency");
+                                .HasColumnName("currency");
 
                             b1.HasKey("PaymentId");
 
@@ -926,66 +992,50 @@ namespace Server.Infrastructure.Migrations
                                 .HasConstraintName("fk_payments_payments_id");
                         });
 
-                    b.OwnsOne("Server.Domain.Shared.Money", "PaidAmount", b1 =>
-                        {
-                            b1.Property<Guid>("PaymentId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("paid_amount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("paid_currency");
-
-                            b1.HasKey("PaymentId");
-
-                            b1.ToTable("payments");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PaymentId")
-                                .HasConstraintName("fk_payments_payments_id");
-                        });
-
-                    b.OwnsOne("Server.Domain.Shared.Money", "TotalAmount", b1 =>
-                        {
-                            b1.Property<Guid>("PaymentId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("total_amount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("total_currency");
-
-                            b1.HasKey("PaymentId");
-
-                            b1.ToTable("payments");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PaymentId")
-                                .HasConstraintName("fk_payments_payments_id");
-                        });
+                    b.Navigation("Amount")
+                        .IsRequired();
 
                     b.Navigation("Order");
+                });
 
-                    b.Navigation("OutstandingAmount")
+            modelBuilder.Entity("Server.Domain.Payments.Refund", b =>
+                {
+                    b.HasOne("Server.Domain.Payments.Payment", "Payment")
+                        .WithMany("Refunds")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_refunds_payments_payment_id");
+
+                    b.OwnsOne("Server.Domain.Shared.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("RefundId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("currency");
+
+                            b1.HasKey("RefundId");
+
+                            b1.ToTable("refunds");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RefundId")
+                                .HasConstraintName("fk_refunds_refunds_id");
+                        });
+
+                    b.Navigation("Amount")
                         .IsRequired();
 
-                    b.Navigation("PaidAmount")
-                        .IsRequired();
-
-                    b.Navigation("TotalAmount")
-                        .IsRequired();
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("Server.Domain.Products.Product", b =>
@@ -1086,7 +1136,12 @@ namespace Server.Infrastructure.Migrations
                 {
                     b.Navigation("OrderProducts");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Server.Domain.Payments.Payment", b =>
+                {
+                    b.Navigation("Refunds");
                 });
 
             modelBuilder.Entity("Server.Domain.Users.User", b =>

@@ -43,4 +43,4 @@ internal sealed class UserRepresentationModel
             RequiredActions = Array.Empty<string>()
         };
     }
-}
+} 
