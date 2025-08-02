@@ -8,3 +8,4 @@ public interface IQueryHandler<TQuery, TResponse> : IRequestHandler<TQuery, Resu
 {
 }
  
+ 

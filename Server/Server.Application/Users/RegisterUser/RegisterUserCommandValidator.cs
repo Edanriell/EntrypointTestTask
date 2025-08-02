@@ -2,7 +2,7 @@
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterUser;
- 
+
 internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
     private static readonly string[] ValidRoleNames =
@@ -35,6 +35,7 @@ internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterU
             .NotEmpty()
             .EmailAddress()
             .MaximumLength(255)
+            .WithMessage("Invalid email format or email exceeds 255 characters")
             .MustAsync(BeUniqueEmail)
             .WithMessage("Email address is already in use");
 

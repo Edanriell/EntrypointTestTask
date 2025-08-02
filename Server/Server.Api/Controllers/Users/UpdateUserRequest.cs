@@ -3,7 +3,6 @@
 namespace Server.Api.Controllers.Users;
 
 public sealed record UpdateUserRequest(
-    Guid UserId,
     string? FirstName,
     string? LastName,
     string? Email,
@@ -13,5 +12,3 @@ public sealed record UpdateUserRequest(
     string? City,
     string? ZipCode,
     string? Street);
- 
- 

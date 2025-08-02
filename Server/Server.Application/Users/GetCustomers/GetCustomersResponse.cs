@@ -1,4 +1,4 @@
-﻿namespace Server.Application.Users.GetClients;
+﻿namespace Server.Application.Users.GetCustomers;
 
 public sealed record GetCustomersResponse
 {

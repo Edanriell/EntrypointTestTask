@@ -8,3 +8,4 @@ public sealed record OrderRefundProcessedDomainEvent(
     Guid ClientId,
     Money RefundAmount,
     RefundReason Reason) : IDomainEvent;
+ 

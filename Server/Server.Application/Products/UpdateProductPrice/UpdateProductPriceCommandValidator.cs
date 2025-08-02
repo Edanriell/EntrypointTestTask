@@ -17,3 +17,4 @@ internal sealed class UpdateProductPriceCommandValidator : AbstractValidator<Upd
             .WithMessage("Product price cannot exceed 1,000,000");
     }
 }
+ 

@@ -3,7 +3,7 @@ using Server.Application.Users.RegisterCustomer;
 using Server.Domain.Users;
 
 namespace Server.Application.Users.RegisterUser;
- 
+
 internal sealed class RegisterCustomerCommandValidator : AbstractValidator<RegisterCustomerCommand>
 {
     private readonly IUserRepository _userRepository;
@@ -71,7 +71,8 @@ internal sealed class RegisterCustomerCommandValidator : AbstractValidator<Regis
 
     private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
     {
-        User? existingUser = await _userRepository.GetByEmailAsync(new Email(email), cancellationToken);
+        string normalizedEmail = email.Trim().ToLowerInvariant();
+        User? existingUser = await _userRepository.GetByEmailAsync(new Email(normalizedEmail), cancellationToken);
         return existingUser is null;
     }
 

@@ -11,3 +11,4 @@ internal sealed class DeleteProductCommandValidator : AbstractValidator<DeletePr
             .WithMessage("Product ID is required");
     }
 }
+ 

@@ -5,9 +5,9 @@ using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
 using Server.Domain.Users;
 
-namespace Server.Application.Users.GetUserById;
+namespace Server.Application.Users.GetCustomerById;
 
-internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByIdQuery, CustomerResponse>
+internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByIdQuery, GetCustomerByIdResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -15,8 +15,8 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
     {
         _sqlConnectionFactory = sqlConnectionFactory;
     }
- 
-    public async Task<Result<CustomerResponse>> Handle(
+
+    public async Task<Result<GetCustomerByIdResponse>> Handle(
         GetCustomerByIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
                            FROM users u
                            INNER JOIN role_user ur ON u.id = ur.users_id
                            INNER JOIN roles r ON ur.roles_id = r.id
-                           LEFT JOIN orders o ON u.id = o.user_id
+                           LEFT JOIN orders o ON u.id = o.client_id
                            LEFT JOIN order_products op ON o.id = op.order_id
                            WHERE r.name = 'Customer'
                            AND u.id = @UserId
@@ -53,14 +53,14 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
                                     u.address_street, u.created_at
                            """;
 
-        CustomerResponse? customer = await connection.QueryFirstOrDefaultAsync<CustomerResponse>(sql, new
+        GetCustomerByIdResponse? customer = await connection.QueryFirstOrDefaultAsync<GetCustomerByIdResponse>(sql, new
         {
             request.UserId
         });
 
         if (customer is null)
         {
-            return Result.Failure<CustomerResponse>(UserErrors.NotFound);
+            return Result.Failure<GetCustomerByIdResponse>(UserErrors.NotFound);
         }
 
         await LoadRecentOrders(connection, customer);
@@ -68,29 +68,29 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
         return Result.Success(customer);
     }
 
-    private async Task LoadRecentOrders(IDbConnection connection, CustomerResponse customer)
+    private async Task LoadRecentOrders(IDbConnection connection, GetCustomerByIdResponse getCustomerById)
     {
         var parameters = new DynamicParameters();
-        parameters.Add("CustomerId", customer.Id);
+        parameters.Add("CustomerId", getCustomerById.Id);
 
         const string recentOrdersSql = """
                                        SELECT 
-                                           o.user_id as UserId,
+                                           o.client_id as UserId,
                                            o.id as OrderId,
                                            COALESCE(SUM(op.total_price_amount), 0) as TotalAmount,
                                            o.status as Status,
                                            o.created_at as CreatedOnUtc
                                        FROM orders o
                                        LEFT JOIN order_products op ON o.id = op.order_id
-                                       WHERE o.user_id = @CustomerId
+                                       WHERE o.client_id = @CustomerId
                                        AND o.created_at >= CURRENT_DATE - INTERVAL '30 days'
-                                       GROUP BY o.user_id, o.id, o.status, o.created_at
+                                       GROUP BY o.client_id, o.id, o.status, o.created_at
                                        ORDER BY o.created_at DESC
                                        LIMIT 5
                                        """;
 
         IEnumerable<RecentOrder> recentOrders = await connection.QueryAsync<RecentOrder>(recentOrdersSql, parameters);
 
-        customer.RecentOrders = recentOrders.ToList();
+        getCustomerById.RecentOrders = recentOrders.ToList();
     }
 }

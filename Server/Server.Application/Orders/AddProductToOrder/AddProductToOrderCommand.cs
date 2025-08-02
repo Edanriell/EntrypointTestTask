@@ -2,14 +2,10 @@
 
 namespace Server.Application.Orders.AddProductToOrder;
 
-public sealed record AddProductToOrderCommand : ICommand
-{
-    public Guid OrderId { get; init; }
-    public List<ProductItem> Products { get; init; } = new();
-}
- 
-public sealed record ProductItem
-{
-    public Guid ProductId { get; init; }
-    public int Quantity { get; init; }
-}
+public sealed record AddProductToOrderCommand(
+    Guid OrderId,
+    IReadOnlyList<ProductItem> Products) : ICommand;
+
+public sealed record ProductItem(
+    Guid ProductId,
+    int Quantity);

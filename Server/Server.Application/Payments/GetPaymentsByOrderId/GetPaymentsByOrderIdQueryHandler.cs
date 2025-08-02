@@ -7,8 +7,7 @@ using Server.Domain.Abstractions;
 namespace Server.Application.Payments.GetPaymentsByOrderId;
 
 internal sealed class GetPaymentsByOrderIdQueryHandler
-    : IQueryHandler<GetPaymentsByOrderIdQuery, IReadOnlyList<GetPaymentsByOrderIdResponse>>
-
+    : IQueryHandler<GetPaymentsByOrderIdQuery, GetPaymentsByOrderIdResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -17,7 +16,7 @@ internal sealed class GetPaymentsByOrderIdQueryHandler
         _sqlConnectionFactory = sqlConnectionFactory;
     }
 
-    public async Task<Result<IReadOnlyList<GetPaymentsByOrderIdResponse>>> Handle(
+    public async Task<Result<GetPaymentsByOrderIdResponse>> Handle(
         GetPaymentsByOrderIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -25,24 +24,64 @@ internal sealed class GetPaymentsByOrderIdQueryHandler
 
         const string sql = """
                            SELECT 
-                               p.Id,
-                               p.OrderId,
-                               p.Amount,
-                               p.Currency,
-                               p.PaymentStatus,
-                               p.PaymentMethod,
-                               p.PaymentReference,
-                               p.CreatedAt,
-                               p.PaymentCompletedAt
-                           FROM Payments p
-                           WHERE p.OrderId = @OrderId
-                           ORDER BY p.CreatedAt DESC
+                               p.id AS Id,
+                               p.order_id AS OrderId,
+                               p.amount AS Amount,
+                               p.currency AS Currency,
+                               p.payment_status AS PaymentStatus,
+                               p.payment_method AS PaymentMethod,
+                               p.created_at AS CreatedAt,
+                               p.payment_completed_at AS PaymentCompletedAt,
+                               p.payment_failed_at AS PaymentFailedAt,
+                               p.payment_expired_at AS PaymentExpiredAt,
+                               p.payment_failure_reason AS PaymentFailureReason,
+                               
+                               -- Single refund data (if exists)
+                               r.id AS RefundId,
+                               r.amount AS RefundAmount,
+                               r.currency AS RefundCurrency,
+                               r.refund_reason AS RefundReason,
+                               r.created_at AS RefundCreatedAt,
+                               r.processed_at AS RefundProcessedAt
+
+                           FROM payments p
+                           LEFT JOIN refunds r ON p.id = r.payment_id
+                           WHERE p.order_id = @OrderId
+                           ORDER BY p.created_at DESC
                            """;
 
-        IEnumerable<GetPaymentsByOrderIdResponse> payments = await connection.QueryAsync<GetPaymentsByOrderIdResponse>(
-            sql,
-            new { request.OrderId });
+        // ✅ Use Dictionary to handle multiple payments, each with potential refund
+        var paymentDictionary = new Dictionary<Guid, PaymentResponse>();
 
-        return Result.Success<IReadOnlyList<GetPaymentsByOrderIdResponse>>(payments.ToList());
+        await connection.QueryAsync<PaymentResponse, RefundResponse, PaymentResponse>(
+            sql,
+            (payment, refund) =>
+            {
+                if (!paymentDictionary.TryGetValue(payment.Id, out PaymentResponse? existingPayment))
+                {
+                    // Add new payment with its refund (if any)
+                    PaymentResponse newPayment = payment with
+                    {
+                        Refund = refund
+                    };
+                    paymentDictionary.Add(payment.Id, newPayment);
+                    return newPayment;
+                }
+
+                return existingPayment;
+            },
+            new { request.OrderId },
+            splitOn: "RefundId"
+        );
+
+        var payments = paymentDictionary.Values.ToList();
+
+        var response = new GetPaymentsByOrderIdResponse
+        {
+            OrderId = request.OrderId,
+            Payments = payments
+        };
+
+        return response;
     }
 }

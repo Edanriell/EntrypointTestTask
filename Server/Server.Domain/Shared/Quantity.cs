@@ -30,4 +30,4 @@ public sealed record Quantity
     {
         return new Quantity(value);
     }
-}
+} 

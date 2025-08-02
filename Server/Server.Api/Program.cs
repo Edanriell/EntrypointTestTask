@@ -63,8 +63,10 @@ if (app.Environment.IsDevelopment())
 
     app.ApplyMigrations();
 
-    // REMARK: Uncomment if you want to seed initial data.
-    // app.SeedData();
+    // Uncomment if you want to seed initial data.
+    // app.SeedCustomersDataAsync();
+    // app.SeedProductsDataAsync();
+    // app.SeedOrdersDataAsync();
 }
 
 app.UseHttpsRedirection();

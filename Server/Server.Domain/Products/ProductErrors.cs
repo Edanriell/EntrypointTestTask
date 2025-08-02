@@ -40,4 +40,28 @@ public static class ProductErrors
     public static readonly Error ProductStockCannotBeNegative = new(
         "Product.StockCannotBeNegative",
         "Product stock cannot be less than zero");
+
+    public static readonly Error InvalidQuantity = new(
+        "Product.InvalidQuantity",
+        "Quantity must be greater than zero");
+
+    public static readonly Error InsufficientStock = new(
+        "Product.InsufficientStock",
+        "Insufficient stock available");
+
+    public static readonly Error CannotReleaseMoreThanReserved = new(
+        "Product.CannotReleaseMoreThanReserved",
+        "Cannot release more than reserved");
+
+    public static readonly Error CannotReduceStockBelowReservedAmount = new(
+        "Product.CannotReduceStockBelowReservedAmount",
+        "Cannot reduce stock below reserved amount");
+
+    public static readonly Error CannotDeleteProductWithActiveReservations = new(
+        "Product.CannotDeleteProductWithActiveReservations",
+        "Cannot delete product with active reservations");
+
+    public static readonly Error ProductNotAvailable = new(
+        "Products.ProductNotAvailable",
+        "The product is not available for purchase");
 }

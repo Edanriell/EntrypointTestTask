@@ -11,3 +11,4 @@ public sealed class GetPaymentByIdQueryValidator : AbstractValidator<GetPaymentB
             .WithMessage("Payment ID is required");
     }
 }
+ 

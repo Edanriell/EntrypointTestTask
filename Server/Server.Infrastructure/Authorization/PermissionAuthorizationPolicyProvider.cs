@@ -14,7 +14,7 @@ internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizati
     {
         _authorizationOptions = options.Value;
     }
- 
+  
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         AuthorizationPolicy? policy = await base.GetPolicyAsync(

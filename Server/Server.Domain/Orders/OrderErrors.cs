@@ -56,6 +56,10 @@ public static class OrderErrors
         "Order.CannotChangeShippingAddress",
         "Cannot change shipping address after processing started");
 
+    public static readonly Error CannotChangeOrderInfoAfterProcessing = new(
+        "Order.CannotChangeOrderInfoAfterProcessing",
+        "Cannot change order info after processing started");
+
     public static readonly Error OrderAlreadyPaid = new(
         "Order.AlreadyPaid",
         "Order is already paid");
@@ -99,6 +103,62 @@ public static class OrderErrors
         "Order.OrderProductsCurrencyMismatch",
         "All order products must have the same currency");
 
+    public static readonly Error CannotAddPaymentToClosedOrder = new(
+        "Order.CannotAddPaymentToClosedOrder",
+        "Cannot add payment to cancelled or completed order");
+
+    public static readonly Error MixedCurrenciesNotAllowed = new(
+        "Order.MixedCurrenciesNotAllowed",
+        "Cannot add products with different currencies to the same order");
+
+    public static readonly Error CannotAddPaymentInCurrentStatus = new(
+        "Orders.CannotAddPaymentInCurrentStatus",
+        "Cannot add payment to order in current status. Payments are only allowed for pending orders.");
+
+    public static readonly Error OrderMustBeFullyPaidBeforeConfirmation = new(
+        "Orders.OrderMustBeFullyPaidBeforeConfirmation",
+        "Order must be fully paid before it can be confirmed.");
+
+    public static readonly Error CannotConfirmOrderWithPendingPayments = new(
+        "Orders.CannotConfirmOrderWithPendingPayments",
+        "Cannot confirm order while there are pending payments. All payments must be processed.");
+
+    public static readonly Error PaymentAmountExceedsRemainingAmount = new(
+        "Orders.PaymentAmountExceedsRemainingAmount",
+        "Payment amount exceeds the remaining amount to be paid.");
+
+    public static readonly Error PendingPaymentsExceedRemainingAmount = new(
+        "Orders.PendingPaymentsExceedRemainingAmount",
+        "Total pending payments exceed the remaining amount to be paid.");
+
+    public static readonly Error PaymentNotFound = new(
+        "Order.PaymentNotFound",
+        "The payment with the specified identifier was not found");
+
+    public static readonly Error ProductAlreadyExists = new(
+        "Order.ProductAlreadyExists",
+        "The product already exists in this order");
+
+    public static readonly Error NoProductsToAdd = new(
+        "Order.NoProductsToAdd",
+        "No products were provided to add to the order");
+
+    public static readonly Error CanOnlyRefundReturnedOrCancelledOrders = new(
+        "Order.CanOnlyRefundReturnedOrCancelledOrders",
+        "Refunds can only be processed for returned or cancelled orders");
+
+    public static readonly Error NoPaymentsToRefund = new(
+        "Order.NoPaymentsToRefund",
+        "No payments found to refund");
+
+    public static readonly Error InvalidQuantityToRemove = new(
+        "Order.InvalidQuantityToRemove",
+        "Quantity to remove must be greater than zero");
+
+    public static readonly Error CannotRemoveMoreThanAvailable = new(
+        "Order.CannotRemoveMoreThanAvailable",
+        "Cannot remove more quantity than what is available in the order");
+
     public static Error CannotAddPaymentToInactiveOrder => new(
         "Order.CannotAddPaymentToInactiveOrder",
         "Cannot add payment to cancelled or returned order");
@@ -118,5 +178,16 @@ public static class OrderErrors
     public static Error InvalidStatusTransition => new(
         "Order.InvalidStatusTransition",
         "Invalid order status transition");
+
+    public static Error CannotRemoveMoreThanOrderedQuantity => new(
+        "Order.CannotRemoveMoreThanOrderedQuantity",
+        "Cannot remove more quantity than what is currently in the order");
+
+    public static Error CannotAddPaymentToCancelledOrder => new(
+        "Order.CannotAddPaymentToCancelledOrder",
+        "Cannot add payment to cancelled order");
+
+    public static Error CannotCancelAlreadyCancelledOrder => new(
+        "Order.CannotCancelAlreadyCancelledOrder",
+        "Cannot cancel already cancelled order");
 }
- 

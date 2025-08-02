@@ -1,5 +1,4 @@
 ﻿using Server.Domain.Abstractions;
-using Server.Domain.OrderItems;
 using Server.Domain.Products;
 using Server.Domain.Shared;
 
@@ -68,13 +67,12 @@ public sealed class OrderProductService
         }
 
         // Reserve stock
-        Result reservedStockResult = product.UpdateReservedStock(quantity);
-        if (reservedStockResult.IsFailure)
-        {
-            return Result.Failure<OrderProduct>(reservedStockResult.Error);
-        }
+        // Result reservedStockResult = product.AdjustStock(quantity);
+        // if (reservedStockResult.IsFailure)
+        // {
+        //     return Result.Failure<OrderProduct>(reservedStockResult.Error);
+        // }
 
         return orderProductResult;
     }
 }
- 

@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 
 namespace Server.Application.Orders.AddProductToOrder;
- 
-public sealed class AddProductToOrderCommandValidator : AbstractValidator<AddProductToOrderCommand>
+
+internal sealed class AddProductToOrderCommandValidator : AbstractValidator<AddProductToOrderCommand>
 {
     public AddProductToOrderCommandValidator()
     {
@@ -11,32 +11,17 @@ public sealed class AddProductToOrderCommandValidator : AbstractValidator<AddPro
             .WithMessage("Order ID is required");
 
         RuleFor(x => x.Products)
-            .NotNull()
-            .WithMessage("Products cannot be null")
             .NotEmpty()
-            .WithMessage("At least one product must be specified")
-            .Must(HaveUniqueProducts)
-            .WithMessage("Cannot add duplicate products in the same request");
+            .WithMessage("At least one product must be specified");
 
         RuleForEach(x => x.Products)
-            .SetValidator(new AddProductItemValidator());
-    }
-
-    private static bool HaveUniqueProducts(List<ProductItem> products)
-    {
-        if (products is null)
-        {
-            return true;
-        }
-
-        var productIds = products.Select(x => x.ProductId).ToList();
-        return productIds.Count == productIds.Distinct().Count();
+            .SetValidator(new ProductItemValidator());
     }
 }
 
-public sealed class AddProductItemValidator : AbstractValidator<ProductItem>
+internal sealed class ProductItemValidator : AbstractValidator<ProductItem>
 {
-    public AddProductItemValidator()
+    public ProductItemValidator()
     {
         RuleFor(x => x.ProductId)
             .NotEmpty()
@@ -44,8 +29,6 @@ public sealed class AddProductItemValidator : AbstractValidator<ProductItem>
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)
-            .WithMessage("Quantity must be greater than 0")
-            .LessThanOrEqualTo(1000)
-            .WithMessage("Quantity cannot exceed 1000 per item");
+            .WithMessage("Quantity must be greater than zero");
     }
 }

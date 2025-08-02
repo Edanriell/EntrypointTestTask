@@ -26,3 +26,4 @@ public sealed record GetProductsQuery : IQuery<GetProductsResponse>
     public bool? HasStock { get; init; }
     public bool? IsReserved { get; init; }
 }
+ 

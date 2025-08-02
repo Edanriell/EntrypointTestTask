@@ -8,3 +8,4 @@ public sealed record PartialPaymentReceivedDomainEvent(
     Guid ClientId,
     Money PaymentAmount,
     Money OutstandingAmount) : IDomainEvent;
+ 

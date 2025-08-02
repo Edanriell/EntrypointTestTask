@@ -12,4 +12,3 @@ public record Error(string Code, string Name)
         "Null value was provided"
     );
 }
- 

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Server.Domain.Shared;
 
 namespace Server.Application.Products.UpdateProduct;
 
@@ -20,10 +21,20 @@ internal sealed class UpdateProductCommandValidator : AbstractValidator<UpdatePr
             .WithMessage("Product description must not exceed 1000 characters")
             .When(x => !string.IsNullOrWhiteSpace(x.Description));
 
+        RuleFor(x => x.Currency)
+            .Must(IsValidCurrency)
+            .WithMessage("Invalid currency code. Supported currencies: USD, EUR.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Currency));
+
         RuleFor(x => x.Price)
             .GreaterThan(0)
             .WithMessage("Product price must be greater than 0")
             .When(x => x.Price.HasValue);
+
+        RuleFor(x => x.StockChange)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Product stock cannot be negative")
+            .When(x => x.StockChange.HasValue);
 
         RuleFor(x => x)
             .Must(HaveAtLeastOneUpdateField)
@@ -35,7 +46,24 @@ internal sealed class UpdateProductCommandValidator : AbstractValidator<UpdatePr
         return !string.IsNullOrWhiteSpace(command.Name) ||
             !string.IsNullOrWhiteSpace(command.Description) ||
             command.Price.HasValue ||
-            command.StockChange.HasValue ||
-            command.ReservedChange.HasValue;
+            command.StockChange.HasValue;
+    }
+
+    private static bool IsValidCurrency(string? currencyCode)
+    {
+        if (string.IsNullOrWhiteSpace(currencyCode))
+        {
+            return false;
+        }
+
+        try
+        {
+            Currency.FromCode(currencyCode.ToUpper());
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

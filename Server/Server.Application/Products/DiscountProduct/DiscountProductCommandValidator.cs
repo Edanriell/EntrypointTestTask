@@ -17,3 +17,4 @@ internal sealed class DiscountProductCommandValidator : AbstractValidator<Discou
             .WithMessage("New price cannot exceed 1,000,000");
     }
 }
+ 

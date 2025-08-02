@@ -5,3 +5,4 @@ namespace Server.Domain.Orders.Events;
 
 public sealed record
     OrderShippingAddressChangedDomainEvent(Guid OrderId, Address OldAddress, Address NewAddress) : IDomainEvent;
+ 

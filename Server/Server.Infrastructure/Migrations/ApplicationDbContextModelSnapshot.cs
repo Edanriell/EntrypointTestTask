@@ -70,7 +70,7 @@ namespace Server.Infrastructure.Migrations
                         .HasName("pk_order_products");
 
                     b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_order_products_order_id");
+                        .HasDatabaseName("ix_order_products_order_id_for_totals");
 
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_order_products_product_id");
@@ -106,13 +106,57 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("confirmed_at");
 
+                    b.Property<string>("Courier")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("courier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
                     b.Property<DateTime?>("DeliveredAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("delivered_at");
+
+                    b.Property<DateTime?>("EstimatedDeliveryDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("estimated_delivery_date");
+
+                    b.Property<bool>("HasActivePayments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_active_payments");
+
+                    b.Property<bool>("HasDisputedPayments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_disputed_payments");
+
+                    b.Property<bool>("HasFailedPayments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_failed_payments");
+
+                    b.Property<bool>("HasPendingPayments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_pending_payments");
+
+                    b.Property<string>("Info")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("info");
 
                     b.Property<string>("OrderNumber")
                         .IsRequired()
@@ -145,6 +189,15 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("tracking_number");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("_paymentIds")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payment_ids");
+
                     b.HasKey("Id")
                         .HasName("pk_orders");
 
@@ -164,6 +217,9 @@ namespace Server.Infrastructure.Migrations
                     b.HasIndex("TrackingNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_orders_tracking_number");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_orders_user_id");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -187,16 +243,24 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_completed_at");
 
+                    b.Property<DateTime?>("PaymentExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_expired_at");
+
+                    b.Property<DateTime?>("PaymentFailedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_failed_at");
+
+                    b.Property<string>("PaymentFailureReason")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("payment_failure_reason");
+
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("payment_method");
-
-                    b.Property<string>("PaymentReference")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("payment_reference");
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
@@ -316,9 +380,9 @@ namespace Server.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.Property<int>("Stock")
+                    b.Property<int>("TotalStock")
                         .HasColumnType("integer")
-                        .HasColumnName("stock");
+                        .HasColumnName("total_stock");
 
                     b.HasKey("Id")
                         .HasName("pk_products");
@@ -336,8 +400,8 @@ namespace Server.Infrastructure.Migrations
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_products_status");
 
-                    b.HasIndex("Status", "Stock")
-                        .HasDatabaseName("ix_products_status_stock");
+                    b.HasIndex("Status", "TotalStock")
+                        .HasDatabaseName("ix_products_status_total_stock");
 
                     b.ToTable("products", (string)null);
                 });
@@ -487,6 +551,9 @@ namespace Server.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_roles");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("ix_roles_name");
 
                     b.ToTable("roles", (string)null);
 
@@ -793,17 +860,38 @@ namespace Server.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_users_created_at");
+
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("FirstName")
+                        .HasDatabaseName("ix_users_first_name");
 
                     b.HasIndex("IdentityId")
                         .IsUnique()
                         .HasDatabaseName("ix_users_identity_id");
 
+                    b.HasIndex("LastName")
+                        .HasDatabaseName("ix_users_last_name");
+
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_users_phone_number");
+
+                    b.HasIndex("CreatedAt", "Email")
+                        .HasDatabaseName("ix_users_created_at_email");
+
+                    b.HasIndex("CreatedAt", "FirstName")
+                        .HasDatabaseName("ix_users_created_at_first_name");
+
+                    b.HasIndex("CreatedAt", "LastName")
+                        .HasDatabaseName("ix_users_created_at_last_name");
+
+                    b.HasIndex("FirstName", "LastName")
+                        .HasDatabaseName("ix_users_first_name_last_name");
 
                     b.ToTable("users", (string)null);
                 });
@@ -906,12 +994,35 @@ namespace Server.Infrastructure.Migrations
 
             modelBuilder.Entity("Server.Domain.Orders.Order", b =>
                 {
-                    b.HasOne("Server.Domain.Users.User", "Client")
+                    b.HasOne("Server.Domain.Users.User", null)
                         .WithMany("Orders")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_user_client_id");
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("fk_orders_user_user_id");
+
+                    b.OwnsOne("Server.Domain.Shared.Money", "PaidAmount", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("paid_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("paid_amount_currency");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId")
+                                .HasConstraintName("fk_orders_orders_id");
+                        });
 
                     b.OwnsOne("Server.Domain.Shared.Address", "ShippingAddress", b1 =>
                         {
@@ -952,21 +1063,71 @@ namespace Server.Infrastructure.Migrations
                                 .HasConstraintName("fk_orders_orders_id");
                         });
 
-                    b.Navigation("Client");
+                    b.OwnsOne("Server.Domain.Shared.Money", "TotalAmount", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("total_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("total_amount_currency");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId")
+                                .HasConstraintName("fk_orders_orders_id");
+                        });
+
+                    b.OwnsOne("Server.Domain.Shared.Money", "TotalRefundedAmount", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("total_refunded_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("total_refunded_amount_currency");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId")
+                                .HasConstraintName("fk_orders_orders_id");
+                        });
+
+                    b.Navigation("PaidAmount")
+                        .IsRequired();
 
                     b.Navigation("ShippingAddress")
+                        .IsRequired();
+
+                    b.Navigation("TotalAmount")
+                        .IsRequired();
+
+                    b.Navigation("TotalRefundedAmount")
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Server.Domain.Payments.Payment", b =>
                 {
-                    b.HasOne("Server.Domain.Orders.Order", "Order")
-                        .WithMany("Payments")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_payments_orders_order_id");
-
                     b.OwnsOne("Server.Domain.Shared.Money", "Amount", b1 =>
                         {
                             b1.Property<Guid>("PaymentId")
@@ -994,8 +1155,6 @@ namespace Server.Infrastructure.Migrations
 
                     b.Navigation("Amount")
                         .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Server.Domain.Payments.Refund", b =>
@@ -1135,8 +1294,6 @@ namespace Server.Infrastructure.Migrations
             modelBuilder.Entity("Server.Domain.Orders.Order", b =>
                 {
                     b.Navigation("OrderProducts");
-
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Server.Domain.Payments.Payment", b =>

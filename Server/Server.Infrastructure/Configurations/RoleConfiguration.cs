@@ -30,3 +30,4 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasDatabaseName("ix_roles_name");
     }
 }
+ 

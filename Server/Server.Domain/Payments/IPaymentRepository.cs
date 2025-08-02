@@ -13,7 +13,7 @@ public interface IPaymentRepository
 
     Task<IReadOnlyList<Payment>> GetExpiredPaymentsAsync(
         DateTime expirationDate, CancellationToken cancellationToken = default);
-
+ 
     void Add(Payment payment);
     void Update(Payment payment);
     void Remove(Payment payment);

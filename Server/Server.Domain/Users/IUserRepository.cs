@@ -3,6 +3,7 @@
 public interface IUserRepository
 {
     Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<User>> GetAllCustomersAsync(CancellationToken cancellationToken = default);
     Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
     Task<User?> GetByPhoneNumberAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken = default);

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Server.Application.Orders.AddProductToOrder;
 using Server.Application.Orders.CancelOrder;
 using Server.Application.Orders.CompleteOrder;
+using Server.Application.Orders.ConfirmOrder;
 using Server.Application.Orders.CreateOrder;
 using Server.Application.Orders.DeleteOrder;
 using Server.Application.Orders.GetOrderById;
@@ -16,10 +17,9 @@ using Server.Application.Orders.RemoveProductFromOrder;
 using Server.Application.Orders.ReturnOrder;
 using Server.Application.Orders.ShipOrder;
 using Server.Application.Orders.StartProcessingOrder;
+using Server.Application.Orders.UpdateOrder;
 using Server.Application.Orders.UpdateOrderProductQuantity;
-using Server.Application.Orders.UpdateOrderShippingAddress;
 using Server.Domain.Abstractions;
-using OrdersResponse = Server.Application.Orders.GetOrders.OrdersResponse;
 
 namespace Server.Api.Controllers.Orders;
 
@@ -33,11 +33,43 @@ public class OrdersController : ControllerBase
     public OrdersController(ISender sender) { _sender = sender; }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOrders(
+        [FromQuery] GetOrdersRequest request, CancellationToken cancellationToken)
     {
-        var query = new GetOrdersQuery();
+        var query = new GetOrdersQuery
+        {
+            PageSize = request.PageSize,
+            Cursor = request.Cursor,
+            SortBy = request.SortBy,
+            SortDirection = request.SortDirection,
+            OrderNumberFilter = request.OrderNumberFilter,
+            StatusFilter = request.StatusFilter,
+            MinTotalAmount = request.MinTotalAmount,
+            MaxTotalAmount = request.MaxTotalAmount,
+            TrackingNumberFilter = request.TrackingNumberFilter,
+            CreatedAfter = request.CreatedAfter,
+            CreatedBefore = request.CreatedBefore,
+            ConfirmedAfter = request.ConfirmedAfter,
+            ConfirmedBefore = request.ConfirmedBefore,
+            ShippedAfter = request.ShippedAfter,
+            ShippedBefore = request.ShippedBefore,
+            DeliveredAfter = request.DeliveredAfter,
+            DeliveredBefore = request.DeliveredBefore,
+            MinOutstandingAmount = request.MinOutstandingAmount,
+            MaxOutstandingAmount = request.MaxOutstandingAmount,
+            EstimatedDeliveryAfter = request.EstimatedDeliveryAfter,
+            EstimatedDeliveryBefore = request.EstimatedDeliveryBefore,
+            HasPayment = request.HasPayment,
+            IsFullyPaid = request.IsFullyPaid,
+            HasOutstandingBalance = request.HasOutstandingBalance,
+            ProductNameFilter = request.ProductNameFilter,
+            ProductIdFilter = request.ProductIdFilter,
+            ClientEmailFilter = request.ClientEmailFilter,
+            ClientNameFilter = request.ClientNameFilter,
+            PaymentStatusFilter = request.PaymentStatusFilter
+        };
 
-        Result<IReadOnlyList<OrdersResponse>> result = await _sender.Send(
+        Result<GetOrdersResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -52,7 +84,7 @@ public class OrdersController : ControllerBase
     {
         var query = new GetOrderByIdQuery(id);
 
-        Result<Application.Orders.GetOrderById.OrdersResponse> result = await _sender.Send(
+        Result<GetOrderByIdResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -62,12 +94,12 @@ public class OrdersController : ControllerBase
 
     [HttpGet("number/{orderNumber}")]
     public async Task<IActionResult> GetOrderByNumber(
-        Guid orderNumber,
+        string orderNumber,
         CancellationToken cancellationToken)
     {
         var query = new GetOrderByNumberQuery(orderNumber);
 
-        Result<Application.Orders.GetOrderByNumber.OrdersResponse> result = await _sender.Send(
+        Result<GetOrderByNumberResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -84,6 +116,7 @@ public class OrdersController : ControllerBase
         {
             ClientId = request.ClientId,
             OrderNumber = request.ClientId.ToString(),
+            Currency = request.Currency,
             ShippingAddress = new ShippingAddress
             {
                 Country = request.ShippingAddress.Country,
@@ -91,6 +124,7 @@ public class OrdersController : ControllerBase
                 ZipCode = request.ShippingAddress.ZipCode,
                 Street = request.ShippingAddress.Street
             },
+            Info = request.Info,
             OrderItems = request.OrderItems.Select(item => new OrderItem
             {
                 ProductId = item.ProductId,
@@ -115,85 +149,44 @@ public class OrdersController : ControllerBase
         );
     }
 
-    [HttpPost("{id:guid}/products")]
-    public async Task<IActionResult> AddProductToOrder(
+    // [HttpPost("{id:guid}/products")]
+    // public async Task<IActionResult> AddProductToOrder(
+    //     Guid id,
+    //     AddProductToOrderRequest request,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var command = new AddProductToOrderCommand
+    //     {
+    //         OrderId = id,
+    //         Products = request.Products.Select(p => new ProductItem
+    //         {
+    //             ProductId = p.ProductId,
+    //             Quantity = p.Quantity
+    //         }).ToList()
+    //     };
+    //
+    //     Result result = await _sender.Send(
+    //         command,
+    //         cancellationToken
+    //     );
+    //
+    //     return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    // }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateOrder(
         Guid id,
-        AddProductToOrderRequest request,
+        UpdateOrderRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new AddProductToOrderCommand
-        {
-            OrderId = id,
-            Products = request.Products.Select(p => new ProductItem
-            {
-                ProductId = p.ProductId,
-                Quantity = p.Quantity
-            }).ToList()
-        };
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpDelete("{id:guid}/products")]
-    public async Task<IActionResult> RemoveProductsFromOrder(
-        Guid id,
-        RemoveProductsFromOrderRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new RemoveProductFromOrderCommand
-        {
-            OrderId = id,
-            ProductIds = request.ProductIds.ToList()
-        };
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpPatch("{id:guid}/products/{productId:guid}/quantity")]
-    public async Task<IActionResult> UpdateOrderProductQuantity(
-        Guid id,
-        Guid productId,
-        UpdateOrderProductQuantityRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new UpdateOrderProductQuantityCommand
-        {
-            OrderId = id,
-            ProductId = productId,
-            NewQuantity = request.Quantity
-        };
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpPatch("{id:guid}/shipping-address")]
-    public async Task<IActionResult> UpdateOrderShippingAddress(
-        Guid id,
-        UpdateOrderShippingAddressRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new UpdateOrderShippingAddressCommand
+        var command = new UpdateOrder
         {
             OrderId = id,
             Street = request.Street,
             City = request.City,
             ZipCode = request.ZipCode,
-            Country = request.Country
+            Country = request.Country,
+            Info = request.Info
         };
 
         Result result = await _sender.Send(
@@ -203,6 +196,22 @@ public class OrdersController : ControllerBase
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
+
+    [HttpPatch("{id:guid}/confirm")]
+    public async Task<IActionResult> ConfirmOrder(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new ConfirmOrderCommand(id);
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
 
     [HttpPatch("{id:guid}/start-processing")]
     public async Task<IActionResult> StartProcessingOrder(
@@ -237,33 +246,38 @@ public class OrdersController : ControllerBase
     [HttpPatch("{id:guid}/ship")]
     public async Task<IActionResult> ShipOrder(
         Guid id,
-        ShipOrderRequest request,
+        [FromBody] ShipOrderRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ShipOrderCommand(id, request.TrackingNumber);
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
+        var command = new ShipOrderCommand(
+            id,
+            request.TrackingNumber,
+            request.Courier,
+            request.EstimatedDeliveryDate
         );
 
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+        Result result = await _sender.Send(command, cancellationToken);
+
+        return result.IsSuccess ? Ok() : BadRequest(result.Error);
     }
+
 
     [HttpPatch("{id:guid}/out-for-delivery")]
     public async Task<IActionResult> MarkOutForDelivery(
         Guid id,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromBody] OutForDeliveryRequest? request = null)
     {
-        var command = new MarkOutForDeliveryCommand(id);
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
+        var command = new MarkOutForDeliveryCommand(
+            id,
+            request?.EstimatedDeliveryDate
         );
 
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+        Result result = await _sender.Send(command, cancellationToken);
+
+        return result.IsSuccess ? Ok() : BadRequest(result.Error);
     }
+
 
     [HttpPatch("{id:guid}/deliver")]
     public async Task<IActionResult> MarkOrderAsDelivered(
@@ -295,27 +309,34 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    [HttpPost("{id:guid}/return")]
+    [HttpPatch("{id:guid}/return")]
     public async Task<IActionResult> ReturnOrder(
         Guid id,
+        [FromBody] ReturnOrderRequest request, // ✅ Add [FromBody] parameter
         CancellationToken cancellationToken)
     {
-        var command = new ReturnOrderCommand { OrderId = id };
+        var command = new ReturnOrderCommand
+        {
+            OrderId = id,
+            ReturnReason = request.ReturnReason // ✅ Use the request data
+        };
 
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
+        Result result = await _sender.Send(command, cancellationToken);
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
+
 
     [HttpPatch("{id:guid}/cancel")]
     public async Task<IActionResult> CancelOrder(
         Guid id,
+        [FromBody] CancelOrderRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CancelOrderCommand { OrderId = id };
+        var command = new CancelOrderCommand
+        {
+            OrderId = id,
+            CancellationReason = request.CancellationReason
+        };
 
         Result result = await _sender.Send(
             command,
@@ -324,6 +345,7 @@ public class OrdersController : ControllerBase
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
+
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteOrder(
@@ -339,16 +361,94 @@ public class OrdersController : ControllerBase
 
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
+
+    [HttpPost("{orderId:guid}/products")]
+    public async Task<IActionResult> AddProductsToOrder(
+        Guid orderId,
+        [FromBody] AddProductToOrderRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AddProductToOrderCommand(
+            orderId,
+            request.Products.Select(p => new ProductItem(p.ProductId, p.Quantity)).ToList());
+
+        Result result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
+    }
+
+    [HttpDelete("{id:guid}/products")]
+    public async Task<IActionResult> RemoveProductsFromOrder(
+        Guid id,
+        RemoveProductsFromOrderRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RemoveProductFromOrderCommand
+        {
+            OrderId = id,
+            ProductRemovals = request.ProductRemovals
+                .Select(dto => new ProductRemovalRequest
+                {
+                    ProductId = dto.ProductId,
+                    Quantity = dto.Quantity
+                })
+                .ToList()
+        };
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
+
+    [HttpPatch("{id:guid}/products/{productId:guid}/quantity")]
+    public async Task<IActionResult> UpdateOrderProductQuantity(
+        Guid id,
+        Guid productId,
+        UpdateOrderProductQuantityRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateOrderProductQuantityCommand
+        {
+            OrderId = id,
+            ProductId = productId,
+            Quantity = request.Quantity
+        };
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
 }
 
-// POST /api/v1/orders                     → Create order (Pending)
-// PATCH /api/v1/orders/{id}/confirm       → Confirm order (Confirmed)
-// PATCH /api/v1/orders/{id}/start-processing → Start processing (Processing)
-// PATCH /api/v1/orders/{id}/ready-for-shipment → Ready for shipment (ReadyForShipment)
-// PATCH /api/v1/orders/{id}/ship          → Ship order (Shipped)
-// PATCH /api/v1/orders/{id}/out-for-delivery → Out for delivery (OutForDelivery)
-// PATCH /api/v1/orders/{id}/deliver       → Mark as delivered (Delivered)
-// PATCH /api/v1/orders/{id}/complete      → Complete order (Completed)
+// // Your fulfillment business flow:
+// POST   /api/v1/orders                          → Create order (Pending)
+// // ↓ Customer pays
+// PATCH  /api/v1/orders/{id}/confirm             → Confirm order (Confirmed) [After all payments received]
+// // ↓ You order from warehouse/supplier
+// PATCH  /api/v1/orders/{id}/start-processing    → Start processing (Processing) [Order from warehouse]
+// // ↓ Products arrive at your store from supplier
+// PATCH  /api/v1/orders/{id}/ready-for-shipment → Ready for shipment (ReadyForShipment) [Products at your store]
+// // ↓ You hand over to delivery service
+// PATCH  /api/v1/orders/{id}/ship                → Ship order (Shipped) [Given to delivery service]
+// // ↓ Delivery service is en route to customer
+// PATCH  /api/v1/orders/{id}/out-for-delivery    → Out for delivery (OutForDelivery)
+// // ↓ Package delivered to customer
+// PATCH  /api/v1/orders/{id}/deliver             → Mark as delivered (Delivered)
+// // ↓ Customer confirms satisfaction or return period expires
+//     PATCH  /api/v1/orders/{id}/complete            → Complete order (Completed)
+//
 // // Exception flows:
-// PATCH /api/v1/orders/{id}/cancel        → Cancel order (Cancelled)
-// POST /api/v1/orders/{id}/return         → Return order (Returned)
+// PATCH  /api/v1/orders/{id}/cancel              → Cancel order (Cancelled) [With reason]
+// POST   /api/v1/orders/{id}/return              → Return order (Returned) [Customer returns]

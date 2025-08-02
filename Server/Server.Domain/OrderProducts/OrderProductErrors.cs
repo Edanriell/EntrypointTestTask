@@ -19,4 +19,8 @@ public static class OrderProductErrors
     public static readonly Error InsufficientStock = new(
         "OrderProduct.InsufficientStock",
         "The requested quantity exceeds the available stock for this product");
+
+    public static readonly Error MixedCurrenciesNotAllowed = new(
+        "OrderProduct.MixedCurrenciesNotAllowed",
+        "Cannot add products with different currencies to the same order");
 }

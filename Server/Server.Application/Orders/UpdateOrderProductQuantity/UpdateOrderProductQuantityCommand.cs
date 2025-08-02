@@ -6,5 +6,5 @@ public sealed record UpdateOrderProductQuantityCommand : ICommand
 {
     public Guid OrderId { get; init; }
     public Guid ProductId { get; init; }
-    public int NewQuantity { get; init; }
+    public int Quantity { get; init; }
 }

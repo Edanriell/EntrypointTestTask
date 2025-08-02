@@ -1,11 +1,10 @@
 ﻿using Server.Domain.Abstractions;
-using Server.Domain.OrderProducts;
 using Server.Domain.Orders;
 using Server.Domain.Products;
 using Server.Domain.Shared;
 
-namespace Server.Domain.OrderItems;
- 
+namespace Server.Domain.OrderProducts;
+
 public sealed class OrderProduct : Entity
 {
     private OrderProduct(
@@ -61,14 +60,27 @@ public sealed class OrderProduct : Entity
             return Result.Failure<OrderProduct>(OrderProductErrors.InvalidOrderProductQuantity);
         }
 
+
+        Result<Money> unitPriceResult = Money.Create(unitPrice.Amount, unitPrice.Currency);
+        if (unitPriceResult.IsFailure)
+        {
+            return Result.Failure<OrderProduct>(unitPriceResult.Error);
+        }
+
+        Result<Money> totalPriceResult = Money.Create(unitPrice.Amount * quantity.Value, unitPrice.Currency);
+        if (totalPriceResult.IsFailure)
+        {
+            return Result.Failure<OrderProduct>(totalPriceResult.Error);
+        }
+
         var orderProduct = new OrderProduct(
             Guid.NewGuid(),
             orderId,
             productId,
             productName,
-            unitPrice,
+            unitPriceResult.Value,
             quantity,
-            new Money(unitPrice.Amount * quantity.Value, unitPrice.Currency)
+            totalPriceResult.Value
         );
 
         return Result.Success(orderProduct);
@@ -82,7 +94,7 @@ public sealed class OrderProduct : Entity
         }
 
         Quantity = newQuantity;
-        RecalculateTotal();
+        RecalculateTotalPrice();
 
         return Result.Success();
     }
@@ -95,13 +107,17 @@ public sealed class OrderProduct : Entity
         }
 
         UnitPrice = newUnitPrice;
-        RecalculateTotal();
+        RecalculateTotalPrice();
 
         return Result.Success();
     }
 
-    private void RecalculateTotal()
+    private void RecalculateTotalPrice()
     {
-        TotalPrice = new Money(UnitPrice.Amount * Quantity.Value, UnitPrice.Currency);
+        Result<Money> totalPriceResult = Money.Create(UnitPrice.Amount * Quantity.Value, UnitPrice.Currency);
+        if (totalPriceResult.IsSuccess)
+        {
+            TotalPrice = totalPriceResult.Value;
+        }
     }
 }

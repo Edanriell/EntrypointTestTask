@@ -34,3 +34,4 @@ public sealed record ProductName
         return new ProductName(value);
     }
 }
+ 

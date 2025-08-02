@@ -23,6 +23,8 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
+            // FIXES problem
+            // .AsNoTracking()
             .Include(p => p.Refunds)
             .Where(p => p.OrderId == orderId)
             .OrderBy(p => p.CreatedAt)

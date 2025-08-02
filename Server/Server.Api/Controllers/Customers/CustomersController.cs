@@ -3,13 +3,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Controllers.Customers;
-using Server.Application.Users.GetClients;
-using Server.Application.Users.GetUserById;
+using Server.Application.Users.GetCustomerById;
+using Server.Application.Users.GetCustomers;
 using Server.Application.Users.RegisterCustomer;
 using Server.Domain.Abstractions;
 
 namespace Server.Api.Controllers.Clients;
- 
+
 [ApiController]
 [ApiVersion(ApiVersions.V1)]
 [Route("api/v{version:apiVersion}/customers")]
@@ -54,7 +54,7 @@ public class CustomersController : ControllerBase
     {
         var query = new GetCustomerByIdQuery(id);
 
-        Result<CustomerResponse> result = await _sender.Send(
+        Result<GetCustomerByIdResponse> result = await _sender.Send(
             query,
             cancellationToken
         );

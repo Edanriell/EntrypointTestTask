@@ -7,7 +7,7 @@ using Server.Domain.Orders;
 
 namespace Server.Application.Orders.GetOrderById;
 
-internal sealed class GetOrderByIdQueryHandler : IQueryHandler<GetOrderByIdQuery, OrdersResponse>
+internal sealed class GetOrderByIdQueryHandler : IQueryHandler<GetOrderByIdQuery, GetOrderByIdResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -16,85 +16,137 @@ internal sealed class GetOrderByIdQueryHandler : IQueryHandler<GetOrderByIdQuery
         _sqlConnectionFactory = sqlConnectionFactory;
     }
 
-    public async Task<Result<OrdersResponse>> Handle(
+    public async Task<Result<GetOrderByIdResponse>> Handle(
         GetOrderByIdQuery request,
         CancellationToken cancellationToken)
     {
         using IDbConnection connection = _sqlConnectionFactory.CreateConnection();
 
         const string sql = """
-                            SELECT
-                                o.id AS Id,
-                                o.client_id AS ClientId,
-                                o.order_number AS OrderNumber,
-                                o.status AS Status,
-                                o.total_amount AS TotalAmount,
-                                o.shipping_address AS ShippingAddress,
-                                o.created_at AS CreatedAt,
-                                o.confirmed_at AS ConfirmedAt,
-                                o.shipped_at AS ShippedAt,
-                                o.delivered_at AS DeliveredAt,
-                                o.cancelled_at AS CancelledAt,
-                                o.cancellation_reason AS CancellationReason,
-                                o.return_reason AS ReturnReason,
-                                o.refund_reason AS RefundReason,
-                                o.tracking_number AS TrackingNumber,
-                                
-                                -- Client information
-                                u.id AS ClientId,
-                                u.first_name AS ClientFirstName,
-                                u.last_name AS ClientLastName,
-                                u.email AS ClientEmail,
-                                u.phone_number AS ClientPhoneNumber,
-                                
-                                -- Payment information
-                                p.id AS PaymentId,
-                                p.total_amount AS PaymentTotalAmount,
-                                p.payment_status AS PaymentStatus,
-                                p.paid_amount AS PaidAmount,
-                                p.outstanding_amount AS OutstandingAmount
-                                
-                            FROM orders o
-                            INNER JOIN users u ON o.client_id = u.id
-                            LEFT JOIN payments p ON o.id = p.order_id
-                            WHERE o.id = @OrderId
+                            SELECT 
+                             -- Order columns
+                             o.id AS Id,
+                             o.client_id AS ClientId,
+                             o.order_number AS OrderNumber,
+                             o.status AS Status,
+                             o.total_amount AS TotalAmount,
+                             o.paid_amount AS PaidAmount,
+                             GREATEST(0, o.total_amount - o.paid_amount) AS OutstandingAmount,
+
+                             -- Shipping address concatenated
+                             CONCAT_WS(', ', 
+                                 NULLIF(o.shipping_address_street, ''), 
+                                 NULLIF(o.shipping_address_city, ''), 
+                                 NULLIF(o.shipping_address_country, ''), 
+                                 NULLIF(o.shipping_address_zipcode, '')
+                             ) AS ShippingAddress,
+                             
+                             -- Other order columns
+                             o.courier AS Courier,
+                             o.created_at AS CreatedAt,
+                             o.confirmed_at AS ConfirmedAt,
+                             o.shipped_at AS ShippedAt,
+                             o.delivered_at AS DeliveredAt,
+                             o.cancelled_at AS CancelledAt,
+                             o.estimated_delivery_date AS EstimatedDeliveryDate,
+                             o.cancellation_reason AS CancellationReason,
+                             o.return_reason AS ReturnReason,
+                             o.refund_reason AS RefundReason,
+                             o.info as Info,
+                             o.tracking_number AS TrackingNumber,
+                             o.currency AS Currency,
+                             
+                             -- Client data
+                             u.id AS ClientId,
+                             u.first_name AS ClientFirstName,
+                             u.last_name AS ClientLastName,
+                             u.email AS ClientEmail,
+                             u.phone_number AS ClientPhoneNumber,
+                             
+                             -- Payment data (all payments, not just latest)
+                             p.id AS PaymentId,
+                             p.amount AS PaymentTotalAmount,
+                             p.payment_status AS PaymentStatus,
+                             
+                             -- Order Product data
+                             op.product_id AS ProductId,
+                             op.product_name AS ProductName,
+                             op.quantity AS Quantity,
+                             op.unit_price_amount AS UnitPriceAmount,
+                             op.unit_price_currency AS UnitPriceCurrency,
+                             op.total_price_amount AS TotalPriceAmount
+
+                           FROM orders o
+                           LEFT JOIN users u ON o.client_id = u.id
+                           LEFT JOIN payments p ON o.id = p.order_id
+                           LEFT JOIN order_products op ON o.id = op.order_id
+                           WHERE o.id = @OrderId
+                           ORDER BY p.created_at DESC
                            """;
 
-        IEnumerable<OrdersResponse> result =
-            await connection.QueryAsync<OrdersResponse, ClientResponse, PaymentResponse, OrdersResponse>(
+        var orderDictionary = new Dictionary<Guid, GetOrderByIdResponse>();
+
+        await connection
+            .QueryAsync<GetOrderByIdResponse, ClientResponse, PaymentResponse, OrderProductResponse,
+                GetOrderByIdResponse>(
                 sql,
-                (order, client, payment) =>
+                (order, client, payment, orderProduct) =>
                 {
-                    return new OrdersResponse
+                    if (!orderDictionary.TryGetValue(order.Id, out GetOrderByIdResponse? existingOrder))
                     {
-                        Id = order.Id,
-                        ClientId = order.ClientId,
-                        OrderNumber = order.OrderNumber,
-                        Status = order.Status,
-                        TotalAmount = order.TotalAmount,
-                        ShippingAddress = order.ShippingAddress,
-                        CreatedAt = order.CreatedAt,
-                        ConfirmedAt = order.ConfirmedAt,
-                        ShippedAt = order.ShippedAt,
-                        DeliveredAt = order.DeliveredAt,
-                        CancelledAt = order.CancelledAt,
-                        CancellationReason = order.CancellationReason,
-                        ReturnReason = order.ReturnReason,
-                        RefundReason = order.RefundReason,
-                        TrackingNumber = order.TrackingNumber,
-                        Client = client,
-                        Payment = payment
-                    };
+                        var orderProducts = new List<OrderProductResponse>();
+                        if (orderProduct != null)
+                        {
+                            orderProducts.Add(orderProduct);
+                        }
+
+                        var payments = new List<PaymentResponse>();
+                        if (payment != null)
+                        {
+                            payments.Add(payment);
+                        }
+
+                        GetOrderByIdResponse newOrder = order with
+                        {
+                            Client = client,
+                            Payments = payments,
+                            OrderProducts = orderProducts
+                        };
+                        orderDictionary.Add(order.Id, newOrder);
+                        return newOrder;
+                    }
+
+                    // Add payment if not already added
+                    if (payment != null &&
+                        !existingOrder.Payments!.Any(p => p.PaymentId == payment.PaymentId))
+                    {
+                        var updatedPayments = existingOrder.Payments!.ToList();
+                        updatedPayments.Add(payment);
+                        existingOrder = existingOrder with { Payments = updatedPayments };
+                        orderDictionary[order.Id] = existingOrder;
+                    }
+
+                    // Add product if not already added
+                    if (orderProduct != null &&
+                        !existingOrder.OrderProducts.Any(p => p.ProductId == orderProduct.ProductId))
+                    {
+                        var updatedProducts = existingOrder.OrderProducts.ToList();
+                        updatedProducts.Add(orderProduct);
+                        existingOrder = existingOrder with { OrderProducts = updatedProducts };
+                        orderDictionary[order.Id] = existingOrder;
+                    }
+
+                    return existingOrder;
                 },
                 new { request.OrderId },
-                splitOn: "ClientId,PaymentId"
+                splitOn: "ClientId,PaymentId,ProductId"
             );
 
-        OrdersResponse? order = result.FirstOrDefault();
+        GetOrderByIdResponse? order = orderDictionary.Values.FirstOrDefault();
 
         if (order is null)
         {
-            return Result.Failure<OrdersResponse>(OrderErrors.NotFound);
+            return Result.Failure<GetOrderByIdResponse>(OrderErrors.NotFound);
         }
 
         return order;

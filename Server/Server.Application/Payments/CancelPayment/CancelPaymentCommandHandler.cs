@@ -25,7 +25,7 @@ internal sealed class CancelPaymentCommandHandler : ICommandHandler<CancelPaymen
             return Result.Failure(PaymentErrors.NotFound);
         }
 
-        Result cancelResult = payment.CancelPayment(request.Reason);
+        Result cancelResult = payment.Cancel();
         if (cancelResult.IsFailure)
         {
             return cancelResult;

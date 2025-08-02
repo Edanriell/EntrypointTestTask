@@ -25,7 +25,7 @@ internal sealed class ConfirmOrderCommandHandler : ICommandHandler<ConfirmOrderC
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        Result confirmResult = order.ConfirmOrder();
+        Result confirmResult = order.Confirm();
         if (confirmResult.IsFailure)
         {
             return confirmResult;

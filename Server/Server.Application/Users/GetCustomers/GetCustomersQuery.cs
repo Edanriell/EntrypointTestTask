@@ -1,10 +1,10 @@
 ﻿using Server.Application.Abstractions.Messaging;
 
-namespace Server.Application.Users.GetClients;
+namespace Server.Application.Users.GetCustomers;
 
 public sealed class GetCustomersQuery : IQuery<GetCustomersResponse>
 {
-    public int PageSize { get; init; } = 20;
+    public int PageSize { get; init; } = 10;
     public string? Cursor { get; init; }
     public string? SortBy { get; init; } = "CreatedOnUtc";
     public string? SortDirection { get; init; } = "DESC";

@@ -10,19 +10,17 @@ namespace Server.Infrastructure.Authorization;
 internal sealed class CustomClaimsTransformation : IClaimsTransformation
 {
     private readonly IServiceProvider _serviceProvider;
- 
+
     public CustomClaimsTransformation(IServiceProvider serviceProvider) { _serviceProvider = serviceProvider; }
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        if (principal.Identity is not
-            {
-                IsAuthenticated: true
-            }
-            || principal.HasClaim(claim => claim.Type == ClaimTypes.Role
-            )
-            && principal.HasClaim(claim => claim.Type == JwtRegisteredClaimNames.Sub
-            ))
+        bool notAuthenticated = principal.Identity is not { IsAuthenticated: true };
+        bool hasRequiredClaims =
+            principal.HasClaim(c => c.Type == ClaimTypes.Role) &&
+            principal.HasClaim(c => c.Type == JwtRegisteredClaimNames.Sub);
+
+        if (notAuthenticated || hasRequiredClaims)
         {
             return principal;
         }

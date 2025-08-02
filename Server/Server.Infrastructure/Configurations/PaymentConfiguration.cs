@@ -45,11 +45,6 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.Property(payment => payment.PaymentReference)
-            .HasColumnName("payment_reference")
-            .HasMaxLength(200)
-            .IsRequired(false);
-
         builder.Property(payment => payment.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();
@@ -58,17 +53,40 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasColumnName("payment_completed_at")
             .IsRequired(false);
 
+        builder.Property(payment => payment.PaymentFailedAt)
+            .HasColumnName("payment_failed_at")
+            .IsRequired(false);
+
+        builder.Property(payment => payment.PaymentExpiredAt)
+            .HasColumnName("payment_expired_at")
+            .IsRequired(false);
+
+        builder.Property(payment => payment.PaymentFailureReason)
+            .HasConversion(
+                reason => reason != null ? reason.Value : null,
+                value => value != null ? PaymentFailureReason.Create(value) : null)
+            .HasColumnName("payment_failure_reason")
+            .HasMaxLength(100)
+            .IsRequired(false);
+
         builder.HasMany(payment => payment.Refunds)
             .WithOne(refund => refund.Payment)
             .HasForeignKey(refund => refund.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Test
+        // builder.HasMany<Refund>("_refunds")
+        //     .WithOne(refund => refund.Payment)
+        //     .HasForeignKey(refund => refund.PaymentId)
+        //     .OnDelete(DeleteBehavior.Cascade);
+        //
+        // builder.Navigation("_refunds")
+        //     .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(payment => payment.OrderId)
             .HasDatabaseName("ix_payments_order_id");
-
         builder.HasIndex(payment => payment.PaymentStatus)
             .HasDatabaseName("ix_payments_payment_status");
-
         builder.HasIndex(payment => payment.CreatedAt)
             .HasDatabaseName("ix_payments_created_at");
     }

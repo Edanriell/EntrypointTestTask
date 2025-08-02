@@ -17,7 +17,7 @@ public static class UserErrors
         "User.InvalidCredentials",
         "The provided credentials were invalid"
     );
-
+ 
     public static readonly Error UpdateFailed = new(
         "User.UpdateFailed",
         "Failed to update user in authentication service"

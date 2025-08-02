@@ -56,3 +56,4 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
         );
     }
 }
+ 

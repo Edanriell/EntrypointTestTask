@@ -6,8 +6,10 @@ public sealed record CreateOrderCommand : ICommand<Guid>
 {
     public Guid ClientId { get; init; }
     public string OrderNumber { get; init; }
+    public string Currency { get; init; }
     public ShippingAddress ShippingAddress { get; init; }
     public List<OrderItem> OrderItems { get; init; } = new();
+    public string? Info { get; init; }
 }
 
 public sealed record ShippingAddress

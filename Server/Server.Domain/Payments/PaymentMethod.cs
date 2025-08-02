@@ -15,7 +15,7 @@ public enum PaymentMethod
 
 public static class PaymentMethodExtensions
 {
-    public static Result<PaymentMethod> FromString(string value)
+    public static Result<PaymentMethod> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {

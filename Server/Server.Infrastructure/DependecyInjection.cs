@@ -11,7 +11,9 @@ using Server.Application.Abstractions.Authentication;
 using Server.Application.Abstractions.Caching;
 using Server.Application.Abstractions.Clock;
 using Server.Application.Abstractions.Data;
+using Server.Application.Abstractions.Pagination;
 using Server.Domain.Abstractions;
+using Server.Domain.OrderProducts;
 using Server.Domain.Orders;
 using Server.Domain.Payments;
 using Server.Domain.Products;
@@ -21,6 +23,7 @@ using Server.Infrastructure.Authorization;
 using Server.Infrastructure.Caching;
 using Server.Infrastructure.Clock;
 using Server.Infrastructure.Data;
+using Server.Infrastructure.Pagination;
 using Server.Infrastructure.Repositories;
 using AuthenticationOptions = Server.Infrastructure.Authentication.AuthenticationOptions;
 using AuthenticationService = Server.Infrastructure.Authentication.AuthenticationService;
@@ -89,6 +92,10 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+        services.AddScoped<IOrderProductRepository, OrderProductRepository>();
+
+        services.AddScoped<ICursorPaginationService, CursorPaginationService>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>()
         );

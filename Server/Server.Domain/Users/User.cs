@@ -7,6 +7,7 @@ namespace Server.Domain.Users;
 
 public sealed class User : Entity
 {
+    private readonly List<Order> _orders = new();
     private readonly List<Role> _roles = new();
 
     private User(
@@ -25,7 +26,6 @@ public sealed class User : Entity
     private User() { }
 
     public string IdentityId { get; private set; } = string.Empty;
-
     public FirstName FirstName { get; private set; }
     public LastName LastName { get; private set; }
     public Email Email { get; private set; }
@@ -33,11 +33,8 @@ public sealed class User : Entity
     public Gender Gender { get; private set; }
     public Address Address { get; private set; }
     public DateTime CreatedAt { get; private set; }
-
-    public IReadOnlyCollection<Role> Roles => _roles.ToList();
-
-    // Navigation property
-    public List<Order>? Orders { get; private set; }
+    public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
+    public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
 
     public static User CreateUser(
         FirstName firstName,
@@ -59,18 +56,10 @@ public sealed class User : Entity
             DateTime.UtcNow
         );
 
-        user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
-
         List<Role> rolesList = roles?.ToList() ?? new List<Role>();
+        user._roles.AddRange(rolesList.Any() ? rolesList : [Role.Guest]);
 
-        if (rolesList.Count > 0)
-        {
-            user._roles.AddRange(rolesList);
-        }
-        else
-        {
-            user._roles.Add(Role.Guest);
-        }
+        user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         return user;
     }
@@ -98,60 +87,145 @@ public sealed class User : Entity
         return user;
     }
 
-    public Result Update(
-        FirstName? firstName, LastName? lastName, Email? email, PhoneNumber? phoneNumber, Gender? gender,
-        Address? address)
+    public Result ChangeEmail(Email newEmail)
     {
-        if (firstName is not null && !FirstName.Equals(firstName))
+        if (Email.Equals(newEmail))
+        {
+            return Result.Success();
+        }
+
+        Email oldEmail = Email;
+        Email = newEmail;
+
+        RaiseDomainEvent(new UserEmailChangedDomainEvent(Id, oldEmail, newEmail));
+
+        return Result.Success();
+    }
+
+    public Result ChangePhoneNumber(PhoneNumber newPhoneNumber)
+    {
+        if (PhoneNumber.Equals(newPhoneNumber))
+        {
+            return Result.Success();
+        }
+
+        PhoneNumber oldPhoneNumber = PhoneNumber;
+        PhoneNumber = newPhoneNumber;
+
+        RaiseDomainEvent(new UserPhoneNumberChangedDomainEvent(Id, oldPhoneNumber, newPhoneNumber));
+
+        return Result.Success();
+    }
+
+    public Result UpdatePersonalInfo(FirstName? firstName, LastName? lastName)
+    {
+        bool hasChanges = false;
+
+        if (!FirstName.Equals(firstName) && firstName is not null)
         {
             FirstName = firstName;
+            hasChanges = true;
         }
 
-        if (lastName is not null && !LastName.Equals(lastName))
+        if (!LastName.Equals(lastName) && lastName is not null)
         {
             LastName = lastName;
+            hasChanges = true;
         }
 
-        if (email is not null && !Email.Equals(email))
+        if (hasChanges)
         {
-            Email = email;
-
-            RaiseDomainEvent(new UserEmailChangedDomainEvent(Id, Email, email));
+            RaiseDomainEvent(new UserPersonalInfoUpdatedDomainEvent(Id, FirstName, LastName));
         }
 
-        if (phoneNumber is not null && !PhoneNumber.Equals(phoneNumber))
+        return Result.Success();
+    }
+
+    public Result ChangeGender(Gender newGender)
+    {
+        if (Gender.Equals(newGender))
         {
-            PhoneNumber = phoneNumber;
-
-            RaiseDomainEvent(new UserPhoneNumberChangedDomainEvent(Id, PhoneNumber, phoneNumber));
+            return Result.Success();
         }
 
-        if (gender is not null && !Gender.Equals(gender))
+        Gender = newGender;
+
+        return Result.Success();
+    }
+
+    public Result ChangeAddress(Address newAddress)
+    {
+        if (Address.Equals(newAddress))
         {
-            Gender = gender.Value;
+            return Result.Success();
         }
 
-        if (address is not null && !Address.Equals(address))
+        Address oldAddress = Address;
+        Address = newAddress;
+
+        RaiseDomainEvent(new UserAddressChangedDomainEvent(Id, oldAddress, newAddress));
+
+        return Result.Success();
+    }
+
+    public Result Update(
+        FirstName? firstName = null,
+        LastName? lastName = null,
+        Email? email = null,
+        PhoneNumber? phoneNumber = null,
+        Gender? gender = null,
+        Address? address = null)
+    {
+        if (firstName is not null || lastName is not null)
         {
-            Address = address;
-
-            RaiseDomainEvent(new UserAddressChangedDomainEvent(Id, Address, address));
+            Result personalInfoResult = UpdatePersonalInfo(firstName, lastName);
+            if (personalInfoResult.IsFailure)
+            {
+                return Result.Failure(personalInfoResult.Error);
+            }
         }
 
-        RaiseDomainEvent(new UserUpdatedDomainEvent(Id));
+        if (email is not null)
+        {
+            Result emailResult = ChangeEmail(email);
+            if (emailResult.IsFailure)
+            {
+                return Result.Failure(emailResult.Error);
+            }
+        }
+
+        if (phoneNumber is not null)
+        {
+            Result phoneResult = ChangePhoneNumber(phoneNumber);
+            if (phoneResult.IsFailure)
+            {
+                return Result.Failure(phoneResult.Error);
+            }
+        }
+
+        if (gender is not null)
+        {
+            Result genderResult = ChangeGender(gender.Value);
+            if (genderResult.IsFailure)
+            {
+                return Result.Failure(genderResult.Error);
+            }
+        }
+
+        if (address is not null)
+        {
+            Result addressResult = ChangeAddress(address);
+            if (addressResult.IsFailure)
+            {
+                return Result.Failure(addressResult.Error);
+            }
+        }
 
         return Result.Success();
     }
 
     public Result Delete()
     {
-        if (Orders?.Any(order => order.Status != OrderStatus.Delivered &&
-            order.Status != OrderStatus.Cancelled &&
-            order.Status != OrderStatus.Returned) == true)
-        {
-            return Result.Failure(UserErrors.CannotDeleteUserWithActiveOrders);
-        }
-
         RaiseDomainEvent(new UserDeletedDomainEvent(Id, Email.Value));
 
         return Result.Success();
@@ -165,6 +239,7 @@ public sealed class User : Entity
         }
 
         _roles.Add(role);
+
         RaiseDomainEvent(new UserRoleAddedDomainEvent(Id, role.Id));
 
         return Result.Success();
@@ -178,6 +253,7 @@ public sealed class User : Entity
         }
 
         _roles.Remove(role);
+
         RaiseDomainEvent(new UserRoleRemovedDomainEvent(Id, role.Id));
 
         return Result.Success();
@@ -185,6 +261,11 @@ public sealed class User : Entity
 
     public void SetIdentityId(string identityId)
     {
+        if (!string.IsNullOrWhiteSpace(IdentityId))
+        {
+            throw new InvalidOperationException("Identity ID has already been set");
+        }
+
         if (string.IsNullOrWhiteSpace(identityId))
         {
             throw new ArgumentException("Identity ID cannot be null or empty", nameof(identityId));

@@ -35,3 +35,4 @@ public sealed record ProductDescription
         return new ProductDescription(value);
     }
 }
+ 

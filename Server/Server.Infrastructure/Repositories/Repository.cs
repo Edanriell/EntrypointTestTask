@@ -27,4 +27,4 @@ internal abstract class Repository<T>
             entity
         );
     }
-}
+} 

@@ -36,3 +36,4 @@ internal sealed class MarkReadyForShipmentCommandHandler : ICommandHandler<MarkR
         return Result.Success();
     }
 }
+ 

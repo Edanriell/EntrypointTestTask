@@ -4,5 +4,5 @@ namespace Server.Application.Products.UpdateProductStock;
 
 public sealed record UpdateProductStockCommand(
     Guid ProductId,
-    int Stock
+    int TotalStock
 ) : ICommand;

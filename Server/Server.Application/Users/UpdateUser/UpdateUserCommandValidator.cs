@@ -1,11 +1,16 @@
 ﻿using FluentValidation;
+using Server.Domain.Users;
 
 namespace Server.Application.Users.UpdateUser;
 
 internal sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
-    public UpdateUserCommandValidator()
+    private readonly IUserRepository _userRepository;
+
+    public UpdateUserCommandValidator(IUserRepository userRepository)
     {
+        _userRepository = userRepository;
+
         RuleFor(c => c.UserId)
             .NotEmpty()
             .WithMessage("User ID is required");
@@ -24,12 +29,18 @@ internal sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserC
             .EmailAddress()
             .MaximumLength(255)
             .When(c => !string.IsNullOrWhiteSpace(c.Email))
-            .WithMessage("Invalid email format or email exceeds 255 characters");
+            .WithMessage("Invalid email format or email exceeds 255 characters")
+            .MustAsync(BeUniqueEmail)
+            .When(c => !string.IsNullOrWhiteSpace(c.Email))
+            .WithMessage("Email address is already in use");
 
         RuleFor(c => c.PhoneNumber)
             .Matches(@"^\+?[1-9]\d{1,14}$")
             .When(c => !string.IsNullOrWhiteSpace(c.PhoneNumber))
-            .WithMessage("Phone number must be in valid international format");
+            .WithMessage("Phone number must be in valid international format")
+            .MustAsync(BeUniquePhoneNumber)
+            .When(c => !string.IsNullOrWhiteSpace(c.PhoneNumber))
+            .WithMessage("Phone number is already in use");
 
         RuleFor(c => c.Gender)
             .IsInEnum()
@@ -78,7 +89,22 @@ internal sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserC
         bool hasZipCode = !string.IsNullOrWhiteSpace(command.ZipCode);
         bool hasStreet = !string.IsNullOrWhiteSpace(command.Street);
 
-        return hasCountry && hasCity && hasZipCode && hasStreet ||
-            !hasCountry && !hasCity && !hasZipCode && !hasStreet;
+        bool allPresent = hasCountry && hasCity && hasZipCode && hasStreet;
+        bool allMissing = !hasCountry && !hasCity && !hasZipCode && !hasStreet;
+
+        return allPresent || allMissing;
+    }
+
+    private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
+    {
+        User? existingUser = await _userRepository.GetByEmailAsync(new Email(email), cancellationToken);
+        return existingUser is null;
+    }
+
+    private async Task<bool> BeUniquePhoneNumber(string phoneNumber, CancellationToken cancellationToken)
+    {
+        User? existingUser =
+            await _userRepository.GetByPhoneNumberAsync(new PhoneNumber(phoneNumber), cancellationToken);
+        return existingUser is null;
     }
 }

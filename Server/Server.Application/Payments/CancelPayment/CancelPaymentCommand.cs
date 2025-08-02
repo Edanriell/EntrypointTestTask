@@ -2,4 +2,4 @@
 
 namespace Server.Application.Payments.CancelPayment;
 
-public sealed record CancelPaymentCommand(Guid PaymentId, string Reason) : ICommand;
+public sealed record CancelPaymentCommand(Guid PaymentId) : ICommand;

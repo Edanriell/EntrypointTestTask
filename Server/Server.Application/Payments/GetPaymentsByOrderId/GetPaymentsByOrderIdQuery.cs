@@ -2,4 +2,4 @@
 
 namespace Server.Application.Payments.GetPaymentsByOrderId;
 
-public sealed record GetPaymentsByOrderIdQuery(Guid OrderId) : IQuery<IReadOnlyList<GetPaymentsByOrderIdResponse>>;
+public sealed record GetPaymentsByOrderIdQuery(Guid OrderId) : IQuery<GetPaymentsByOrderIdResponse>;

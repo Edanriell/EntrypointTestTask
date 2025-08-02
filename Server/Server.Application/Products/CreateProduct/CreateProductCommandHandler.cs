@@ -34,14 +34,19 @@ internal sealed class CreateProductCommandHandler : ICommandHandler<CreateProduc
             return Result.Failure<Guid>(descriptionResult.Error);
         }
 
-        Result<Money> priceResult = Money.Create(request.Price, Currency.Eur);
+        Result<Currency> currencyResult = Currency.FromCode(request.Currency.ToUpper());
+        if (currencyResult.IsFailure)
+        {
+            return Result.Failure<Guid>(currencyResult.Error);
+        }
+
+        Result<Money> priceResult = Money.Create(request.Price, currencyResult.Value);
         if (priceResult.IsFailure)
         {
             return Result.Failure<Guid>(priceResult.Error);
         }
 
-
-        Result<Quantity> stockResult = Quantity.CreateQuantity(request.Stock);
+        Result<Quantity> stockResult = Quantity.CreateQuantity(request.TotalStock);
         if (stockResult.IsFailure)
         {
             return Result.Failure<Guid>(stockResult.Error);

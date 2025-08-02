@@ -35,7 +35,6 @@ internal sealed class ReturnOrderCommandHandler : ICommandHandler<ReturnOrderCom
 
         Result result = order.Return(
             returnReasonResult.Value);
-
         if (result.IsFailure)
         {
             return Result.Failure(result.Error);

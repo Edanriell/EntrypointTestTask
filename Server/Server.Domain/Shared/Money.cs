@@ -111,3 +111,4 @@ public sealed record Money(decimal Amount, Currency Currency)
         return new Money(price.Amount, price.Currency);
     }
 }
+ 

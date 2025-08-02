@@ -11,3 +11,4 @@ internal sealed class RestoreProductCommandValidator : AbstractValidator<Restore
             .WithMessage("Product ID is required");
     }
 }
+ 

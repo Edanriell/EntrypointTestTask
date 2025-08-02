@@ -48,6 +48,17 @@ public sealed class ApplicationDbContext
         }
     }
 
+    public void ClearChangeTracker()
+    {
+        ChangeTracker.Clear();
+    }
+
+    // ✅ Implement the new method
+    public void MarkAsAdded<TEntity>(TEntity entity) where TEntity : class
+    {
+        Entry(entity).State = EntityState.Added;
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(

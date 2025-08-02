@@ -6,5 +6,6 @@ public sealed record CreateProductCommand(
     string Name,
     string Description,
     decimal Price,
-    int Stock
+    string Currency,
+    int TotalStock
 ) : ICommand<Guid>;

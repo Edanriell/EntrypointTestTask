@@ -1,6 +1,8 @@
 import { FieldPath } from "react-hook-form";
 
-import { EditUserFormData, Gender } from "../model";
+import { Gender } from "@entities/users";
+
+import { EditUserFormData } from "../model";
 
 export const EDIT_USER_FORM_FIELDS_MAPPING: Record<string, FieldPath<EditUserFormData>> = {
 	FirstName: "firstName",

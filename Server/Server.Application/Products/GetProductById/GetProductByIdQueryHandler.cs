@@ -7,7 +7,7 @@ using Server.Domain.Products;
 
 namespace Server.Application.Products.GetProductById;
 
-internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQuery, ProductResponse>
+internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQuery, GetProductByIdResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -16,7 +16,7 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
         _sqlConnectionFactory = sqlConnectionFactory;
     }
 
-    public async Task<Result<ProductResponse>> Handle(
+    public async Task<Result<GetProductByIdResponse>> Handle(
         GetProductByIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -28,24 +28,30 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
                                 name As Name,
                                 description AS Description,
                                 price_amount AS Price,
+                                price_currency as Currency,
+                                total_stock AS TotalStock,
                                 reserved AS Reserved,
-                                stock AS Stock,
+                                (total_stock - reserved) as Available,
+                                (total_stock - reserved = 0) as IsOutOfStock,
+                                (reserved > 0) as HasReservations,
+                                (total_stock - reserved > 0) as IsInStock,
                                 status AS Status,
                                 created_at AS CreatedAt,
                                 last_updated_at AS LastUpdatedAt,
                                 last_restocked_at AS LastRestockedAt
                                 FROM products
                                 WHERE id = @ProductId
+                                AND status != 'Deleted'
                            """;
 
-        ProductResponse?
-            product = await connection.QueryFirstOrDefaultAsync(
+        GetProductByIdResponse?
+            product = await connection.QueryFirstOrDefaultAsync<GetProductByIdResponse>(
                 sql,
                 new { request.ProductId });
 
         if (product is null)
         {
-            return Result.Failure<ProductResponse>(ProductErrors.NotFound);
+            return Result.Failure<GetProductByIdResponse>(ProductErrors.NotFound);
         }
 
         return product;

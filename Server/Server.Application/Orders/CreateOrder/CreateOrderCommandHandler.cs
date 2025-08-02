@@ -1,6 +1,5 @@
 ﻿using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
-using Server.Domain.OrderItems;
 using Server.Domain.OrderProducts;
 using Server.Domain.Orders;
 using Server.Domain.Products;
@@ -20,6 +19,7 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
     // MANY PAYMENTS
     // private readonly IPaymentRepository _paymentRepository;
     private readonly IProductRepository _productRepository;
+    private readonly ProductService _productService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
 
@@ -27,6 +27,8 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         IOrderRepository orderRepository,
         IUserRepository userRepository,
         IProductRepository productRepository,
+        ProductService productService,
+        OrderProductService orderProductService,
         // MANY PAYMENTS
         // IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork)
@@ -36,8 +38,9 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         _productRepository = productRepository;
         // MANY PAYMENTS
         // _paymentRepository = paymentRepository;
+        _orderProductService = orderProductService;
+        _productService = productService;
         _unitOfWork = unitOfWork;
-        _orderProductService = new OrderProductService();
         // MANY PAYMENTS
         // _orderPaymentService = new OrderPaymentService();
     }
@@ -46,10 +49,16 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         CreateOrderCommand request,
         CancellationToken cancellationToken)
     {
-        // If there is no order, items return early
+        // If there is no order items return early
         if (request.OrderItems is null || request.OrderItems.Count == 0)
         {
             return Result.Failure<Guid>(OrderErrors.EmptyOrder);
+        }
+
+        Result<Currency> currencyResult = Currency.Create(request.Currency);
+        if (currencyResult.IsFailure)
+        {
+            return Result.Failure<Guid>(currencyResult.Error);
         }
 
         // Get Client
@@ -66,6 +75,12 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
             return Result.Failure<Guid>(orderNumberResult.Error);
         }
 
+        OrderInfo orderInfoResult = null;
+        if (request.Info is not null)
+        {
+            orderInfoResult = OrderInfo.Create(request.Info);
+        }
+
         // Create a shipping address
         var shippingAddress = new Address(
             request.ShippingAddress.Country,
@@ -77,6 +92,8 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         Result<Order> orderResult = Order.Create(
             request.ClientId,
             orderNumberResult.Value,
+            currencyResult.Value,
+            orderInfoResult,
             shippingAddress);
         if (orderResult.IsFailure)
         {
@@ -115,6 +132,14 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
             if (addProductResult.IsFailure)
             {
                 return Result.Failure<Guid>(addProductResult.Error);
+            }
+
+            // This works TODO22 ?? 
+            Result reserveStockResult =
+                await _productService.ReserveStockAsync(orderProduct.ProductId, orderProduct.Quantity.Value);
+            if (reserveStockResult.IsFailure)
+            {
+                return Result.Failure<Guid>(reserveStockResult.Error);
             }
         }
 
@@ -159,10 +184,3 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         return Result.Success(order.Id);
     }
 }
-
-//  Test this variant of CreateOrderCommandHandler
-// Theoretically unit of work should help us to rollback 
-// 1. **Product A**: Stock reserved successfully ✅ (`Stock -= 10`)
-// 2. **Product B**: Stock reserved successfully ✅ (`Stock -= 5`)
-// 3. **Product C**: **FAILS** - insufficient stock ❌
-// 4. **Method returns failure** - but Products A & B still have reserved stock! 💥

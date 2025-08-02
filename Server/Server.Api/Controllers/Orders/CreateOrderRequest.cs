@@ -3,9 +3,11 @@
 public record CreateOrderRequest(
     Guid ClientId,
     ShippingAddressRequest ShippingAddress,
+    string Currency,
+    string? Info,
     IReadOnlyList<OrderItemRequest> OrderItems
 );
-  
+
 public record ShippingAddressRequest(
     string Country,
     string City,

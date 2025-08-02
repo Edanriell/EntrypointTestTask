@@ -14,3 +14,4 @@ public sealed record RegisterCustomerCommand(
     string ZipCode,
     string Street,
     string Password) : ICommand<Guid>;
+ 

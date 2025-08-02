@@ -16,3 +16,4 @@ public sealed class CancelOrderCommandValidator : AbstractValidator<CancelOrderC
             .WithMessage("Cancellation reason cannot exceed 500 characters");
     }
 }
+ 

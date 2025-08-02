@@ -9,7 +9,6 @@ using Server.Application.Products.GetProducts;
 using Server.Application.Products.RestoreProduct;
 using Server.Application.Products.UpdateProduct;
 using Server.Application.Products.UpdateProductPrice;
-using Server.Application.Products.UpdateProductReservedStock;
 using Server.Application.Products.UpdateProductStock;
 using Server.Domain.Abstractions;
 
@@ -63,7 +62,7 @@ public class ProductsController : ControllerBase
     {
         var query = new GetProductByIdQuery(id);
 
-        Result<ProductResponse> result = await _sender.Send(
+        Result<GetProductByIdResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -80,6 +79,7 @@ public class ProductsController : ControllerBase
             request.Name,
             request.Description,
             request.Price,
+            request.Currency,
             request.Stock
         );
 
@@ -110,9 +110,9 @@ public class ProductsController : ControllerBase
             id,
             request.Name,
             request.Description,
+            request.Currency,
             request.Price,
-            request.Stock,
-            request.Reserved
+            request.Stock
         );
 
         Result result = await _sender.Send(
@@ -152,25 +152,6 @@ public class ProductsController : ControllerBase
         var command = new UpdateProductStockCommand(
             id,
             request.Stock
-        );
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpPatch("{id:guid}/reserved-stock")]
-    public async Task<IActionResult> UpdateProductReservedStock(
-        Guid id,
-        UpdateProductReservedStockRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new UpdateProductReservedStockCommand(
-            id,
-            request.ReservedStock
         );
 
         Result result = await _sender.Send(

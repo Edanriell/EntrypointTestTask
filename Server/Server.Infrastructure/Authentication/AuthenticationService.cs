@@ -28,9 +28,9 @@ internal sealed class AuthenticationService : IAuthenticationService
         string password,
         CancellationToken cancellationToken = default)
     {
-        var userRepresentationModel = UserRepresentationModel.FromUser(
-            user
-        );
+        await EnsureAdminTokenAsync(cancellationToken);
+
+        var userRepresentationModel = UserRepresentationModel.FromUser(user);
 
         userRepresentationModel.Credentials = new CredentialRepresentationModel[]
         {
@@ -42,15 +42,21 @@ internal sealed class AuthenticationService : IAuthenticationService
             }
         };
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
+        using HttpClient adminClient = CreateAdminClient();
+
+        HttpResponseMessage response = await adminClient.PostAsJsonAsync(
             "users",
             userRepresentationModel,
             cancellationToken
         );
 
-        return ExtractIdentityIdFromLocationHeader(
-            response
-        );
+        if (!response.IsSuccessStatusCode)
+        {
+            string errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException($"User registration failed: {errorContent}");
+        }
+
+        return ExtractIdentityIdFromLocationHeader(response);
     }
 
     public async Task<string> LoginAsync(
@@ -73,38 +79,23 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var content = new FormUrlEncodedContent(parameters);
 
-        // Store original base address and auth header
-        Uri? originalBaseAddress = _httpClient.BaseAddress;
-        AuthenticationHeaderValue? originalAuth = _httpClient.DefaultRequestHeaders.Authorization;
+        using var tokenClient = new HttpClient();
 
-        try
+        HttpResponseMessage response = await tokenClient.PostAsync(
+            _keycloakOptions.TokenUrl,
+            content,
+            cancellationToken
+        );
+
+        if (!response.IsSuccessStatusCode)
         {
-            // Set token URL for login
-            _httpClient.BaseAddress = new Uri(_keycloakOptions.TokenUrl);
-            _httpClient.DefaultRequestHeaders.Authorization = null;
-
-            HttpResponseMessage response = await _httpClient.PostAsync(
-                string.Empty, // Empty since we're using the full token URL as base
-                content,
-                cancellationToken
-            );
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException("Invalid email or password");
-            }
-
-            string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            TokenResponse? tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
-
-            return tokenResponse?.AccessToken ?? throw new InvalidOperationException("Access token is null");
+            throw new InvalidOperationException("Invalid email or password");
         }
-        finally
-        {
-            // Restore original settings
-            _httpClient.BaseAddress = originalBaseAddress;
-            _httpClient.DefaultRequestHeaders.Authorization = originalAuth;
-        }
+
+        string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        TokenResponse? tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+
+        return tokenResponse?.AccessToken ?? throw new InvalidOperationException("Access token is null");
     }
 
     public async Task ChangePasswordAsync(
@@ -113,10 +104,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         string newPassword,
         CancellationToken cancellationToken = default)
     {
-        // Validate current password first
         await ValidateCurrentPasswordAsync(identityId, currentPassword, cancellationToken);
-
-        // Perform the password change with admin privileges
         await PerformPasswordResetAsync(identityId, newPassword, false, cancellationToken);
     }
 
@@ -126,7 +114,6 @@ internal sealed class AuthenticationService : IAuthenticationService
         string newPassword,
         CancellationToken cancellationToken = default)
     {
-        // This is essentially the same as ChangePasswordAsync for authenticated users
         await ChangePasswordAsync(identityId, currentPassword, newPassword, cancellationToken);
     }
 
@@ -136,13 +123,16 @@ internal sealed class AuthenticationService : IAuthenticationService
         bool isTemporary = false,
         CancellationToken cancellationToken = default)
     {
-        // Admin can reset without current password validation
         await PerformPasswordResetAsync(identityId, newPassword, isTemporary, cancellationToken);
     }
 
     public async Task DeleteUserAsync(string identityId, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage response = await _httpClient.DeleteAsync(
+        await EnsureAdminTokenAsync(cancellationToken);
+
+        using HttpClient adminClient = CreateAdminClient();
+
+        HttpResponseMessage response = await adminClient.DeleteAsync(
             $"users/{identityId}",
             cancellationToken
         );
@@ -157,6 +147,8 @@ internal sealed class AuthenticationService : IAuthenticationService
         string lastName,
         CancellationToken cancellationToken = default)
     {
+        await EnsureAdminTokenAsync(cancellationToken);
+
         var userRepresentationModel = new UserRepresentationModel
         {
             Email = email,
@@ -166,7 +158,9 @@ internal sealed class AuthenticationService : IAuthenticationService
             Enabled = true
         };
 
-        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
+        using HttpClient adminClient = CreateAdminClient();
+
+        HttpResponseMessage response = await adminClient.PutAsJsonAsync(
             $"users/{identityId}",
             userRepresentationModel,
             cancellationToken
@@ -183,9 +177,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (locationHeader is null)
         {
-            throw new InvalidOperationException(
-                "Location header can't be null"
-            );
+            throw new InvalidOperationException("Location header can't be null");
         }
 
         int userSegmentValueIndex = locationHeader.IndexOf(
@@ -215,7 +207,9 @@ internal sealed class AuthenticationService : IAuthenticationService
             Temporary = isTemporary
         };
 
-        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
+        using HttpClient adminClient = CreateAdminClient();
+
+        HttpResponseMessage response = await adminClient.PutAsJsonAsync(
             $"users/{identityId}/reset-password",
             credentialRepresentation,
             cancellationToken
@@ -232,10 +226,11 @@ internal sealed class AuthenticationService : IAuthenticationService
         string currentPassword,
         CancellationToken cancellationToken)
     {
-        // Get user details to retrieve username/email
         await EnsureAdminTokenAsync(cancellationToken);
 
-        HttpResponseMessage userResponse = await _httpClient.GetAsync(
+        using HttpClient adminClient = CreateAdminClient();
+
+        HttpResponseMessage userResponse = await adminClient.GetAsync(
             $"users/{identityId}",
             cancellationToken
         );
@@ -246,17 +241,38 @@ internal sealed class AuthenticationService : IAuthenticationService
         }
 
         string userJson = await userResponse.Content.ReadAsStringAsync(cancellationToken);
-        UserRepresentationModel? userInfo = JsonSerializer.Deserialize<UserRepresentationModel>(userJson);
 
-        if (userInfo?.Username is null)
+        var options = new JsonSerializerOptions
         {
-            throw new InvalidOperationException("User information incomplete");
-        }
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
-        // Validate current password by attempting login
+        UserRepresentationModel? userInfo;
         try
         {
-            await LoginAsync(userInfo.Username, currentPassword, cancellationToken);
+            userInfo = JsonSerializer.Deserialize<UserRepresentationModel>(userJson, options);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"Failed to deserialize user information: {ex.Message}");
+        }
+
+        if (userInfo is null)
+        {
+            throw new InvalidOperationException("Failed to deserialize user information - result is null");
+        }
+
+        string loginIdentifier = !string.IsNullOrEmpty(userInfo.Username) ? userInfo.Username : userInfo.Email;
+
+        if (string.IsNullOrEmpty(loginIdentifier))
+        {
+            throw new InvalidOperationException("User information incomplete - no username or email available");
+        }
+
+        try
+        {
+            await LoginAsync(loginIdentifier, currentPassword, cancellationToken);
         }
         catch (InvalidOperationException)
         {
@@ -270,11 +286,6 @@ internal sealed class AuthenticationService : IAuthenticationService
         {
             await RefreshAdminTokenAsync(cancellationToken);
         }
-
-        // Set admin URL as base address and admin token
-        _httpClient.BaseAddress = new Uri(_keycloakOptions.AdminUrl);
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _adminToken);
     }
 
     private async Task RefreshAdminTokenAsync(CancellationToken cancellationToken)
@@ -288,40 +299,37 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var content = new FormUrlEncodedContent(parameters);
 
-        // Store original settings
-        Uri? originalBaseAddress = _httpClient.BaseAddress;
-        AuthenticationHeaderValue? originalAuth = _httpClient.DefaultRequestHeaders.Authorization;
+        using var tokenClient = new HttpClient();
 
-        try
+        HttpResponseMessage response = await tokenClient.PostAsync(
+            _keycloakOptions.TokenUrl,
+            content,
+            cancellationToken
+        );
+
+        if (!response.IsSuccessStatusCode)
         {
-            // Set token URL for admin authentication
-            _httpClient.BaseAddress = new Uri(_keycloakOptions.TokenUrl);
-            _httpClient.DefaultRequestHeaders.Authorization = null;
-
-            HttpResponseMessage response = await _httpClient.PostAsync(
-                string.Empty, // Empty since we're using the full token URL as base
-                content,
-                cancellationToken
-            );
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                throw new InvalidOperationException($"Admin authentication failed: {errorContent}");
-            }
-
-            string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            TokenResponse? tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
-
-            _adminToken = tokenResponse?.AccessToken ?? throw new InvalidOperationException("Admin token is null");
-            _adminTokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 60);
+            string errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException($"Admin authentication failed: {errorContent}");
         }
-        finally
+
+        string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        TokenResponse? tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+
+        _adminToken = tokenResponse?.AccessToken ?? throw new InvalidOperationException("Admin token is null");
+        _adminTokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 60);
+    }
+
+    private HttpClient CreateAdminClient()
+    {
+        var client = new HttpClient
         {
-            // Restore original settings
-            _httpClient.BaseAddress = originalBaseAddress;
-            _httpClient.DefaultRequestHeaders.Authorization = originalAuth;
-        }
+            BaseAddress = new Uri(_keycloakOptions.AdminUrl)
+        };
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
+
+        return client;
     }
 
     private static void HandleKeycloakError(HttpResponseMessage response, string operation)

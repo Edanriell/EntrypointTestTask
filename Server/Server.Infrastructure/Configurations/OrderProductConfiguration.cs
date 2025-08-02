@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Server.Domain.OrderItems;
+using Server.Domain.OrderProducts;
 using Server.Domain.Products;
 using Server.Domain.Shared;
 
@@ -94,7 +94,7 @@ internal sealed class OrderProductConfiguration : IEntityTypeConfiguration<Order
             .HasDatabaseName("ix_order_products_order_id");
         builder.HasIndex(op => op.ProductId)
             .HasDatabaseName("ix_order_products_product_id");
-        builder.HasIndex(op => new { op.OrderId, op.TotalPrice })
-            .HasDatabaseName("ix_order_products_order_id_total_price");
+        builder.HasIndex(op => op.OrderId)
+            .HasDatabaseName("ix_order_products_order_id_for_totals");
     }
 }

@@ -1,64 +1,25 @@
-﻿// using System.Data;
-// using Dapper;
-// using Server.Application.Abstractions.Data;
-// using Server.Application.Abstractions.Messaging;
-// using Server.Domain.Abstractions;
-//
-// namespace Server.Application.Products.GetProducts;
-//
-// internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, IReadOnlyList<ProductsResponse>>
-// {
-//     private readonly ISqlConnectionFactory _sqlConnectionFactory;
-//
-//     public GetProductsQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
-//     {
-//         _sqlConnectionFactory = sqlConnectionFactory;
-//     }
-//
-//     public async Task<Result<IReadOnlyList<ProductsResponse>>> Handle(
-//         GetProductsQuery request,
-//         CancellationToken cancellationToken)
-//     {
-//         using IDbConnection connection = _sqlConnectionFactory.CreateConnection();
-//
-//         const string sql = """
-//                             SELECT
-//                                 id AS Id,
-//                                 name As Name,
-//                                 description AS Description,
-//                                 price_amount AS Price,
-//                                 reserved AS Reserved,
-//                                 stock AS Stock,
-//                                 status AS Status,
-//                                 created_at AS CreatedAt,
-//                                 last_updated_at AS LastUpdatedAt,
-//                                 last_restocked_at AS LastRestockedAt
-//                             FROM products
-//                            """;
-//
-//         IEnumerable<ProductsResponse> products = await connection.QueryAsync<ProductsResponse>(sql);
-//
-//         return products.ToList();
-//     }
-// }
-
-using System.Data;
+﻿using System.Data;
 using System.Globalization;
 using System.Text;
 using Dapper;
 using Server.Application.Abstractions.Data;
 using Server.Application.Abstractions.Messaging;
+using Server.Application.Abstractions.Pagination;
 using Server.Domain.Abstractions;
 
 namespace Server.Application.Products.GetProducts;
 
 internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, GetProductsResponse>
 {
+    private readonly ICursorPaginationService _cursorPaginationService;
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
-    public GetProductsQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
+    public GetProductsQueryHandler(
+        ISqlConnectionFactory sqlConnectionFactory,
+        ICursorPaginationService cursorPaginationService)
     {
         _sqlConnectionFactory = sqlConnectionFactory;
+        _cursorPaginationService = cursorPaginationService;
     }
 
     public async Task<Result<GetProductsResponse>> Handle(
@@ -77,8 +38,13 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
                               p.name as Name,
                               p.description as Description,
                               p.price_amount as Price,
-                              p.reserved as Reserved,
-                              p.stock as Stock,
+                              p.price_currency as Currency,
+                              p.total_stock AS TotalStock,
+                              p.reserved AS Reserved,
+                              (p.total_stock - p.reserved) as Available,
+                              (p.total_stock - p.reserved = 0) as IsOutOfStock,
+                              (p.reserved > 0) as HasReservations,
+                              (p.total_stock - p.reserved > 0) as IsInStock,
                               p.status as Status,
                               p.created_at as CreatedAt,
                               p.last_updated_at as LastUpdatedAt,
@@ -90,37 +56,64 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
         // Add filtering
         AddFilters(sqlBuilder, parameters, request);
 
-        // Add cursor pagination
-        AddCursorPagination(sqlBuilder, parameters, request);
-
         // Add sorting
         AddSorting(sqlBuilder, request);
 
         // Add LIMIT - get extra records to check for previous/next pages
+        // parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
+        // sqlBuilder.Append(" LIMIT @PageSize");
+        //
+        // var products = (await connection.QueryAsync<GetAllProductsResponse>(sqlBuilder.ToString(), parameters))
+        //     .ToList();
+
+        // Calculate current page from cursor
+        // int currentPage = 1;
+        // if (!string.IsNullOrEmpty(request.Cursor))
+        // {
+        //     var decodedCursor = _cursorPaginationService.DecodeCursor(request.Cursor);
+        //     currentPage = decodedCursor.PageNumber;
+        // }
+
+        CursorInfo cursorInfo = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty);
+        int offset = (cursorInfo.PageNumber - 1) * request.PageSize;
+
         parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
-        sqlBuilder.Append(" LIMIT @PageSize");
+        parameters.Add("Offset", offset);
+        sqlBuilder.Append(" LIMIT @PageSize OFFSET @Offset");
 
-        var products = (await connection.QueryAsync<ProductsResponse>(sqlBuilder.ToString(), parameters)).ToList();
-
-        // Calculate current page number
-        int currentPage = CalculatePageNumber(request.Cursor);
+        var products = (await connection.QueryAsync<GetAllProductsResponse>(sqlBuilder.ToString(), parameters))
+            .ToList();
 
         // Determine pagination state
-        PaginationInfo paginationInfo = DeterminePaginationState(products, request, currentPage);
+        PaginationInfo<GetAllProductsResponse> paginationInfo = _cursorPaginationService.DeterminePaginationState(
+            products,
+            request.PageSize,
+            request.SortBy ?? "CreatedOnUtc",
+            cursorInfo.PageNumber,
+            product => GetProductSortValue(product, request.SortBy ?? "CreatedOnUtc"));
+
+        // Determine pagination state
+        // PaginationInfo<GetAllProductsResponse> paginationInfo = _cursorPaginationService.DeterminePaginationState(
+        //     products,
+        //     request.PageSize,
+        //     request.SortBy,
+        //     // Test
+        //     _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber,
+        //     product => GetProductSortValue(product, request.SortBy));
 
         // Get total count
         int totalCount = await GetTotalCount(connection, request);
 
         return new GetProductsResponse
         {
-            Products = paginationInfo.PageProducts,
+            Products = paginationInfo.PageItems,
             NextCursor = paginationInfo.NextCursor,
             PreviousCursor = paginationInfo.PreviousCursor,
             HasNextPage = paginationInfo.HasNextPage,
             HasPreviousPage = paginationInfo.HasPreviousPage,
             TotalCount = totalCount,
-            CurrentPageSize = paginationInfo.PageProducts.Count,
-            PageNumber = currentPage
+            CurrentPageSize = paginationInfo.PageItems.Count,
+            PageNumber = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber
         };
     }
 
@@ -152,13 +145,13 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
 
         if (request.MinStock.HasValue)
         {
-            sqlBuilder.Append(" AND p.stock >= @MinStock");
+            sqlBuilder.Append(" AND p.total_stock >= @MinStock");
             parameters.Add("MinStock", request.MinStock.Value);
         }
 
         if (request.MaxStock.HasValue)
         {
-            sqlBuilder.Append(" AND p.stock <= @MaxStock");
+            sqlBuilder.Append(" AND p.total_stock <= @MaxStock");
             parameters.Add("MaxStock", request.MaxStock.Value);
         }
 
@@ -208,11 +201,11 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
         {
             if (request.HasStock.Value)
             {
-                sqlBuilder.Append(" AND p.stock > 0");
+                sqlBuilder.Append(" AND p.total_stock > 0");
             }
             else
             {
-                sqlBuilder.Append(" AND p.stock = 0");
+                sqlBuilder.Append(" AND p.total_stock = 0");
             }
         }
 
@@ -226,19 +219,6 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
             {
                 sqlBuilder.Append(" AND p.reserved = 0");
             }
-        }
-    }
-
-    private void AddCursorPagination(StringBuilder sqlBuilder, DynamicParameters parameters, GetProductsQuery request)
-    {
-        if (!string.IsNullOrEmpty(request.Cursor))
-        {
-            CursorInfo cursorData = DecodeCursor(request.Cursor);
-            string sortDirection = request.SortDirection?.ToUpper() == "ASC" ? ">" : "<";
-
-            sqlBuilder.Append(CultureInfo.InvariantCulture,
-                $" AND p.{GetSortColumn(request.SortBy)} {sortDirection} @CursorValue");
-            parameters.Add("CursorValue", cursorData.Value);
         }
     }
 
@@ -262,122 +242,7 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
             "createdat" => "created_at",
             "lastupdatedat" => "last_updated_at",
             "lastrestockedat" => "last_restocked_at",
-            _ => "created_at"
-        };
-    }
-
-    private CursorInfo DecodeCursor(string cursor)
-    {
-        try
-        {
-            string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(cursor));
-            string[] parts = decoded.Split('|');
-
-            return parts.Length switch
-            {
-                >= 4 => new CursorInfo
-                {
-                    Value = parts[0],
-                    SortBy = parts[1],
-                    PageNumber = int.Parse(parts[2], CultureInfo.InvariantCulture),
-                    Position = int.Parse(parts[3], CultureInfo.InvariantCulture)
-                },
-                >= 2 => new CursorInfo
-                {
-                    Value = parts[0],
-                    SortBy = parts[1],
-                    PageNumber = 1,
-                    Position = 0
-                },
-                _ => new CursorInfo
-                {
-                    Value = decoded,
-                    SortBy = "createdat",
-                    PageNumber = 1,
-                    Position = 0
-                }
-            };
-        }
-        catch
-        {
-            throw new ArgumentException("Invalid cursor format");
-        }
-    }
-
-    private string GenerateCursor(ProductsResponse product, string? sortBy, int pageNumber, int position)
-    {
-        string actualSortBy = sortBy ?? "createdat";
-
-        string cursorValue = actualSortBy.ToLower() switch
-        {
-            "name" => product.Name,
-            "price" => product.Price.ToString(CultureInfo.InvariantCulture),
-            "stock" => product.Stock.ToString(CultureInfo.InvariantCulture),
-            "reserved" => product.Reserved.ToString(CultureInfo.InvariantCulture),
-            "status" => product.Status,
-            "createdat" => product.CreatedAt.ToString("O"),
-            "lastupdatedat" => product.LastUpdatedAt.ToString("O"),
-            "lastrestockedat" => product.LastRestockedAt?.ToString("O") ?? DateTime.MinValue.ToString("O"),
-            _ => product.CreatedAt.ToString("O")
-        };
-
-        // Include page number and position in cursor using InvariantCulture
-        string cursorData =
-            $"{cursorValue}|{actualSortBy}|{pageNumber.ToString(CultureInfo.InvariantCulture)}|{position.ToString(CultureInfo.InvariantCulture)}";
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(cursorData));
-    }
-
-    private int CalculatePageNumber(string? cursor)
-    {
-        if (string.IsNullOrEmpty(cursor))
-        {
-            return 1;
-        }
-
-        try
-        {
-            CursorInfo cursorInfo = DecodeCursor(cursor);
-            return cursorInfo.PageNumber;
-        }
-        catch
-        {
-            return 1;
-        }
-    }
-
-    private PaginationInfo DeterminePaginationState(
-        List<ProductsResponse> products, GetProductsQuery request, int currentPage)
-    {
-        bool hasNextPage = products.Count > request.PageSize;
-        bool hasPreviousPage = currentPage > 1;
-
-        // Remove extra records used for pagination detection
-        var pageProducts = products.Take(request.PageSize).ToList();
-
-        string? nextCursor = null;
-        string? previousCursor = null;
-
-        if (hasNextPage && pageProducts.Count > 0)
-        {
-            int nextPageNumber = currentPage + 1;
-            int nextPosition = (currentPage - 1) * request.PageSize + pageProducts.Count;
-            nextCursor = GenerateCursor(pageProducts[^1], request.SortBy, nextPageNumber, nextPosition);
-        }
-
-        if (hasPreviousPage && pageProducts.Count > 0)
-        {
-            int previousPageNumber = Math.Max(1, currentPage - 1);
-            int previousPosition = Math.Max(0, (previousPageNumber - 1) * request.PageSize);
-            previousCursor = GenerateCursor(pageProducts[0], request.SortBy, previousPageNumber, previousPosition);
-        }
-
-        return new PaginationInfo
-        {
-            PageProducts = pageProducts,
-            NextCursor = nextCursor,
-            PreviousCursor = previousCursor,
-            HasNextPage = hasNextPage,
-            HasPreviousPage = hasPreviousPage
+            _ => "id"
         };
     }
 
@@ -390,6 +255,7 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
                           SELECT COUNT(*)
                           FROM products p
                           WHERE 1=1
+                          AND status != 'Deleted'
                           """);
 
         // Add the same filters as the main query (excluding cursor pagination)
@@ -398,20 +264,19 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
         return await connection.QuerySingleAsync<int>(sqlBuilder.ToString(), parameters);
     }
 
-    private sealed record CursorInfo
+    private object GetProductSortValue(GetAllProductsResponse getAllProduct, string? sortBy)
     {
-        public string Value { get; init; } = string.Empty;
-        public string SortBy { get; init; } = string.Empty;
-        public int PageNumber { get; init; } = 1;
-        public int Position { get; init; }
-    }
-
-    private sealed record PaginationInfo
-    {
-        public List<ProductsResponse> PageProducts { get; init; } = new();
-        public string? NextCursor { get; init; }
-        public string? PreviousCursor { get; init; }
-        public bool HasNextPage { get; init; }
-        public bool HasPreviousPage { get; init; }
+        return sortBy?.ToLower() switch
+        {
+            "name" => getAllProduct.Name,
+            "price" => getAllProduct.Price,
+            "total_stock" => getAllProduct.TotalStock,
+            "reserved" => getAllProduct.Reserved,
+            "status" => getAllProduct.Status,
+            "createdat" => getAllProduct.CreatedAt,
+            "lastupdatedat" => getAllProduct.LastUpdatedAt,
+            "lastrestockedat" => getAllProduct.LastRestockedAt,
+            _ => getAllProduct.Id
+        };
     }
 }

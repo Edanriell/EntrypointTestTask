@@ -16,7 +16,7 @@ public sealed class Role
         Admin, Manager, OrderManager, PaymentManager,
         ProductManager, UserManager, Customer, Guest
     };
-
+ 
     public Role(int id, string name)
     {
         Id = id;

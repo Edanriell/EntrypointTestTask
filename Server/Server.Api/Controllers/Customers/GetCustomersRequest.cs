@@ -1,5 +1,5 @@
 ﻿using Server.Application.Abstractions.Messaging;
-using Server.Application.Users.GetClients;
+using Server.Application.Users.GetCustomers;
 
 namespace Server.Api.Controllers.Customers;
 

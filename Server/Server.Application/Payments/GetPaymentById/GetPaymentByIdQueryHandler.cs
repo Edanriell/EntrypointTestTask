@@ -7,7 +7,7 @@ using Server.Domain.Payments;
 
 namespace Server.Application.Payments.GetPaymentById;
 
-internal sealed class GetPaymentByIdQueryHandler : IQueryHandler<GetPaymentByIdQuery, PaymentResponse>
+internal sealed class GetPaymentByIdQueryHandler : IQueryHandler<GetPaymentByIdQuery, GetPaymentByIdResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -16,36 +16,61 @@ internal sealed class GetPaymentByIdQueryHandler : IQueryHandler<GetPaymentByIdQ
         _sqlConnectionFactory = sqlConnectionFactory;
     }
 
-    public async Task<Result<PaymentResponse>> Handle(
+    public async Task<Result<GetPaymentByIdResponse>> Handle(
         GetPaymentByIdQuery request,
         CancellationToken cancellationToken)
     {
         using IDbConnection connection = _sqlConnectionFactory.CreateConnection();
 
         const string sql = """
-                           SELECT
+                           SELECT 
                                p.id AS Id,
                                p.order_id AS OrderId,
-                               p.total_amount AS TotalAmount,
+                               p.amount AS Amount,
+                               p.currency AS Currency,
                                p.payment_status AS PaymentStatus,
-                               p.paid_amount AS PaidAmount,
-                               p.outstanding_amount AS OutstandingAmount,
+                               p.payment_method AS PaymentMethod,
+                               p.created_at AS CreatedAt,
                                p.payment_completed_at AS PaymentCompletedAt,
-                               p.created_on_utc AS CreatedOnUtc,
-                               p.modified_on_utc AS ModifiedOnUtc
+                               p.payment_failed_at AS PaymentFailedAt,
+                               p.payment_expired_at AS PaymentExpiredAt,
+                               p.payment_failure_reason AS PaymentFailureReason,
+                               
+                               -- Single refund data (if exists)
+                               r.id AS RefundId,
+                               r.amount AS RefundAmount,
+                               r.currency AS RefundCurrency,
+                               r.refund_reason AS RefundReason,
+                               r.created_at AS RefundCreatedAt,
+                               r.processed_at AS RefundProcessedAt
+
                            FROM payments p
+                           LEFT JOIN refunds r ON p.id = r.payment_id
                            WHERE p.id = @PaymentId
                            """;
 
-        PaymentResponse? payment = await connection.QuerySingleOrDefaultAsync<PaymentResponse>(
-            sql,
-            new { request.PaymentId });
+        // ✅ FIX: Use QueryAsync like the working GetOrderByIdQueryHandler
+        IEnumerable<GetPaymentByIdResponse> results =
+            await connection.QueryAsync<GetPaymentByIdResponse, RefundResponse, GetPaymentByIdResponse>(
+                sql,
+                (payment, refund) =>
+                {
+                    return payment with
+                    {
+                        Refund = refund // This property exists in PaymentResponse
+                    };
+                },
+                new { request.PaymentId },
+                splitOn: "RefundId"
+            );
 
-        if (payment is null)
+        GetPaymentByIdResponse? result = results.FirstOrDefault();
+
+        if (result is null)
         {
-            return Result.Failure<PaymentResponse>(PaymentErrors.PaymentNotFound);
+            return Result.Failure<GetPaymentByIdResponse>(PaymentErrors.NotFound);
         }
 
-        return Result.Success(payment);
+        return result;
     }
 }

@@ -6,3 +6,4 @@ public sealed record DiscountProductCommand(
     Guid ProductId,
     decimal NewPrice
 ) : ICommand;
+ 

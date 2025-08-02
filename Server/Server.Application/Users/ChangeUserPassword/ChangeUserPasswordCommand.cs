@@ -6,3 +6,4 @@ public sealed record ChangeUserPasswordCommand(
     Guid UserId,
     string CurrentPassword,
     string NewPassword) : ICommand;
+ 

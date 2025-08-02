@@ -76,3 +76,4 @@ internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<Rol
         );
     }
 }
+ 

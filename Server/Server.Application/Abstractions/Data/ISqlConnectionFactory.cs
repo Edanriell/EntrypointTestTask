@@ -6,3 +6,4 @@ public interface ISqlConnectionFactory
 {
     IDbConnection CreateConnection();
 }
+ 

@@ -6,3 +6,4 @@ public sealed record DeleteOrderCommand : ICommand
 {
     public Guid OrderId { get; init; }
 }
+ 

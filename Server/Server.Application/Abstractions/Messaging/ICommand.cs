@@ -18,3 +18,4 @@ public interface ICommand<TReponse>
 public interface IBaseCommand
 {
 }
+ 

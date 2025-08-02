@@ -41,3 +41,4 @@ internal sealed class RestoreProductCommandHandler : ICommandHandler<RestoreProd
         return Result.Success();
     }
 }
+ 

@@ -7,3 +7,4 @@ public sealed record OrderTotalChangedDomainEvent(
     Guid OrderId,
     Money NewTotal
 ) : IDomainEvent;
+ 

@@ -11,3 +11,4 @@ public sealed class StartProcessingOrderCommandValidator : AbstractValidator<Sta
             .WithMessage("Order ID is required");
     }
 }
+ 

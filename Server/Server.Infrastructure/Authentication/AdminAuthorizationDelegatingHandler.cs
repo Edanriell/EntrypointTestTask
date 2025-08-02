@@ -14,7 +14,7 @@ internal sealed class AdminAuthorizationDelegatingHandler : DelegatingHandler
     {
         _keycloakOptions = keycloakOptions.Value;
     }
-
+ 
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)

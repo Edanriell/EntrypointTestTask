@@ -1,18 +1,13 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Server.Application.Payments.AddPayment;
 using Server.Application.Payments.CancelPayment;
-using Server.Application.Payments.CreatePayment;
-using Server.Application.Payments.FailPayment;
 using Server.Application.Payments.GetPaymentById;
 using Server.Application.Payments.GetPaymentsByOrderId;
-using Server.Application.Payments.MarkPaymentAsDisputed;
-using Server.Application.Payments.MarkPaymentAsExpired;
-using Server.Application.Payments.MarkPaymentAsProcessing;
-using Server.Application.Payments.ProcessPartialRefund;
+using Server.Application.Payments.ProcessOrderRefundCommand;
 using Server.Application.Payments.ProcessPayment;
 using Server.Domain.Abstractions;
-using PaymentResponse = Server.Application.Payments.GetPaymentById.PaymentResponse;
 
 namespace Server.Api.Controllers.Payments;
 
@@ -35,7 +30,7 @@ public class PaymentsController : ControllerBase
     {
         var query = new GetPaymentByIdQuery(id);
 
-        Result<PaymentResponse> result = await _sender.Send(
+        Result<GetPaymentByIdResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -50,7 +45,8 @@ public class PaymentsController : ControllerBase
     {
         var query = new GetPaymentsByOrderIdQuery(orderId);
 
-        Result<IReadOnlyList<GetPaymentsByOrderIdResponse>> result = await _sender.Send(
+        // ✅ FIX: Changed to match the actual return type
+        Result<GetPaymentsByOrderIdResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -58,17 +54,17 @@ public class PaymentsController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
+
     [HttpPost]
     public async Task<IActionResult> CreatePayment(
         CreatePaymentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CreatePaymentCommand(
+        var command = new AddPaymentCommand(
             request.OrderId,
             request.Amount,
             request.Currency,
-            request.PaymentMethod,
-            request.PaymentReference);
+            request.PaymentMethod);
 
         Result<Guid> result = await _sender.Send(
             command,
@@ -87,21 +83,6 @@ public class PaymentsController : ControllerBase
         );
     }
 
-    [HttpPatch("{id:guid}/processing")]
-    public async Task<IActionResult> MarkPaymentAsProcessing(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        var command = new MarkPaymentAsProcessingCommand(id);
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
     [HttpPatch("{id:guid}/process")]
     public async Task<IActionResult> ProcessPayment(
         Guid id,
@@ -117,29 +98,12 @@ public class PaymentsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    [HttpPatch("{id:guid}/fail")]
-    public async Task<IActionResult> FailPayment(
-        Guid id,
-        FailPaymentRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new FailPaymentCommand(id, request.Reason);
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
     [HttpPatch("{id:guid}/cancel")]
     public async Task<IActionResult> CancelPayment(
         Guid id,
-        CancelPaymentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CancelPaymentCommand(id, request.Reason);
+        var command = new CancelPaymentCommand(id);
 
         Result result = await _sender.Send(
             command,
@@ -149,59 +113,16 @@ public class PaymentsController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 
-    [HttpPatch("{id:guid}/dispute")]
-    public async Task<IActionResult> MarkPaymentAsDisputed(
-        Guid id,
-        MarkPaymentAsDisputedRequest request,
+    [HttpPost("order/{orderId:guid}/refund")]
+    public async Task<IActionResult> RefundOrderPayments(
+        Guid orderId,
+        [FromBody] RefundOrderPaymentsRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new MarkPaymentAsDisputedCommand(id, request.DisputeReason);
+        var command = new RefundPaymentsCommand(orderId, request.RefundReason);
 
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
+        Result result = await _sender.Send(command, cancellationToken);
 
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpPatch("{id:guid}/expire")]
-    public async Task<IActionResult> MarkPaymentAsExpired(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        var command = new MarkPaymentAsExpiredCommand(id);
-
-        Result result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    }
-
-    [HttpPost("{id:guid}/partial-refund")]
-    public async Task<IActionResult> ProcessPartialRefund(
-        Guid id,
-        ProcessPartialRefundRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new ProcessPartialRefundCommand(
-            id,
-            request.RefundAmount,
-            request.Currency,
-            request.Reason);
-
-        Result<Guid> result = await _sender.Send(
-            command,
-            cancellationToken
-        );
-
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Ok(new { RefundId = result.Value });
+        return result.IsSuccess ? Ok() : BadRequest(result.Error);
     }
 }

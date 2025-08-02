@@ -53,10 +53,35 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
             productDescription = descriptionResult.Value;
         }
 
+        // Handle price and currency updates
         Money? price = null;
-        if (request.Price.HasValue)
+        if (request.Price.HasValue || !string.IsNullOrWhiteSpace(request.Currency))
         {
-            Result<Money> priceResult = Money.Create(request.Price.Value, Currency.Eur);
+            // Determine the currency to use
+            Currency currency;
+            if (!string.IsNullOrWhiteSpace(request.Currency))
+            {
+                // Currency is provided - use it
+                try
+                {
+                    currency = Currency.FromCode(request.Currency.ToUpper());
+                }
+                catch (ApplicationException ex)
+                {
+                    return Result.Failure(new Error("Currency.Invalid", ex.Message));
+                }
+            }
+            else
+            {
+                // Currency not provided - use existing currency
+                currency = product.Price.Currency;
+            }
+
+            // Determine the price amount to use
+            decimal priceAmount = request.Price ?? product.Price.Amount;
+
+            // Create the new Money object
+            Result<Money> priceResult = Money.Create(priceAmount, currency);
             if (priceResult.IsFailure)
             {
                 return Result.Failure(priceResult.Error);
@@ -77,28 +102,11 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
             stockChange = stockResult.Value;
         }
 
-        Quantity? reservedChange = null;
-        if (request.ReservedChange.HasValue)
+        Result updateProductResult = product.Update(
+            productName, productDescription, price, stockChange);
+        if (updateProductResult.IsFailure)
         {
-            Result<Quantity> reservedResult = Quantity.CreateStock(request.ReservedChange.Value);
-            if (reservedResult.IsFailure)
-            {
-                return Result.Failure(reservedResult.Error);
-            }
-
-            reservedChange = reservedResult.Value;
-        }
-
-        Result updateResult = product.Update(
-            productName,
-            productDescription,
-            price,
-            stockChange,
-            reservedChange);
-
-        if (updateResult.IsFailure)
-        {
-            return Result.Failure(updateResult.Error);
+            return Result.Failure(updateProductResult.Error);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

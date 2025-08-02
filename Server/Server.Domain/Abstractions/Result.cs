@@ -97,4 +97,3 @@ public sealed class Result<TValue> : Result
             value
         );
 }
- 

@@ -6,9 +6,9 @@ using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
 
 namespace Server.Application.Users.GetLoggedInUser;
- 
+
 internal sealed class GetLoggedInUserQueryHandler
-    : IQueryHandler<GetLoggedInUserQuery, UserResponse>
+    : IQueryHandler<GetLoggedInUserQuery, GetLoggedInUserResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
     private readonly IUserContext _userContext;
@@ -21,7 +21,7 @@ internal sealed class GetLoggedInUserQueryHandler
         _userContext = userContext;
     }
 
-    public async Task<Result<UserResponse>> Handle(
+    public async Task<Result<GetLoggedInUserResponse>> Handle(
         GetLoggedInUserQuery request,
         CancellationToken cancellationToken)
     {
@@ -37,7 +37,7 @@ internal sealed class GetLoggedInUserQueryHandler
                            WHERE identity_id = @IdentityId
                            """;
 
-        UserResponse user = await connection.QuerySingleAsync<UserResponse>(
+        GetLoggedInUserResponse getLoggedInUser = await connection.QuerySingleAsync<GetLoggedInUserResponse>(
             sql,
             new
             {
@@ -45,6 +45,6 @@ internal sealed class GetLoggedInUserQueryHandler
             }
         );
 
-        return user;
+        return getLoggedInUser;
     }
 }

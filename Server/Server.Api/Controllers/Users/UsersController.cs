@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Application.Users.ChangeUserPassword;
 using Server.Application.Users.DeleteUser;
 using Server.Application.Users.GetLoggedInUser;
 using Server.Application.Users.LoginUser;
@@ -26,7 +27,7 @@ public class UsersController : ControllerBase
     {
         var query = new GetLoggedInUserQuery();
 
-        Result<UserResponse> result = await _sender.Send(
+        Result<GetLoggedInUserResponse> result = await _sender.Send(
             query,
             cancellationToken
         );
@@ -53,6 +54,26 @@ public class UsersController : ControllerBase
             request.City,
             request.ZipCode,
             request.Street);
+
+        Result result = await _sender.Send(
+            command,
+            cancellationToken
+        );
+
+        return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(
+        ChangeUserPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ChangeUserPasswordCommand(
+            request.UserId,
+            request.CurrentPassword,
+            request.NewPassword
+        );
 
         Result result = await _sender.Send(
             command,
@@ -97,4 +118,3 @@ public class UsersController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : Unauthorized(result.Error);
     }
 }
- 

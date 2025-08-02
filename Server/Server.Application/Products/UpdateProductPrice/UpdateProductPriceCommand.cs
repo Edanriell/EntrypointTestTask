@@ -6,3 +6,4 @@ public sealed record UpdateProductPriceCommand(
     Guid ProductId,
     decimal NewPrice
 ) : ICommand;
+ 

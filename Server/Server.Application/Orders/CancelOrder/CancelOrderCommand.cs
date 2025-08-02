@@ -8,3 +8,4 @@ public sealed record CancelOrderCommand : ICommand
     public Guid OrderId { get; init; }
     public string CancellationReason { get; init; }
 }
+ 

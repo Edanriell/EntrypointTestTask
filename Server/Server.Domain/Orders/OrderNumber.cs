@@ -25,3 +25,4 @@ public sealed record OrderNumber
         return new OrderNumber(value);
     }
 }
+ 

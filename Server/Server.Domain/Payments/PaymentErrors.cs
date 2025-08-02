@@ -4,6 +4,26 @@ namespace Server.Domain.Payments;
 
 public static class PaymentErrors
 {
+    public static readonly Error EmptyCurrencyCode = new(
+        "Currency.EmptyCode",
+        "Currency code cannot be empty");
+
+    public static readonly Error InvalidCurrencyCode = new(
+        "Currency.InvalidCode",
+        "The specified currency code is not supported");
+
+    public static readonly Error CurrencyMismatch = new(
+        "Order.CurrencyMismatch",
+        "All prices must use the same currency");
+
+    public static readonly Error PendingPaymentExists = new(
+        "Payment.PendingPaymentExists",
+        "Order already has a pending payment. Please wait for it to complete before adding another payment.");
+
+    public static readonly Error PendingPaymentsExceedRemainingAmount = new(
+        "Payment.PendingPaymentsExceedRemainingAmount",
+        "Total pending payments and new payment amount exceed the remaining order amount.");
+
     public static Error PaymentAlreadyCompleted => new(
         "Payment.AlreadyCompleted",
         "Payment has already been completed");
@@ -91,4 +111,12 @@ public static class PaymentErrors
     public static Error InvalidPaymentMethod => new(
         "Payment.InvalidPaymentMethod",
         "Invalid payment method provided");
+
+    public static Error PaymentExpired => new(
+        "Payment.Expired",
+        "Cannot process expired payment");
+
+    public static Error PaymentFailed => new(
+        "Payment.Failed",
+        "Cannot process failed payment");
 }

@@ -41,4 +41,4 @@ internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProduc
 
         return Result.Success();
     }
-}
+} 

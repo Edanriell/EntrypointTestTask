@@ -6,20 +6,19 @@ using Server.Domain.Shared;
 
 namespace Server.Application.Orders.RemoveProductFromOrder;
 
-// This commands needs testing !
 internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<RemoveProductFromOrderCommand>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IProductRepository _productRepository;
+    private readonly ProductService _productService;
     private readonly IUnitOfWork _unitOfWork;
 
     public RemoveProductFromOrderCommandHandler(
         IOrderRepository orderRepository,
-        IProductRepository productRepository,
+        ProductService productService,
         IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
-        _productRepository = productRepository;
+        _productService = productService;
         _unitOfWork = unitOfWork;
     }
 
@@ -27,6 +26,7 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
         RemoveProductFromOrderCommand request,
         CancellationToken cancellationToken)
     {
+        // ✅ Get order with products
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
@@ -38,47 +38,78 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
             return Result.Failure(OrderErrors.CannotModifyNonPendingOrder);
         }
 
-        var productsToReleaseStock = new List<(Guid ProductId, int Quantity)>();
-        foreach (Guid productId in request.ProductIds)
+        var stockToRelease = new List<(Guid ProductId, int Quantity)>();
+
+        // ✅ Process each product removal request
+        foreach (ProductRemovalRequest removal in request.ProductRemovals)
         {
-            if (!order.HasProduct(productId))
+            if (!order.HasProduct(removal.ProductId))
             {
                 return Result.Failure(OrderErrors.ProductNotFound);
             }
 
-            // Get the current product quantity before removal (for stock release)
-            Result<Quantity> quantityResult = order.GetProductQuantity(productId);
-            if (quantityResult.IsFailure)
+            // Get current quantity in order
+            Result<Quantity> currentQuantityResult = order.GetProductQuantity(removal.ProductId);
+            if (currentQuantityResult.IsFailure)
             {
-                return Result.Failure(quantityResult.Error);
+                return Result.Failure(currentQuantityResult.Error);
             }
 
-            productsToReleaseStock.Add((productId, quantityResult.Value.Value));
+            int currentQuantity = currentQuantityResult.Value.Value;
+            int quantityToRemove = removal.Quantity ?? currentQuantity; // null = remove all
 
-            // Remove the product from order
-            Result removeResult = order.RemoveProduct(productId);
-            if (removeResult.IsFailure)
+            // ✅ Validate removal quantity
+            if (quantityToRemove <= 0)
             {
-                return Result.Failure(removeResult.Error);
+                return Result.Failure(OrderErrors.InvalidQuantityToRemove);
             }
-        }
 
-        // Release reserved stock for removed products
-        foreach ((Guid productId, int quantity) in productsToReleaseStock)
-        {
-            Product? product = await _productRepository.GetByIdAsync(productId, cancellationToken);
-            if (product is not null)
+            if (quantityToRemove > currentQuantity)
             {
-                // Release the reserved stock
-                Result<Quantity> quantityToRelease = Quantity.CreateQuantity(quantity);
-                if (quantityToRelease.IsSuccess)
+                return Result.Failure(OrderErrors.CannotRemoveMoreThanAvailable);
+            }
+
+            // ✅ Track stock to release
+            stockToRelease.Add((removal.ProductId, quantityToRemove));
+
+            // ✅ Handle full vs partial removal
+            if (quantityToRemove == currentQuantity)
+            {
+                // Remove entire product
+                Result removeResult = order.RemoveProduct(removal.ProductId);
+                if (removeResult.IsFailure)
                 {
-                    product.UpdateReservedStock(quantityToRelease.Value);
+                    return removeResult;
+                }
+            }
+            else
+            {
+                // Reduce quantity
+                int newQuantity = currentQuantity - quantityToRemove;
+                Result<Quantity> newQuantityResult = Quantity.CreateQuantity(newQuantity);
+                if (newQuantityResult.IsFailure)
+                {
+                    return Result.Failure(newQuantityResult.Error);
+                }
+
+                Result updateResult = order.UpdateProductQuantity(removal.ProductId, newQuantityResult.Value);
+                if (updateResult.IsFailure)
+                {
+                    return updateResult;
                 }
             }
         }
 
-        // Save changes
+        // ✅ Release reserved stock using ProductService
+        foreach ((Guid productId, int quantity) in stockToRelease)
+        {
+            Result releaseResult = await _productService.ReleaseReservedStockAsync(productId, quantity);
+            if (releaseResult.IsFailure)
+            {
+                return releaseResult;
+            }
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

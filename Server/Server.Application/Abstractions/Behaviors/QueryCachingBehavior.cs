@@ -20,7 +20,7 @@ internal sealed class QueryCachingBehavior<TRequest, TResponse>
         _cacheService = cacheService;
         _logger = logger;
     }
-
+ 
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,

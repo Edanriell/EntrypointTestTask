@@ -31,13 +31,13 @@ internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateP
             return Result.Failure(ProductErrors.NotFound);
         }
 
-        Result<Quantity> stockResult = Quantity.CreateStock(request.Stock);
+        Result<Quantity> stockResult = Quantity.CreateStock(request.TotalStock);
         if (stockResult.IsFailure)
         {
             return Result.Failure(stockResult.Error);
         }
 
-        Result updateStockResult = product.UpdateStock(stockResult.Value);
+        Result updateStockResult = product.AdjustStock(stockResult.Value);
         if (updateStockResult.IsFailure)
         {
             return updateStockResult;

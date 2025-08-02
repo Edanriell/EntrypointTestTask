@@ -31,7 +31,7 @@ internal sealed class DiscountProductCommandHandler : ICommandHandler<DiscountPr
             return Result.Failure(ProductErrors.NotFound);
         }
 
-        Result<Money> newPriceResult = Money.Create(request.NewPrice, Currency.Eur);
+        Result<Money> newPriceResult = Money.Create(request.NewPrice, product.Price.Currency);
         if (newPriceResult.IsFailure)
         {
             return Result.Failure(newPriceResult.Error);
@@ -40,7 +40,7 @@ internal sealed class DiscountProductCommandHandler : ICommandHandler<DiscountPr
         Result discountResult = product.Discount(newPriceResult.Value);
         if (discountResult.IsFailure)
         {
-            return discountResult;
+            return Result.Failure(discountResult.Error);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

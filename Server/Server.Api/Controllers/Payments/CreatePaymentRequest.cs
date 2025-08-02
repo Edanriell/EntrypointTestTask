@@ -4,5 +4,4 @@ public record CreatePaymentRequest(
     Guid OrderId,
     decimal Amount,
     string Currency,
-    string PaymentMethod,
-    string? PaymentReference = null);
+    string PaymentMethod);

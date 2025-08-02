@@ -98,3 +98,4 @@ public sealed class OrderItemValidator : AbstractValidator<OrderItem>
             .WithMessage("Quantity cannot exceed 1000 per item");
     }
 }
+ 

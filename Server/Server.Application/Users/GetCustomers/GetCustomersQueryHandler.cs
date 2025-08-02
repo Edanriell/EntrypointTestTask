@@ -4,17 +4,23 @@ using System.Text;
 using Dapper;
 using Server.Application.Abstractions.Data;
 using Server.Application.Abstractions.Messaging;
+using Server.Application.Abstractions.Pagination;
 using Server.Domain.Abstractions;
 
-namespace Server.Application.Users.GetClients;
+namespace Server.Application.Users.GetCustomers;
 
 internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery, GetCustomersResponse>
 {
+    private readonly ICursorPaginationService _cursorPaginationService;
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
-    public GetCustomersQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
+    public GetCustomersQueryHandler(
+        ISqlConnectionFactory sqlConnectionFactory,
+        ICursorPaginationService cursorPaginationService
+    )
     {
         _sqlConnectionFactory = sqlConnectionFactory;
+        _cursorPaginationService = cursorPaginationService;
     }
 
     public async Task<Result<GetCustomersResponse>> Handle(
@@ -67,40 +73,58 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
         // Add HAVING clause for aggregated filters
         AddHavingFilters(sqlBuilder, parameters, request);
 
-        // Add cursor pagination
-        AddCursorPagination(sqlBuilder, parameters, request);
-
         // Add sorting
         AddSorting(sqlBuilder, request);
 
-        // Add LIMIT - get extra records to check for previous/next pages
+        // // Add LIMIT - get extra records to check for previous/next pages
+        // parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
+        // sqlBuilder.Append(" LIMIT @PageSize");
+        //
+        // var customers = (await connection.QueryAsync<Customer>(sqlBuilder.ToString(), parameters)).ToList();
+        //
+        // // Determine pagination state
+        // PaginationInfo<Customer> paginationInfo = _cursorPaginationService.DeterminePaginationState(
+        //     customers,
+        //     request.PageSize,
+        //     request.SortBy ?? "CreatedOnUtc",
+        //     _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber,
+        //     customer => GetCustomerSortValue(customer, request.SortBy!));
+
+        // Add LIMIT and OFFSET for pagination
+        CursorInfo cursorInfo = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty);
+        int offset = (cursorInfo.PageNumber - 1) * request.PageSize;
+
         parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
-        sqlBuilder.Append(" LIMIT @PageSize");
+        parameters.Add("Offset", offset);
+        sqlBuilder.Append(" LIMIT @PageSize OFFSET @Offset");
 
         var customers = (await connection.QueryAsync<Customer>(sqlBuilder.ToString(), parameters)).ToList();
 
-        // Calculate current page number
-        int currentPage = CalculatePageNumber(request.Cursor);
-
         // Determine pagination state
-        PaginationInfo paginationInfo = DeterminePaginationState(customers, request, currentPage);
+        PaginationInfo<Customer> paginationInfo = _cursorPaginationService.DeterminePaginationState(
+            customers,
+            request.PageSize,
+            request.SortBy ?? "CreatedOnUtc",
+            cursorInfo.PageNumber,
+            customer => GetCustomerSortValue(customer, request.SortBy ?? "CreatedOnUtc"));
+
 
         // Get recent orders for each customer
-        await LoadRecentOrders(connection, paginationInfo.PageCustomers);
+        await LoadRecentOrders(connection, paginationInfo.PageItems);
 
         // Get total count
         int totalCount = await GetTotalCount(connection, request);
 
         return new GetCustomersResponse
         {
-            Customers = paginationInfo.PageCustomers,
+            Customers = paginationInfo.PageItems,
             NextCursor = paginationInfo.NextCursor,
             PreviousCursor = paginationInfo.PreviousCursor,
             HasNextPage = paginationInfo.HasNextPage,
             HasPreviousPage = paginationInfo.HasPreviousPage,
             TotalCount = totalCount,
-            CurrentPageSize = paginationInfo.PageCustomers.Count,
-            PageNumber = currentPage
+            CurrentPageSize = paginationInfo.PageItems.Count,
+            PageNumber = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber
         };
     }
 
@@ -178,147 +202,31 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
         }
     }
 
-    private void AddCursorPagination(StringBuilder sqlBuilder, DynamicParameters parameters, GetCustomersQuery request)
-    {
-        if (!string.IsNullOrEmpty(request.Cursor))
-        {
-            CursorInfo cursorData = DecodeCursor(request.Cursor);
-            string sortDirection = request.SortDirection?.ToUpper() == "ASC" ? ">" : "<";
-
-            sqlBuilder.Append(CultureInfo.InvariantCulture,
-                $" AND u.{GetSortColumn(request.SortBy)} {sortDirection} @CursorValue");
-            parameters.Add("CursorValue", cursorData.Value);
-        }
-    }
-
     private void AddSorting(StringBuilder sqlBuilder, GetCustomersQuery request)
     {
-        string sortColumn = GetSortColumn(request.SortBy);
+        string sortColumn = GetSortColumn(request.SortBy!);
         string sortDirection = request.SortDirection?.ToUpper() == "ASC" ? "ASC" : "DESC";
 
-        sqlBuilder.Append(CultureInfo.InvariantCulture, $" ORDER BY u.{sortColumn} {sortDirection}");
+        sqlBuilder.Append(CultureInfo.InvariantCulture, $" ORDER BY {sortColumn} {sortDirection}");
     }
 
-    private string GetSortColumn(string? sortBy)
+    private string GetSortColumn(string sortBy)
     {
         return sortBy?.ToLower() switch
         {
-            "firstname" => "first_name",
-            "lastname" => "last_name",
-            "email" => "email",
-            "createdonutc" => "created_at",
-            _ => "created_at"
-        };
-    }
-
-    private CursorInfo DecodeCursor(string cursor)
-    {
-        try
-        {
-            string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(cursor));
-            string[] parts = decoded.Split('|');
-
-            return parts.Length switch
-            {
-                >= 4 => new CursorInfo
-                {
-                    Value = parts[0],
-                    SortBy = parts[1],
-                    PageNumber = int.Parse(parts[2], CultureInfo.InvariantCulture),
-                    Position = int.Parse(parts[3], CultureInfo.InvariantCulture)
-                },
-                >= 2 => new CursorInfo
-                {
-                    Value = parts[0],
-                    SortBy = parts[1],
-                    PageNumber = 1,
-                    Position = 0
-                },
-                _ => new CursorInfo
-                {
-                    Value = decoded,
-                    SortBy = "createdonutc",
-                    PageNumber = 1,
-                    Position = 0
-                }
-            };
-        }
-        catch
-        {
-            throw new ArgumentException("Invalid cursor format");
-        }
-    }
-
-    private string GenerateCursor(Customer customer, string? sortBy, int pageNumber, int position)
-    {
-        string actualSortBy = sortBy ?? "createdonutc";
-
-        string cursorValue = actualSortBy.ToLower() switch
-        {
-            "firstname" => customer.FirstName,
-            "lastname" => customer.LastName,
-            "email" => customer.Email,
-            "createdonutc" => customer.CreatedOnUtc.ToString("O"),
-            _ => customer.CreatedOnUtc.ToString("O")
-        };
-
-        // Include page number and position in cursor using InvariantCulture
-        string cursorData =
-            $"{cursorValue}|{actualSortBy}|{pageNumber.ToString(CultureInfo.InvariantCulture)}|{position.ToString(CultureInfo.InvariantCulture)}";
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(cursorData));
-    }
-
-    private int CalculatePageNumber(string? cursor)
-    {
-        if (string.IsNullOrEmpty(cursor))
-        {
-            return 1;
-        }
-
-        try
-        {
-            CursorInfo cursorInfo = DecodeCursor(cursor);
-            return cursorInfo.PageNumber;
-        }
-        catch
-        {
-            return 1;
-        }
-    }
-
-    private PaginationInfo DeterminePaginationState(
-        List<Customer> customers, GetCustomersQuery request, int currentPage)
-    {
-        bool hasNextPage = customers.Count > request.PageSize;
-        bool hasPreviousPage = currentPage > 1;
-
-        // Remove extra records used for pagination detection
-        var pageCustomers = customers.Take(request.PageSize).ToList();
-
-        string? nextCursor = null;
-        string? previousCursor = null;
-
-        if (hasNextPage && pageCustomers.Count > 0)
-        {
-            int nextPageNumber = currentPage + 1;
-            int nextPosition = (currentPage - 1) * request.PageSize + pageCustomers.Count;
-            nextCursor = GenerateCursor(pageCustomers[^1], request.SortBy, nextPageNumber, nextPosition);
-        }
-
-        if (hasPreviousPage && pageCustomers.Count > 0)
-        {
-            int previousPageNumber = Math.Max(1, currentPage - 1);
-            int previousPosition = Math.Max(0, (previousPageNumber - 1) * request.PageSize);
-            previousCursor = GenerateCursor(pageCustomers[0], request.SortBy, previousPageNumber, previousPosition);
-        }
-
-        return new PaginationInfo
-        {
-            PageCustomers = pageCustomers,
-            NextCursor = nextCursor,
-            PreviousCursor = previousCursor,
-            HasNextPage = hasNextPage,
-            HasPreviousPage = hasPreviousPage
+            "firstname" => "u.first_name",
+            "lastname" => "u.last_name",
+            "email" => "u.email",
+            "country" => "u.address_country",
+            "city" => "u.address_city",
+            "totalorders" => "COUNT(DISTINCT o.id)",
+            "completedorders" => "COALESCE(SUM(CASE WHEN o.status = 'Completed' THEN 1 ELSE 0 END), 0)",
+            "pendingorders" => "COALESCE(SUM(CASE WHEN o.status = 'Pending' THEN 1 ELSE 0 END), 0)",
+            "cancelledorders" => "COALESCE(SUM(CASE WHEN o.status = 'Cancelled' THEN 1 ELSE 0 END), 0)",
+            "totalspent" => "COALESCE(SUM(op.total_price_amount), 0)",
+            "lastorderdate" => "MAX(o.created_at)",
+            "createdonutc" => "u.created_at",
+            _ => "u.id"
         };
     }
 
@@ -335,7 +243,7 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
 
         const string recentOrdersSql = """
                                        SELECT 
-                                           o.client_id as ClientId,
+                                           o.client_id as UserId,
                                            o.id as OrderId,
                                            COALESCE(SUM(op.total_price_amount), 0) as TotalAmount,
                                            o.status as Status,
@@ -401,20 +309,23 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
             request.MaxTotalOrders.HasValue;
     }
 
-    private sealed record CursorInfo
+    private object GetCustomerSortValue(Customer customer, string sortBy)
     {
-        public string Value { get; init; } = string.Empty;
-        public string SortBy { get; init; } = string.Empty;
-        public int PageNumber { get; init; } = 1;
-        public int Position { get; init; }
-    }
-
-    private sealed record PaginationInfo
-    {
-        public List<Customer> PageCustomers { get; init; } = new();
-        public string? NextCursor { get; init; }
-        public string? PreviousCursor { get; init; }
-        public bool HasNextPage { get; init; }
-        public bool HasPreviousPage { get; init; }
+        return sortBy?.ToLower() switch
+        {
+            "firstname" => customer.FirstName,
+            "lastname" => customer.LastName,
+            "email" => customer.Email,
+            "country" => customer.Country,
+            "city" => customer.City,
+            "totalorders" => customer.TotalOrders,
+            "completedorders" => customer.CompletedOrders,
+            "pendingorders" => customer.PendingOrders,
+            "cancelledorders" => customer.CancelledOrders,
+            "totalspent" => customer.TotalSpent,
+            "lastorderdate" => customer.LastOrderDate,
+            "createdonutc" => customer.CreatedOnUtc,
+            _ => customer.Id
+        };
     }
 }

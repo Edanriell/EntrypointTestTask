@@ -26,4 +26,4 @@ internal sealed class JwtBearerOptionsSetup : IConfigureNamedOptions<JwtBearerOp
             options
         );
     }
-}
+} 

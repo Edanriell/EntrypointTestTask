@@ -2,7 +2,7 @@
 using Server.Domain.Users;
 
 namespace Server.Application.Users.UpdateUser;
- 
+
 public sealed record UpdateUserCommand(
     Guid UserId,
     string? FirstName,

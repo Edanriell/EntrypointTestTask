@@ -4,7 +4,7 @@
 // using Server.Application.Abstractions.Data;
 //
 // namespace Server.Api.Extensions;
-//
+
 // internal static class SeedDataExtensions
 // {
 //     public static void SeedData(this IApplicationBuilder app)

@@ -52,7 +52,7 @@ internal sealed class UpdateOrderProductQuantityCommandHandler : ICommandHandler
 
         int currentQuantity = currentQuantityResult.Value.Value;
 
-        Result<Quantity> newQuantityResult = Quantity.CreateQuantity(request.NewQuantity);
+        Result<Quantity> newQuantityResult = Quantity.CreateQuantity(request.Quantity);
         if (newQuantityResult.IsFailure)
         {
             return Result.Failure(newQuantityResult.Error);
@@ -68,7 +68,7 @@ internal sealed class UpdateOrderProductQuantityCommandHandler : ICommandHandler
         }
 
         // Calculate stock adjustment needed
-        int quantityDifference = request.NewQuantity - currentQuantity;
+        int quantityDifference = request.Quantity - currentQuantity;
 
         // Handle stock adjustment
         if (quantityDifference > 0)
@@ -87,7 +87,7 @@ internal sealed class UpdateOrderProductQuantityCommandHandler : ICommandHandler
             }
 
             // Reserve additional stock
-            Result reserveResult = product.UpdateReservedStock(additionalQuantityResult.Value);
+            Result reserveResult = product.ReserveStock(additionalQuantityResult.Value);
             if (reserveResult.IsFailure)
             {
                 return Result.Failure(reserveResult.Error);
@@ -103,7 +103,7 @@ internal sealed class UpdateOrderProductQuantityCommandHandler : ICommandHandler
                 return Result.Failure(releaseQuantityResult.Error);
             }
 
-            Result reserveResult = product.UpdateReservedStock(releaseQuantityResult.Value);
+            Result reserveResult = product.ReserveStock(releaseQuantityResult.Value);
             if (reserveResult.IsFailure)
             {
                 return Result.Failure(reserveResult.Error);

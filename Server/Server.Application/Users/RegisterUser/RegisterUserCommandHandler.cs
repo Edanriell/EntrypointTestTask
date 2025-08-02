@@ -66,3 +66,4 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         return user.Id;
     }
 }
+ 

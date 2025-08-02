@@ -43,3 +43,4 @@ public sealed class Permission
 
     public string Name { get; init; }
 }
+ 

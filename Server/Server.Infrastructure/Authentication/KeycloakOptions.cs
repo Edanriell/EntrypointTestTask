@@ -9,3 +9,4 @@ public sealed class KeycloakOptions
     public string AuthClientId { get; init; } = string.Empty;
     public string AuthClientSecret { get; init; } = string.Empty;
 } 
+ 

@@ -3,3 +3,4 @@
 namespace Server.Application.Payments.ProcessPayment;
 
 public sealed record ProcessPaymentCommand(Guid PaymentId) : ICommand;
+ 

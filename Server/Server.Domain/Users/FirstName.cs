@@ -1,3 +1,3 @@
 ﻿namespace Server.Domain.Users;
 
-public sealed record FirstName(string Value);
+public sealed record FirstName(string Value); 

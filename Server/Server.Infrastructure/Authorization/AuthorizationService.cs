@@ -14,7 +14,7 @@ internal sealed class AuthorizationService
         _dbContext = dbContext;
         _cacheService = cacheService;
     }
- 
+  
     public async Task<UserRolesResponse> GetRolesForUserAsync(string identityId)
     {
         string cacheKey = $"auth:roles-{identityId}";

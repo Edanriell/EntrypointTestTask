@@ -38,3 +38,4 @@ internal sealed class StartProcessingOrderCommandHandler : ICommandHandler<Start
         return Result.Success();
     }
 }
+ 

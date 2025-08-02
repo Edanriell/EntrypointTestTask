@@ -20,6 +20,16 @@ internal sealed class UserRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<User>> GetAllCustomersAsync(CancellationToken cancellationToken = default)
+    {
+        return await DbContext
+            .Set<User>()
+            .Where(user => user.Roles.Any(role => role.Name == "Customer"))
+            .Include(u => u.Roles)
+            .Include(u => u.Orders)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbContext

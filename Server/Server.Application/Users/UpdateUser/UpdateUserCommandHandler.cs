@@ -74,6 +74,7 @@ internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserComma
                 request.Street);
         }
 
+        // Important!
         // Update user in Keycloak if email, firstName or lastName changed
         if (!string.IsNullOrEmpty(user.IdentityId) &&
             (email is not null || firstName is not null || lastName is not null))
@@ -93,13 +94,15 @@ internal sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserComma
             }
         }
 
+        Gender? gender = request.Gender;
+
         // Update domain entity
         Result updateResult = user.Update(
             firstName,
             lastName,
             email,
             phoneNumber,
-            request.Gender,
+            gender,
             address);
 
         if (updateResult.IsFailure)
