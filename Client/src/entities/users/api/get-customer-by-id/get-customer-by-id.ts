@@ -1,8 +1,10 @@
 import { apiClient } from "@shared/api";
 
-import { Customer } from "../model";
+import { GetCustomerByIdResponse } from "./get-customer-by-id-response";
+import { GetCustomerByIdQuery } from "./get-customer-by-id-query";
 
-export const getCustomerById = async (id: string): Promise<Customer> => {
-	// ISSUE HERE GetCustomerById Response !
-	return apiClient.get<Customer>(`/customers/${id}`);
+export const getCustomerById = async ({
+	userId
+}: GetCustomerByIdQuery): Promise<GetCustomerByIdResponse> => {
+	return apiClient.get<GetCustomerByIdResponse>(`/customers/${userId}`);
 };

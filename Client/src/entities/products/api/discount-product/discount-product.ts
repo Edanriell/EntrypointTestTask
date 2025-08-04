@@ -1,10 +1,10 @@
 import { apiClient } from "@shared/api";
 
-import { DiscountProductRequest } from "../model";
+import { DiscountProductCommand } from "./discount-product-command";
 
-export const discountProduct = async (
-	productId: string,
-	productData: DiscountProductRequest
-): Promise<void> => {
-	return apiClient.patch<void>(`/products/${productId}/discount`, productData);
+export const discountProduct = async ({
+	productId,
+	updatedProductPriceData
+}: DiscountProductCommand): Promise<void> => {
+	return apiClient.patch<void>(`/products/${productId}/discount`, updatedProductPriceData);
 };

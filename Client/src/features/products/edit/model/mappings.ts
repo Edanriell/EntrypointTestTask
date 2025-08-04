@@ -1,4 +1,4 @@
-import { Currency } from "@entities/payments";
+import { Currency } from "@entities/products";
 
 export const EDIT_PRODUCT_FORM_FIELDS_MAPPING = {
 	name: "name",
@@ -9,6 +9,6 @@ export const EDIT_PRODUCT_FORM_FIELDS_MAPPING = {
 } as const;
 
 export const CURRENCY_MAPPING: Record<string, Currency> = {
-	Eur: Currency.EUR,
-	Usd: Currency.USD
+	EUR: Currency.Eur,
+	USD: Currency.Usd
 };

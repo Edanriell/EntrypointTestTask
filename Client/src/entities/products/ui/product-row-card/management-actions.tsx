@@ -1,7 +1,8 @@
 import { FC, ReactNode } from "react";
+import { MoreHorizontal } from "lucide-react";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@shared/ui/dropdown-menu";
 import { Button } from "@shared/ui/button";
-import { MoreHorizontal } from "lucide-react";
 
 type ManagementActionsProps = {
 	children: ReactNode;

@@ -1,7 +1,7 @@
 import { apiClient } from "@shared/api";
 
-import type { UpdateUserRequest } from "../model";
+import type { UpdateUserCommand } from "./update-user-command";
 
-export const updateUser = async (userId: string, userData: UpdateUserRequest): Promise<void> => {
-	return apiClient.put<void>(`/users/update/${userId}`, userData);
+export const updateUser = async ({ userId, updatedUserData }: UpdateUserCommand): Promise<void> => {
+	return apiClient.put<void>(`/users/update/${userId}`, updatedUserData);
 };

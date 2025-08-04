@@ -1,2 +1,2 @@
-export * from "./update-order-shipping-address";
-export * from "./update-order-shipping-address-command";
+export * from "./update-order";
+export * from "./update-order-command";

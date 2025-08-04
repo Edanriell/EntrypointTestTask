@@ -1,10 +1,10 @@
 import { apiClient } from "@shared/api";
 
-import { UpdateOrderShippingAddressCommand } from "./update-order-shipping-address-command";
+import { UpdateOrderCommand } from "./update-order-command";
 
-export const updateOrderShippingAddress = async ({
+export const updateOrder = async ({
 	orderId,
-	orderShippingAddress
-}: UpdateOrderShippingAddressCommand): Promise<void> => {
-	return apiClient.patch<void>(`orders/${orderId}/shipping-address`, orderShippingAddress);
+	updatedOrderData
+}: UpdateOrderCommand): Promise<void> => {
+	return apiClient.put<void>(`orders/${orderId}`, updatedOrderData);
 };

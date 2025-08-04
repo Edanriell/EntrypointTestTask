@@ -1,31 +1,3 @@
-export type Customer = {
-	id: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	phoneNumber: string;
-	gender: string;
-	country: string;
-	city: string;
-	zipCode: string;
-	street: string;
-	createdOnUtc: string;
-	totalOrders: number;
-	completedOrders: number;
-	pendingOrders: number;
-	cancelledOrders: number;
-	totalSpent: number;
-	lastOrderDate: string | null;
-	// TODO Add Order entity
-	recentOrders: any[];
-	fullName: string;
-	fullAddress: string;
-	hasOrders: boolean;
-	hasRecentActivity: boolean;
-	averageOrderValue: number;
-	customerStatus: string;
-};
-
 export type CustomersListParams = {
 	// Pagination
 	cursor?: string;
@@ -46,17 +18,6 @@ export type CustomersListParams = {
 	maxTotalOrders?: number;
 	createdAfter?: string;
 	createdBefore?: string;
-};
-
-export type CustomersListResponse = {
-	customers: Customer[];
-	nextCursor: string | null;
-	previousCursor: string | null;
-	hasNextPage: boolean;
-	hasPreviousPage: boolean;
-	totalCount: number;
-	currentPageSize: number;
-	pageNumber: number;
 };
 
 export type UserDetailQuery = {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
-import { ProductsListQuery } from "@entities/products/model";
+import type { GetProductsQuery } from "@entities/products";
 import { productsQueries } from "@entities/products";
 
 export type UseProductsListOptions = {
@@ -18,7 +18,7 @@ export const useProductsList = (options: UseProductsListOptions = {}) => {
 	} = options;
 
 	// State for query parameters
-	const [queryParams, setQueryParams] = useState<ProductsListQuery>({
+	const [queryParams, setQueryParams] = useState<GetProductsQuery>({
 		pageSize: initialPageSize,
 		sortBy: initialSortBy,
 		sortDirection: initialSortDirection
@@ -30,7 +30,7 @@ export const useProductsList = (options: UseProductsListOptions = {}) => {
 	const query = useQuery(queryOptions);
 
 	// Helper functions for updating query parameters
-	const updateQuery = (updates: Partial<ProductsListQuery>) => {
+	const updateQuery = (updates: Partial<GetProductsQuery>) => {
 		setQueryParams((prev) => ({ ...prev, ...updates }));
 	};
 
@@ -59,7 +59,7 @@ export const useProductsList = (options: UseProductsListOptions = {}) => {
 		updateQuery({ sortBy, sortDirection, cursor: undefined });
 	};
 
-	const setFilters = (filters: Partial<ProductsListQuery>) => {
+	const setFilters = (filters: Partial<GetProductsQuery>) => {
 		// Reset cursor when filters change
 		updateQuery({ ...filters, cursor: undefined });
 	};

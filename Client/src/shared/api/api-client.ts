@@ -93,12 +93,26 @@ export class ApiClient {
 		}
 	}
 
-	public async delete<TResult = unknown>(
+	// public async delete<TResult = unknown>(
+	// 	endpoint: string,
+	// 	config?: AxiosRequestConfig
+	// ): Promise<TResult> {
+	// 	try {
+	// 		const response = await this.instance.delete(endpoint, config);
+	// 		return this.handleResponse<TResult>(response);
+	// 	} catch (error) {
+	// 		return this.handleError(error as AxiosError);
+	// 	}
+	// }
+
+	public async delete<TResult = unknown, TData = any>(
 		endpoint: string,
+		data?: TData,
 		config?: AxiosRequestConfig
 	): Promise<TResult> {
 		try {
-			const response = await this.instance.delete(endpoint, config);
+			const requestConfig = data ? { ...config, data } : config;
+			const response = await this.instance.delete(endpoint, requestConfig);
 			return this.handleResponse<TResult>(response);
 		} catch (error) {
 			return this.handleError(error as AxiosError);

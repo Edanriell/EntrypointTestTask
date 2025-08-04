@@ -1,2 +1,2 @@
 export * from "./use-update-user";
-export * from "./use-get-user-by-id";
+export * from "./use-get-customer-by-id";

@@ -14,10 +14,10 @@ type ProcessPaymentProps = {
 };
 
 export const ProcessPayment: FC<ProcessPaymentProps> = ({
-															orderId,
-															orderNumber,
-															disabled = false
-														}) => {
+	orderId,
+	orderNumber,
+	disabled = false
+}) => {
 	const { data: paymentsData, isLoading: isLoadingPayments } = useGetPaymentsByOrderId(orderId);
 	const { mutateAsync: processPayment, isPending } = useProcessPayment(orderId);
 
@@ -43,10 +43,10 @@ export const ProcessPayment: FC<ProcessPaymentProps> = ({
 	if (isLoadingPayments) {
 		return (
 			<Button variant="outline" size="sm" disabled>
-		<Spinner className="h-4 w-4 mr-2" />
-			Loading...
-		</Button>
-	);
+				<Spinner className="h-4 w-4 mr-2" />
+				Loading...
+			</Button>
+		);
 	}
 
 	if (!pendingPayment) {
@@ -56,22 +56,22 @@ export const ProcessPayment: FC<ProcessPaymentProps> = ({
 	return (
 		<Button
 			variant="outline"
-	size="sm"
-	onClick={handleProcessPayment}
-	disabled={disabled || isPending || !pendingPayment}
-	className="text-blue-600 dark:text-blue-400"
+			size="sm"
+			onClick={handleProcessPayment}
+			disabled={disabled || isPending || !pendingPayment}
+			className="text-blue-600 dark:text-blue-400"
 		>
-		{isPending ? (
-						 <>
-							 <Spinner className="h-4 w-4 mr-2" />
-							 Processing...
+			{isPending ? (
+				<>
+					<Spinner className="h-4 w-4 mr-2" />
+					Processing...
 				</>
-) : (
-		<>
-			<Play className="h-4 w-4 mr-2" />
-			Process Payment
-	</>
-)}
-	</Button>
-);
+			) : (
+				<>
+					<Play className="h-4 w-4 mr-2" />
+					Process Payment
+				</>
+			)}
+		</Button>
+	);
 };

@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 
+import { Gender } from "@entities/users";
+
 import { Button } from "@shared/ui/button";
 import {
 	Sheet,
@@ -21,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@shared/ui/spinner";
 
 import { useCreateCustomer } from "../api";
-import { CreateCustomerFormData, createCustomerSchema, Gender } from "../model";
+import { CreateCustomerFormData, createCustomerSchema } from "../model";
 
 export const CreateCustomer: FC = () => {
 	const {

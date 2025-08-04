@@ -1,11 +1,12 @@
-export type UpdateOrderShippingAddressCommand = {
+export type UpdateOrderCommand = {
 	orderId: string;
-	orderShippingAddress: OrderShippingAddress;
+	updatedOrderData: OrderData;
 };
 
-type OrderShippingAddress = {
-	address: string;
-	city: string;
-	state: string;
-	zipCode: string;
+type OrderData = {
+	street?: string;
+	city?: string;
+	zipCode?: string;
+	country?: string;
+	info?: string;
 };

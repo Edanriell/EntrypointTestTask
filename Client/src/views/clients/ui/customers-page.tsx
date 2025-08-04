@@ -19,7 +19,7 @@ import { Spinner } from "@shared/ui/spinner";
 
 import { useCustomersList } from "../api";
 
-export const ClientsPage: FC = () => {
+export const CustomersPage: FC = () => {
 	const [showFilters, setShowFilters] = useState<boolean>(false);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [countryFilter, setCountryFilter] = useState<string>("");
@@ -89,6 +89,18 @@ export const ClientsPage: FC = () => {
 
 		return null;
 	};
+
+	// useEffect(() => {
+	// 	console.log("🔄 Customers array changed:", {
+	// 		customersLength: customers?.length,
+	// 		customers: customers,
+	// 		firstCustomerName: customers?.[0]?.fullName,
+	// 		lastCustomerName: customers?.[customers?.length - 1]?.fullName,
+	// 		customerIds: customers?.map((c) => c.id),
+	// 		queryParams,
+	// 		timestamp: new Date().toISOString()
+	// 	});
+	// }, [customers, queryParams]);
 
 	if (error) {
 		return (
@@ -311,7 +323,7 @@ export const ClientsPage: FC = () => {
 											<EditUser userId={customer.id} />
 											<DeleteUser
 												userId={customer.id}
-												userName={customer.fullName}
+												userFullName={customer.fullName}
 											/>
 										</CustomerRowCard.ManagementActions>
 									</CustomerRowCard>

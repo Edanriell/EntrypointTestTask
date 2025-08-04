@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { deleteUser } from "@entities/users";
-import { toast } from "sonner";
+
 import { ErrorHandler } from "@shared/lib/handlers/error";
 
 // Much more flexible approach but not so clean.
@@ -55,7 +56,7 @@ export const useDeleteUser = (setIsDialogOpen: (open: boolean) => void) => {
 
 	return useMutation({
 		mutationFn: deleteUser,
-		onSuccess: (_, userId) => {
+		onSuccess: (_, { userId }) => {
 			queryClient.invalidateQueries({
 				queryKey: ["users", "list", "customers"]
 			});

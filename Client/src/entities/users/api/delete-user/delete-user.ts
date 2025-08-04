@@ -1,5 +1,7 @@
 import { apiClient } from "@shared/api";
 
-export const deleteUser = async (userId: string): Promise<void> => {
+import type { DeleteUserCommand } from "./delete-user-command";
+
+export const deleteUser = async ({ userId }: DeleteUserCommand): Promise<void> => {
 	return apiClient.delete<void>(`/users/delete/${userId}`);
 };

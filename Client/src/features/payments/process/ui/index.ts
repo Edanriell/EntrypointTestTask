@@ -1,1 +1,1 @@
-export * from "./process-payment-with-automatic-order-confirmation";
+export * from "./process-payment";

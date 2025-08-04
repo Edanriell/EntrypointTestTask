@@ -19,11 +19,12 @@ import { useDeleteUser } from "../api";
 
 type DeleteUserProps = {
 	userId: string;
-	userName?: string;
+	userFullName?: string;
 };
 
-export const DeleteUser: FC<DeleteUserProps> = ({ userId, userName }) => {
+export const DeleteUser: FC<DeleteUserProps> = ({ userId, userFullName }) => {
 	const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
 	const { mutateAsync: deleteUser, isPending } = useDeleteUser(setIsDialogOpen);
 
 	return (
@@ -42,15 +43,15 @@ export const DeleteUser: FC<DeleteUserProps> = ({ userId, userName }) => {
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete{" "}
-						{userName ? `${userName}'s account` : "the user account"} and remove all
-						associated data from our servers.
+						{userFullName ? `${userFullName}'s account` : "the user account"} and remove
+						all associated data from our servers.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
 					<HoldToPressButton
 						holdDuration={1500}
-						onPressAction={() => deleteUser(userId)}
+						onPressAction={() => deleteUser({ userId })}
 						disabled={isPending}
 					>
 						<span

@@ -5,7 +5,7 @@ export const getStockStatus = (stock: number, reserved: number) => {
 			status: "out-of-stock",
 			color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
 		};
-	if (available <= 10)
+	if (available <= 25)
 		return {
 			status: "low-stock",
 			color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"

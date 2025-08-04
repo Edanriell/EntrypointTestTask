@@ -1,5 +1,7 @@
 import { apiClient } from "@shared/api";
 
-export const restoreProduct = async (productId: string): Promise<void> => {
+import { RestoreProductCommand } from "./restore-product-command";
+
+export const restoreProduct = async ({ productId }: RestoreProductCommand): Promise<void> => {
 	return apiClient.post<void>(`/products/${productId}/restore`);
 };

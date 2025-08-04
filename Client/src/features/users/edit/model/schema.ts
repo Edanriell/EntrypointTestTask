@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { GenderEnum } from "../model";
+import { Gender } from "@entities/users";
 
 export const editUserSchema = z.object({
 	firstName: z
@@ -24,7 +24,7 @@ export const editUserSchema = z.object({
 		.min(1, "Phone number is required")
 		.regex(/^\+?[1-9]\d{1,14}$/, "Phone number must be in valid international format"),
 
-	gender: GenderEnum,
+	gender: z.nativeEnum(Gender, { required_error: "Gender is required" }),
 
 	country: z
 		.string()

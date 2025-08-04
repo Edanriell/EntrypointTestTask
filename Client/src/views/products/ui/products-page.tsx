@@ -8,7 +8,7 @@ import { EditProduct } from "@features/products/edit";
 import { DeleteProduct } from "@features/products/delete";
 import { UpdateProductPrice } from "@features/products/update-price";
 import { UpdateProductStock } from "@features/products/update-stock";
-import { UpdateProductReservedStock } from "@features/products/update-reserved-stock";
+import { ProductReservedStock } from "@features/products/reserved-stock";
 import { AuthGuard } from "@features/authentication/general";
 
 import { ProductRowCard } from "@entities/products";
@@ -23,6 +23,8 @@ import { Separator } from "@shared/ui/separator";
 import { Spinner } from "@shared/ui/spinner";
 
 import { useProductsList } from "../api";
+import { DiscountProduct } from "@features/products/discount-product/ui";
+import { RestoreProduct } from "@features/products/restore-product";
 
 export const ProductsPage: FC = () => {
 	const [showFilters, setShowFilters] = useState<boolean>(false);
@@ -63,9 +65,9 @@ export const ProductsPage: FC = () => {
 			maxPrice: maxPrice ? Number(maxPrice) : undefined,
 			minStock: minStock ? Number(minStock) : undefined,
 			maxStock: maxStock ? Number(maxStock) : undefined,
-			statusFilter: statusFilter === "all" ? undefined : statusFilter,
-			hasStock: hasStock === "all" ? undefined : hasStock === "true",
-			isReserved: isReserved === "all" ? undefined : isReserved === "true"
+			statusFilter: statusFilter === "all" || !statusFilter ? undefined : statusFilter,
+			hasStock: hasStock === "all" || !hasStock ? undefined : hasStock === "true",
+			isReserved: isReserved === "all" || !isReserved ? undefined : isReserved === "true"
 		});
 	};
 
@@ -311,13 +313,15 @@ export const ProductsPage: FC = () => {
 								{getSortIcon("price")}
 							</Button>
 							<Button
-								variant={queryParams.sortBy === "stock" ? "default" : "outline"}
+								variant={
+									queryParams.sortBy === "totalStock" ? "default" : "outline"
+								}
 								size="sm"
-								onClick={() => handleSortChange("stock")}
+								onClick={() => handleSortChange("totalStock")}
 								className="flex items-center gap-1"
 							>
 								Stock
-								{getSortIcon("stock")}
+								{getSortIcon("totalStock")}
 							</Button>
 							<Button
 								variant={queryParams.sortBy === "createdAt" ? "default" : "outline"}
@@ -359,14 +363,27 @@ export const ProductsPage: FC = () => {
 							<div className="space-y-4">
 								{products.map((product) => (
 									<ProductRowCard key={product.id} product={product}>
-										<ProductRowCard.ManagementActions>
-											<EditProduct />
-											<DeleteProduct />
-										</ProductRowCard.ManagementActions>
+										{product.status !== ProductStatus.Deleted && (
+											<ProductRowCard.ManagementActions>
+												<EditProduct productId={product.id} />
+												<DeleteProduct
+													productId={product.id}
+													productName={product.name}
+												/>
+											</ProductRowCard.ManagementActions>
+										)}
 										<ProductRowCard.QuickActions>
-											<UpdateProductPrice />
-											<UpdateProductStock />
-											<UpdateProductReservedStock />
+											{product.status !== ProductStatus.Deleted && (
+												<>
+													<UpdateProductPrice productId={product.id} />
+													<UpdateProductStock productId={product.id} />
+													<ProductReservedStock productId={product.id} />
+													<DiscountProduct productId={product.id} />
+												</>
+											)}
+											{product.status === ProductStatus.Deleted && (
+												<RestoreProduct productId={product.id} />
+											)}
 										</ProductRowCard.QuickActions>
 									</ProductRowCard>
 								))}

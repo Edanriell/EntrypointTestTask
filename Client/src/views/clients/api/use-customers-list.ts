@@ -1,24 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
-import { usersQueries } from "@entities/users";
-import { CustomersListQuery } from "@entities/users/model";
+import { GetCustomersQuery, usersQueries } from "@entities/users";
 
 export type UseCustomersListOptions = {
 	initialPageSize?: number;
-	initialSortBy?: string;
-	initialSortDirection?: "asc" | "desc";
+	initialSortBy?: "CreatedOnUtc";
+	initialSortDirection?: "ASC" | "DESC";
 };
 
 export const useCustomersList = (options: UseCustomersListOptions = {}) => {
 	const {
 		initialPageSize = 10,
-		initialSortBy = "createdOnUtc",
-		initialSortDirection = "desc"
+		initialSortBy = "CreatedOnUtc",
+		initialSortDirection = "DESC"
 	} = options;
 
 	// State for query parameters
-	const [queryParams, setQueryParams] = useState<CustomersListQuery>({
+	const [queryParams, setQueryParams] = useState<GetCustomersQuery>({
 		pageSize: initialPageSize,
 		sortBy: initialSortBy,
 		sortDirection: initialSortDirection
@@ -30,7 +29,7 @@ export const useCustomersList = (options: UseCustomersListOptions = {}) => {
 	const query = useQuery(queryOptions);
 
 	// Helper functions for updating query parameters
-	const updateQuery = (updates: Partial<CustomersListQuery>) => {
+	const updateQuery = (updates: Partial<GetCustomersQuery>) => {
 		setQueryParams((prev) => ({ ...prev, ...updates }));
 	};
 
@@ -59,7 +58,7 @@ export const useCustomersList = (options: UseCustomersListOptions = {}) => {
 		updateQuery({ sortBy, sortDirection, cursor: undefined });
 	};
 
-	const setFilters = (filters: Partial<CustomersListQuery>) => {
+	const setFilters = (filters: Partial<GetCustomersQuery>) => {
 		// Reset cursor when filters change
 		updateQuery({ ...filters, cursor: undefined });
 	};

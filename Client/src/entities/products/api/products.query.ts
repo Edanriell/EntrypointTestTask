@@ -2,7 +2,7 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 import { ApiError } from "@shared/lib/handlers/error";
 
-import { ProductDetailQuery, ProductsListQuery } from "../model";
+import type { GetProductByIdQuery, GetProductsQuery } from "../api";
 import { getProductById, getProducts } from "../api";
 
 export const productsQueries = {
@@ -16,7 +16,7 @@ export const productsQueries = {
 	productDetails: () => [...productsQueries.all(), "productDetail"] as const,
 
 	// Customer list with pagination, sorting, and filtering
-	productsList: (query?: ProductsListQuery) =>
+	productsList: (query?: GetProductsQuery) =>
 		queryOptions({
 			// Include all query parameters in the key for proper caching
 			queryKey: [...productsQueries.lists(), query],
@@ -42,11 +42,11 @@ export const productsQueries = {
 		}),
 
 	// User detail by ID (works for both customers and users)
-	productDetail: (query?: ProductDetailQuery) =>
+	productDetail: (query?: GetProductByIdQuery) =>
 		queryOptions({
-			queryKey: [...productsQueries.productDetails(), query?.id],
-			queryFn: () => getProductById(query?.id!),
-			enabled: !!query?.id,
+			queryKey: [...productsQueries.productDetails(), query?.productId],
+			queryFn: () => getProductById({ productId: query?.productId! }),
+			enabled: !!query?.productId,
 			staleTime: 5 * 60 * 1000, // 5 minutes
 			retry: (failureCount, error) => {
 				// Type guard to check if error is ApiError

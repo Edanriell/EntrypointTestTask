@@ -1,1 +1,1 @@
-export * from "./client-row-card";
+export * from "./customer-row-card";

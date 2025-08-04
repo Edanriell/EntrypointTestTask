@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UseFormReset, UseFormSetError } from "react-hook-form";
 
-import { createCustomer } from "@entities/users";
+import { registerCustomer } from "@entities/users";
 
 import { ErrorHandler } from "@shared/lib/handlers/error";
 
@@ -15,7 +15,7 @@ export const useCreateCustomer = (
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: createCustomer,
+		mutationFn: registerCustomer,
 		onSuccess: (userId) => {
 			queryClient.invalidateQueries({
 				queryKey: ["users", "list", "customers"]

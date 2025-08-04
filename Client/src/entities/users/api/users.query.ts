@@ -2,9 +2,9 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 import { ApiError } from "@shared/lib/handlers/error";
 
-import { getLoggedInUser } from "./get-users";
-import { getCustomerById, getCustomers } from "./get-customers";
-import { CustomersListQuery, UserDetailQuery } from "../model";
+import { getLoggedInUser } from "./get-logged-in-user";
+import { getCustomers, GetCustomersQuery } from "./get-customers";
+import { getCustomerById, GetCustomerByIdQuery } from "./get-customer-by-id";
 
 export const usersQueries = {
 	// Base key
@@ -17,7 +17,7 @@ export const usersQueries = {
 	customerDetails: () => [...usersQueries.all(), "customerDetail"] as const,
 
 	// Customer list with pagination, sorting, and filtering
-	customersList: (query?: CustomersListQuery) =>
+	customersList: (query?: GetCustomersQuery) =>
 		queryOptions({
 			// Include all query parameters in the key for proper caching
 			queryKey: [...usersQueries.lists(), "customers", query],
@@ -43,11 +43,11 @@ export const usersQueries = {
 		}),
 
 	// User detail by ID (works for both customers and users)
-	customerDetail: (query?: UserDetailQuery) =>
+	customerDetail: (query?: GetCustomerByIdQuery) =>
 		queryOptions({
-			queryKey: [...usersQueries.customerDetails(), query?.id],
-			queryFn: () => getCustomerById(query?.id!),
-			enabled: !!query?.id,
+			queryKey: [...usersQueries.customerDetails(), query?.userId],
+			queryFn: () => getCustomerById({ userId: query?.userId! }),
+			enabled: !!query?.userId,
 			staleTime: 5 * 60 * 1000, // 5 minutes
 			retry: (failureCount, error) => {
 				// Type guard to check if error is ApiError

@@ -1,4 +1,4 @@
-import { Customer } from "@entities/users/model/customer";
+import { Customer } from "../../model";
 
 export type GetCustomersResponse = {
 	customers: Customer[];

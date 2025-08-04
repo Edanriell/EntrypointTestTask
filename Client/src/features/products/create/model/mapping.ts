@@ -7,5 +7,5 @@ export const CREATE_PRODUCT_FORM_FIELD_MAPPING: Record<string, FieldPath<CreateP
 	description: "description",
 	currency: "currency",
 	price: "price",
-	stock: "stock"
+	totalStock: "totalStock"
 } as const;

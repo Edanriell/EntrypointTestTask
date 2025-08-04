@@ -1,1 +1,1 @@
-export * from "./clients-page";
+export * from "./customers-page";

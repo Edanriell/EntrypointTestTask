@@ -1,6 +1,7 @@
 import { apiClient } from "@shared/api";
 
-import { GetCustomersQuery, GetCustomersResponse } from "../model";
+import { GetCustomersQuery } from "./get-customers-query";
+import { GetCustomersResponse } from "./get-customers-response";
 
 export const getCustomers = async (params?: GetCustomersQuery): Promise<GetCustomersResponse> => {
 	// Build query string from parameters
@@ -16,6 +17,8 @@ export const getCustomers = async (params?: GetCustomersQuery): Promise<GetCusto
 
 	const queryString = queryParams.toString();
 	const url = `/customers${queryString ? `?${queryString}` : ""}`;
+
+	console.log(url);
 
 	return await apiClient.get<GetCustomersResponse>(url);
 };

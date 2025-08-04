@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { Currency } from "@entities/products";
+
 export const createProductSchema = z.object({
 	name: z
 		.string()
@@ -11,21 +13,16 @@ export const createProductSchema = z.object({
 		.min(1, "Description is required")
 		.max(500, "Description cannot exceed 500 characters"),
 
-	currency: z
-		.string()
-		.min(1, "Currency is required")
-		.max(3, "Currency code cannot exceed 3 characters"),
+	currency: z.nativeEnum(Currency, { required_error: "Currency is required" }),
 
 	price: z
 		.number()
 		.min(0, "Price must be a positive number")
 		.max(999999.99, "Price cannot exceed 999,999.99"),
 
-	stock: z
+	totalStock: z
 		.number()
 		.int("Stock must be a whole number")
 		.min(0, "Stock cannot be negative")
 		.max(999999, "Stock cannot exceed 999,999")
 });
-
-export type CreateProductFormData = z.infer<typeof createProductSchema>;

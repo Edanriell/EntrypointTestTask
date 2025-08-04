@@ -11,6 +11,7 @@ export type ApiErrorResponse = {
 	errors?: ValidationError[];
 	traceId?: string;
 	code?: string;
+	name?: string;
 };
 
 export type ApiError = {

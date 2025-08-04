@@ -22,8 +22,8 @@ export default async function Layout({ children }: LayoutProps) {
 			<DashboardLayout.Sidebar>
 				<DashboardSidebar>
 					<DashboardSidebar.MainNavigation>
-						<DashboardSidebar.MainNavigationItem Icon={Users} href="clients">
-							Clients
+						<DashboardSidebar.MainNavigationItem Icon={Users} href="customers">
+							Customers
 						</DashboardSidebar.MainNavigationItem>
 						<DashboardSidebar.MainNavigationItem Icon={ClipboardList} href="orders">
 							Orders

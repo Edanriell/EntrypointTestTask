@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Gender } from "@entities/users";
+
 import { DropdownMenuItem } from "@shared/ui/dropdown-menu";
 import {
 	Sheet,
@@ -20,9 +22,12 @@ import { Label } from "@shared/ui/label";
 import { Input } from "@shared/ui/input";
 import { Spinner } from "@shared/ui/spinner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
+import { getChangedFields } from "@shared/lib/utils";
 
-import { useGetUserById, useUpdateUser } from "../api";
-import { EditUserFormData, editUserSchema, Gender, GENDER_MAPPING } from "../model";
+import { useGetCustomerById, useUpdateUser } from "../api";
+import { EditUserFormData, editUserSchema, GENDER_MAPPING } from "../model";
+import { USER_UPDATABLE_FIELDS } from "../config";
+import { genderComparator } from "../lib";
 
 type EditUserProps = {
 	userId: string;
@@ -56,7 +61,7 @@ export const EditUser: FC<EditUserProps> = ({ userId }) => {
 	const selectedGender = watch("gender");
 
 	// Fetch user data for prefilling the form
-	const { data: userData, isLoading: isLoadingUser } = useGetUserById(userId);
+	const { data: userData, isLoading: isLoadingUser } = useGetCustomerById(userId);
 
 	// Update user mutation
 	const { mutateAsync: updateUser, isPending } = useUpdateUser(setError);
@@ -78,7 +83,20 @@ export const EditUser: FC<EditUserProps> = ({ userId }) => {
 
 	const onSubmit = async (data: EditUserFormData) => {
 		try {
-			await updateUser({ id: userId, data: data });
+			const updatedUserData = getChangedFields(
+				userData!,
+				data,
+				USER_UPDATABLE_FIELDS,
+				genderComparator
+			);
+
+			// console.log("Changed fields:", updatedUserData);
+
+			if (Object.keys(updatedUserData).length > 0) {
+				await updateUser({ userId, updatedUserData });
+			} else {
+				console.log("No changes detected");
+			}
 		} catch (error) {
 			console.error("Error updating user:", error);
 		}

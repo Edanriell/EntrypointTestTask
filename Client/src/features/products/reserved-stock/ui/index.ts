@@ -1,1 +1,1 @@
-export * from "./update-product-reserved-stock";
+export * from "./product-reserved-stock";

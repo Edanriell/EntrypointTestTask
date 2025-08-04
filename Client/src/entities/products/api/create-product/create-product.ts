@@ -1,7 +1,8 @@
 import { apiClient } from "@shared/api";
 
-import { CreateProductRequest } from "../model";
+import type { CreateProductCommand } from "./create-product-command";
+import type { CreateProductResponse } from "./create-product-response";
 
-export const createProduct = async (data: CreateProductRequest): Promise<string> => {
-	return apiClient.post<string>("/products", data);
+export const createProduct = async (data: CreateProductCommand): Promise<CreateProductResponse> => {
+	return apiClient.post<CreateProductResponse>("/products", data);
 };
