@@ -1,6 +1,7 @@
 ﻿using Server.Domain.Abstractions;
 using Server.Domain.Orders;
 using Server.Domain.Payments.Events;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Domain.Payments;
@@ -90,8 +91,8 @@ public sealed class PaymentService
             return Result.Failure<Payment>(paymentResult.Error);
         }
 
+        // Is it valid approach ?
         Payment payment = paymentResult.Value;
-
         _paymentRepository.Add(payment);
 
         // Update Order aggregate

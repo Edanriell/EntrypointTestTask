@@ -34,12 +34,6 @@ export default async function Layout({ children }: LayoutProps) {
 					</DashboardSidebar.MainNavigation>
 					<DashboardSidebar.UserNavigation user={{ name, email, avatar }}>
 						<DashboardSidebar.UserNavigationItemSeparator />
-						<DashboardSidebar.UserNavigationItemGroup>
-							<DashboardSidebar.UserNavigationItem Icon={BadgeCheck}>
-								Settings
-							</DashboardSidebar.UserNavigationItem>
-						</DashboardSidebar.UserNavigationItemGroup>
-						<DashboardSidebar.UserNavigationItemSeparator />
 						<DashboardSidebar.UserNavigationItem Icon={LogOut}>
 							<SignOut />
 						</DashboardSidebar.UserNavigationItem>

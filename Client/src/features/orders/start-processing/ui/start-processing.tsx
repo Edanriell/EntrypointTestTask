@@ -11,14 +11,14 @@ import { useStartProcessingOrder } from "../api";
 type StartProcessingOrderProps = {
 	orderId: string;
 	orderNumber?: string;
-	orderStatus: string;
+	isConfirmed: string;
 	disabled?: boolean;
 };
 
 export const StartProcessing: FC<StartProcessingOrderProps> = ({
 	orderId,
 	orderNumber,
-	orderStatus,
+	isConfirmed,
 	disabled = false
 }) => {
 	const { mutateAsync: startProcessingOrder, isPending } = useStartProcessingOrder();
@@ -32,7 +32,7 @@ export const StartProcessing: FC<StartProcessingOrderProps> = ({
 	};
 
 	// Only show button if order is confirmed
-	if (orderStatus !== OrderStatus.Confirmed) {
+	if (!isConfirmed) {
 		return null;
 	}
 

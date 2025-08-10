@@ -14,7 +14,7 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
@@ -25,7 +25,7 @@ internal sealed class PaymentRepository
             .Set<Payment>()
             // FIXES problem
             // .AsNoTracking()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .Where(p => p.OrderId == orderId)
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -36,7 +36,7 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .Where(p => p.PaymentStatus == status)
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -47,7 +47,7 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .Where(p => p.PaymentMethod == paymentMethod)
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -57,7 +57,7 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .Where(p => p.PaymentStatus == PaymentStatus.Pending)
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -68,7 +68,7 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            .Include(p => p.Refunds)
+            .Include(p => p.Refund)
             .Where(p => p.PaymentStatus == PaymentStatus.Pending && p.CreatedAt < expirationDate)
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);

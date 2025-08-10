@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Server.Domain.Payments;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Infrastructure.Configurations;
@@ -69,9 +70,9 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasMaxLength(100)
             .IsRequired(false);
 
-        builder.HasMany(payment => payment.Refunds)
+        builder.HasOne(payment => payment.Refund)
             .WithOne(refund => refund.Payment)
-            .HasForeignKey(refund => refund.PaymentId)
+            .HasForeignKey<Refund>(refund => refund.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Test

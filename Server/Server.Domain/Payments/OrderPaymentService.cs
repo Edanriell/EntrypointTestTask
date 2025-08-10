@@ -1,5 +1,6 @@
 ﻿using Server.Domain.Abstractions;
 using Server.Domain.Orders;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Domain.Payments;
@@ -8,11 +9,14 @@ public sealed class OrderPaymentService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IRefundRepository _refundRepository;
 
-    public OrderPaymentService(IPaymentRepository paymentRepository, IOrderRepository orderRepository)
+    public OrderPaymentService(
+        IPaymentRepository paymentRepository, IOrderRepository orderRepository, IRefundRepository refundRepository)
     {
         _paymentRepository = paymentRepository;
         _orderRepository = orderRepository;
+        _refundRepository = refundRepository;
     }
 
     // public Result ProcessFullRefundForOrder(Order order, RefundReason reason)
@@ -91,15 +95,27 @@ public sealed class OrderPaymentService
         // Process refunds for all paid payments
         foreach (Payment payment in paidPayments)
         {
-            Money remainingAmount = payment.GetRemainingAmount();
-            if (remainingAmount.Amount > 0)
+            // Money remainingAmount = payment.GetRemainingAmount();
+            // if (remainingAmount.Amount > 0)
+            // {
+            //     // Refund Payment
+            //     
+            // }
+            Result<Refund> refundResult = Refund.Create(payment.Id, payment.Amount.Amount, reason);
+            if (refundResult.IsFailure)
             {
-                // Refund Payment
-                Result<Refund> refundResult = payment.ProcessRefund(remainingAmount, reason);
-                if (refundResult.IsFailure)
-                {
-                    return Result.Failure(refundResult.Error);
-                }
+                return Result.Failure<Refund>(refundResult.Error);
+            }
+
+            // Is it valid approach ?
+            _refundRepository.Add(refundResult.Value);
+            // Do we need it do manually ?
+            refundResult.Value.AttachToPayment(payment);
+
+            Result paymentProcessResult = payment.ProcessRefund(refundResult.Value.Amount, reason);
+            if (paymentProcessResult.IsFailure)
+            {
+                return Result.Failure(paymentProcessResult.Error);
             }
         }
 
@@ -121,12 +137,13 @@ public sealed class OrderPaymentService
         // }
 
         // Update Order's refund
-        // Bad
         Result<Money> totalRefundedResult =
             await GetTotalRefundedAmountAsync(orderId, order.Currency, cancellationToken);
+
+
         if (totalRefundedResult.IsSuccess)
         {
-            order.UpdateRefundStatus(totalRefundedResult.Value);
+            order.UpdateRefundStatus(reason, totalRefundedResult.Value);
         }
 
         return Result.Success();
@@ -382,7 +399,7 @@ public sealed class OrderPaymentService
         {
             if (payment.PaymentStatus is PaymentStatus.Refunded)
             {
-                totalRefunded += payment.GetTotalRefundedAmount().Amount;
+                totalRefunded += payment.GetRefundedAmount().Amount;
             }
         }
 

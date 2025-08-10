@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Server.Application.Payments.ProcessOrderRefundCommand;
+namespace Server.Application.Payments.RefundPayments;
 
 public sealed class ProcessOrderRefundCommandValidator : AbstractValidator<RefundPaymentsCommand>
 {

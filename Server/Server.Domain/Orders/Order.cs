@@ -2,6 +2,7 @@
 using Server.Domain.OrderProducts;
 using Server.Domain.Orders.Events;
 using Server.Domain.Payments;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Domain.Orders;
@@ -242,6 +243,14 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
+    // Important !!!
+    // Important !!!
+    // Important !!!
+    // Important !!!
+    // Important !!!
+    // Important !!!
+    // Important !!!
+    // Rename to AttachPaymentToOrder
     public Result RecordOrderPayment(Guid paymentId, Money amount)
     {
         if (Status == OrderStatus.Cancelled)
@@ -593,9 +602,10 @@ public sealed class Order : Entity
         HasDisputedPayments = hasDisputedPayments;
     }
 
-    public void UpdateRefundStatus(Money totalRefundedAmount)
+    public void UpdateRefundStatus(RefundReason refundReason, Money totalRefundedAmount)
     {
-        TotalRefundedAmount = totalRefundedAmount;
+        RefundReason = refundReason;
+        TotalRefundedAmount = new Money(totalRefundedAmount.Amount, totalRefundedAmount.Currency);
 
         if (IsFullyRefunded())
         {

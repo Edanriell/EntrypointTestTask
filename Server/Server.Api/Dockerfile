@@ -3,6 +3,7 @@ USER $APP_UID
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 5001
+EXPOSE 5005
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -24,3 +25,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Server.Api.dll"]
+
+# Install debugger for Rider remote debug
+RUN apt-get update && apt-get install -y unzip curl \
+    && curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg

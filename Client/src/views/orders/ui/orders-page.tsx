@@ -1,11 +1,11 @@
 "use client";
 
 import { FC, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, Search, X } from "lucide-react";
 
 import { AuthGuard } from "@features/authentication/general";
 
-import { OrderRowCard } from "@entities/orders";
+import { OrderRowCard, OrderStatus } from "@entities/orders";
 
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -31,8 +31,16 @@ import { MarkOutForDelivery } from "@features/orders/mark-out-for-delivery";
 import { MarkAsDelivered } from "@features/orders/mark-as-delivered";
 import { Complete } from "@features/orders/complete";
 import { Refund } from "@features/payments/refund";
+import { Pagination } from "@widgets/pagination";
 
 export const OrdersPage: FC = () => {
+	// TODO
+	// When creating an order we have small issue
+	// We need make in select virtual lists for performance
+	// Ui problem when cancelled order before confirming we must see nothing
+	// Api problem !
+	// When paying in different currency we get 500 instead we must throw an error
+	// When we cancell order all funds must be refunded if they exist !
 	const [showFilters, setShowFilters] = useState<boolean>(false);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -709,6 +717,10 @@ export const OrdersPage: FC = () => {
 												orderId={order.id}
 												orderNumber={order.orderNumber}
 												isFullyPaid={order.paidAmount >= order.totalAmount}
+												isCancelled={order.status === "Cancelled"}
+												isNotConfirmed={
+													order.status !== OrderStatus.Confirmed
+												}
 											/>
 											<MarkReadyForShipment
 												orderId={order.id}
@@ -722,7 +734,7 @@ export const OrdersPage: FC = () => {
 											<StartProcessing
 												orderId={order.id}
 												orderNumber={order.orderNumber}
-												orderStatus={order.status}
+												isConfirmed={order.status === OrderStatus.Confirmed}
 											/>
 											<Refund
 												orderId={order.id}
@@ -742,6 +754,7 @@ export const OrdersPage: FC = () => {
 												outstandingAmount={order.outstandingAmount}
 												orderCurrency={order.currency}
 												orderStatus={order.status}
+												isFullyPaid={order.paidAmount >= order.totalAmount}
 											/>
 											<Return
 												orderId={order.id}
@@ -774,37 +787,14 @@ export const OrdersPage: FC = () => {
 							</div>
 						)}
 
-						{/* Pagination */}
-						<Card>
-							<CardContent className="pt-6">
-								<div className="flex items-center justify-between">
-									<div className="text-sm text-muted-foreground">
-										Showing {orders.length} orders
-										{totalCount && ` of ${totalCount} total`}
-									</div>
-									<div className="flex items-center gap-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToPreviousPage}
-											disabled={!hasPreviousPage}
-										>
-											<ChevronLeft className="h-4 w-4 mr-1" />
-											Previous
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToNextPage}
-											disabled={!hasNextPage}
-										>
-											Next
-											<ChevronRight className="h-4 w-4 ml-1" />
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+						<Pagination
+							entity={orders}
+							totalCount={totalCount}
+							hasNextPage={hasNextPage}
+							hasPreviousPage={hasPreviousPage}
+							goToNextPage={goToNextPage}
+							goToPreviousPage={goToPreviousPage}
+						/>
 					</>
 				)}
 			</div>

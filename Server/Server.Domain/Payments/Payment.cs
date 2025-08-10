@@ -1,13 +1,13 @@
 ﻿using Server.Domain.Abstractions;
-using Server.Domain.Orders;
 using Server.Domain.Payments.Events;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Domain.Payments;
 
 public sealed class Payment : Entity
 {
-    private readonly List<Refund> _refunds = new();
+    // private readonly List<Refund> _refunds = new();
 
     private Payment(
         Guid id,
@@ -33,8 +33,11 @@ public sealed class Payment : Entity
     public DateTime? PaymentCompletedAt { get; private set; }
     public DateTime? PaymentFailedAt { get; private set; }
     public PaymentFailureReason? PaymentFailureReason { get; private set; }
+
     public DateTime? PaymentExpiredAt { get; private set; }
-    public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
+
+    // public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
+    public Refund? Refund { get; private set; }
 
     public static Result<Payment> Create(
         Guid orderId,
@@ -117,45 +120,48 @@ public sealed class Payment : Entity
         return Result.Success();
     }
 
-    public Result<Refund> ProcessRefund(Money refundAmount, RefundReason reason)
+    public Result ProcessRefund(Money refundAmount, RefundReason reason)
     {
         if (PaymentStatus != PaymentStatus.Paid)
         {
             return Result.Failure<Refund>(PaymentErrors.CannotRefundUnpaidPayment);
         }
 
-        Money totalRefunded = GetTotalRefundedAmount();
-        var availableForRefund = new Money(Amount.Amount - totalRefunded.Amount, Amount.Currency);
+        // Money totalRefunded = GetTotalRefundedAmount();
+        // var availableForRefund = new Money(Amount.Amount - totalRefunded.Amount, Amount.Currency);
+        //
+        // if (refundAmount > availableForRefund)
+        // {
+        //     return Result.Failure<Refund>(PaymentErrors.RefundAmountExceedsPaidAmount);
+        // }
+        //
+        // if (refundAmount <= Money.Zero())
+        // {
+        //     return Result.Failure<Refund>(PaymentErrors.InvalidRefundAmount);
+        // }
 
-        if (refundAmount > availableForRefund)
-        {
-            return Result.Failure<Refund>(PaymentErrors.RefundAmountExceedsPaidAmount);
-        }
+        // Create a refund, we support only full refunds for now
+        // Result<Refund> refundResult = Refund.Create(Id, Amount.Amount, reason);
+        // if (refundResult.IsFailure)
+        // {
+        //     return Result.Failure<Refund>(refundResult.Error);
+        // }
 
-        if (refundAmount <= Money.Zero())
-        {
-            return Result.Failure<Refund>(PaymentErrors.InvalidRefundAmount);
-        }
+        // Money refundAmount = refundResult.Value.Amount;
 
-        // Create a refund
-        Result<Refund> refundResult = Refund.Create(Id, refundAmount, reason);
-        if (refundResult.IsFailure)
-        {
-            return Result.Failure<Refund>(refundResult.Error);
-        }
-
-        _refunds.Add(refundResult.Value);
+        // Refund = refundResult.Value;
+        // Refund.AttachToPayment(this);
 
         // Update payment status
-        var newTotalRefunded = new Money(totalRefunded.Amount + refundAmount.Amount, Amount.Currency);
-        if (newTotalRefunded.Amount == Amount.Amount)
+        // var newTotalRefunded = new Money(refundAmount.Amount, Amount.Currency);
+        if (refundAmount.Amount == Amount.Amount)
         {
             PaymentStatus = PaymentStatus.Refunded;
         }
 
         RaiseDomainEvent(new PaymentRefundedDomainEvent(Id, OrderId, refundAmount, reason));
 
-        return refundResult;
+        return Result.Success();
     }
 
     public Money GetRemainingAmount()
@@ -167,15 +173,27 @@ public sealed class Payment : Entity
         };
     }
 
-    public Money GetTotalRefundedAmount()
+    // public Money GetTotalRefundedAmount()
+    // {
+    //     if (!_refunds.Any())
+    //     {
+    //         return Money.Zero(Amount.Currency);
+    //     }
+    //
+    //     decimal totalRefunded = _refunds.Sum(r => r.Amount.Amount);
+    //     return new Money(totalRefunded, Amount.Currency);
+    // }
+
+    public Money GetRefundedAmount()
     {
-        if (!_refunds.Any())
+        if (Refund is null)
         {
             return Money.Zero(Amount.Currency);
         }
 
-        decimal totalRefunded = _refunds.Sum(r => r.Amount.Amount);
-        return new Money(totalRefunded, Amount.Currency);
+        Money refundAmount = Refund.Amount;
+
+        return new Money(refundAmount.Amount, Amount.Currency);
     }
 
     public bool CanBeRefunded()

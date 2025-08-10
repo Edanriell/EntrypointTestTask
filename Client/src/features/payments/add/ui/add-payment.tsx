@@ -20,6 +20,7 @@ import { OrderStatus } from "@entities/orders";
 type AddPaymentProps = {
 	orderId: string;
 	orderStatus: string;
+	isFullyPaid: boolean;
 	orderNumber?: string;
 	outstandingAmount?: number;
 	orderCurrency?: string;
@@ -57,7 +58,8 @@ export const AddPayment: FC<AddPaymentProps> = ({
 	orderStatus,
 	orderNumber,
 	outstandingAmount,
-	orderCurrency
+	orderCurrency,
+													isFullyPaid
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -110,7 +112,7 @@ export const AddPayment: FC<AddPaymentProps> = ({
 		reset();
 	};
 
-	if (orderStatus !== OrderStatus.Pending) {
+	if (orderStatus !== OrderStatus.Pending || isFullyPaid) {
 		return null;
 	}
 

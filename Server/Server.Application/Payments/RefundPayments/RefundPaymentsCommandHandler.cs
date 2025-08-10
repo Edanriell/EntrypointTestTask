@@ -1,9 +1,9 @@
 ﻿using Server.Application.Abstractions.Messaging;
 using Server.Domain.Abstractions;
-using Server.Domain.Orders;
 using Server.Domain.Payments;
+using Server.Domain.Refunds;
 
-namespace Server.Application.Payments.ProcessOrderRefundCommand;
+namespace Server.Application.Payments.RefundPayments;
 
 internal sealed class RefundPaymentsCommandHandler : ICommandHandler<RefundPaymentsCommand>
 {

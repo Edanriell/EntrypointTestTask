@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Server.Domain.Orders;
-using Server.Domain.Payments;
+using Server.Domain.Refunds;
 using Server.Domain.Shared;
 
 namespace Server.Infrastructure.Configurations;
@@ -74,4 +73,3 @@ internal sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
             .HasDatabaseName("ix_refunds_created_at");
     }
 }
- 

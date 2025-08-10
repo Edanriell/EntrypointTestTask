@@ -5,8 +5,8 @@ using Server.Application.Payments.AddPayment;
 using Server.Application.Payments.CancelPayment;
 using Server.Application.Payments.GetPaymentById;
 using Server.Application.Payments.GetPaymentsByOrderId;
-using Server.Application.Payments.ProcessOrderRefundCommand;
 using Server.Application.Payments.ProcessPayment;
+using Server.Application.Payments.RefundPayments;
 using Server.Domain.Abstractions;
 
 namespace Server.Api.Controllers.Payments;

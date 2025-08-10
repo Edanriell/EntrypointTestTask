@@ -17,6 +17,7 @@ using Server.Domain.OrderProducts;
 using Server.Domain.Orders;
 using Server.Domain.Payments;
 using Server.Domain.Products;
+using Server.Domain.Refunds;
 using Server.Domain.Users;
 using Server.Infrastructure.Authentication;
 using Server.Infrastructure.Authorization;
@@ -92,6 +93,8 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+        services.AddScoped<IRefundRepository, RefundRepository>();
 
         services.AddScoped<IOrderProductRepository, OrderProductRepository>();
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, Search, X } from "lucide-react";
 
 import { CreateCustomer } from "@features/users/create";
 import { EditUser } from "@features/users/edit";
@@ -18,8 +18,13 @@ import { Separator } from "@shared/ui/separator";
 import { Spinner } from "@shared/ui/spinner";
 
 import { useCustomersList } from "../api";
+import { Pagination } from "@widgets/pagination";
 
 export const CustomersPage: FC = () => {
+	// TODO
+	// Searching by name and email is broken, search by email is not working
+	// Decompose Filters and search and sort by separate widgets
+	// Sorting by name probabbly working incorectly
 	const [showFilters, setShowFilters] = useState<boolean>(false);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [countryFilter, setCountryFilter] = useState<string>("");
@@ -331,37 +336,14 @@ export const CustomersPage: FC = () => {
 							</div>
 						)}
 
-						{/* Pagination */}
-						<Card>
-							<CardContent className="pt-6">
-								<div className="flex items-center justify-between">
-									<div className="text-sm text-muted-foreground">
-										Showing {customers.length} customers
-										{totalCount && ` of ${totalCount} total`}
-									</div>
-									<div className="flex items-center gap-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToPreviousPage}
-											disabled={!hasPreviousPage}
-										>
-											<ChevronLeft className="h-4 w-4 mr-1" />
-											Previous
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToNextPage}
-											disabled={!hasNextPage}
-										>
-											Next
-											<ChevronRight className="h-4 w-4 ml-1" />
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+						<Pagination
+							entity={customers}
+							totalCount={totalCount}
+							hasNextPage={hasNextPage}
+							hasPreviousPage={hasPreviousPage}
+							goToNextPage={goToNextPage}
+							goToPreviousPage={goToPreviousPage}
+						/>
 					</>
 				)}
 			</div>

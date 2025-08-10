@@ -411,6 +411,30 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</CardContent>
 					</Card>
 				)}
+				{/*{Fix for refund reason we need to display it}*/}
+				{order.refundReason && (
+					<Card className="bg-destructive/5 border-destructive/20">
+						<CardContent className="pt-4">
+							<div className="flex items-center space-x-2 text-sm">
+								<AlertCircle className="h-4 w-4 text-destructive" />
+								<span className="font-medium text-destructive">
+									Order {order.status}
+								</span>
+								{order.status === OrderStatus.Cancelled &&
+									order.cancellationReason && (
+										<span className="text-muted-foreground">
+											- {order.refundReason}
+										</span>
+									)}
+								{order.status === OrderStatus.Returned && order.returnReason && (
+									<span className="text-muted-foreground">
+										- {order.refundReason}
+									</span>
+								)}
+							</div>
+						</CardContent>
+					</Card>
+				)}
 
 				{/* Payments Section */}
 				{payments.length > 0 && (

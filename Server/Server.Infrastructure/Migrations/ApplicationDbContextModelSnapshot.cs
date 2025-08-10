@@ -41,7 +41,7 @@ namespace Server.Infrastructure.Migrations
                     b.ToTable("role_user", (string)null);
                 });
 
-            modelBuilder.Entity("Server.Domain.OrderItems.OrderProduct", b =>
+            modelBuilder.Entity("Server.Domain.OrderProducts.OrderProduct", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -331,6 +331,7 @@ namespace Server.Infrastructure.Migrations
                         .HasDatabaseName("ix_refunds_created_at");
 
                     b.HasIndex("PaymentId")
+                        .IsUnique()
                         .HasDatabaseName("ix_refunds_payment_id");
 
                     b.HasIndex("Status")
@@ -913,7 +914,7 @@ namespace Server.Infrastructure.Migrations
                         .HasConstraintName("fk_role_user_user_users_id");
                 });
 
-            modelBuilder.Entity("Server.Domain.OrderItems.OrderProduct", b =>
+            modelBuilder.Entity("Server.Domain.OrderProducts.OrderProduct", b =>
                 {
                     b.HasOne("Server.Domain.Orders.Order", "Order")
                         .WithMany("OrderProducts")
@@ -1160,8 +1161,8 @@ namespace Server.Infrastructure.Migrations
             modelBuilder.Entity("Server.Domain.Payments.Refund", b =>
                 {
                     b.HasOne("Server.Domain.Payments.Payment", "Payment")
-                        .WithMany("Refunds")
-                        .HasForeignKey("PaymentId")
+                        .WithOne("Refund")
+                        .HasForeignKey("Server.Domain.Payments.Refund", "PaymentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_refunds_payments_payment_id");
@@ -1298,7 +1299,7 @@ namespace Server.Infrastructure.Migrations
 
             modelBuilder.Entity("Server.Domain.Payments.Payment", b =>
                 {
-                    b.Navigation("Refunds");
+                    b.Navigation("Refund");
                 });
 
             modelBuilder.Entity("Server.Domain.Users.User", b =>

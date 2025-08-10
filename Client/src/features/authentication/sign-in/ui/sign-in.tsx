@@ -63,7 +63,7 @@ export function SignIn({ className, ...props }: { className?: string }) {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.2rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.email.message}
 										</motion.p>
@@ -89,7 +89,7 @@ export function SignIn({ className, ...props }: { className?: string }) {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.2rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.password.message}
 										</motion.p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, Search, X } from "lucide-react";
 
 import { CreateProduct } from "@features/products/create";
 import { EditProduct } from "@features/products/edit";
@@ -25,8 +25,17 @@ import { Spinner } from "@shared/ui/spinner";
 import { useProductsList } from "../api";
 import { DiscountProduct } from "@features/products/discount-product/ui";
 import { RestoreProduct } from "@features/products/restore-product";
+import { Pagination } from "@widgets/pagination";
 
 export const ProductsPage: FC = () => {
+	// TODO
+	// Add new filter has stock low stock !
+	// Edit product stock works like 337 will add if we type -20 will remove
+	// Create three separate inputs
+	// For add stock, remove stock by default 0
+	// And current stock input must be inactive ! Api can stay the same
+	// Decompose Filters and search and sort by separate widgets
+	// Sorting by Stock is working incorrectly !
 	const [showFilters, setShowFilters] = useState<boolean>(false);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [descriptionFilter, setDescriptionFilter] = useState<string>("");
@@ -390,37 +399,14 @@ export const ProductsPage: FC = () => {
 							</div>
 						)}
 
-						{/* Pagination */}
-						<Card>
-							<CardContent className="pt-6">
-								<div className="flex items-center justify-between">
-									<div className="text-sm text-muted-foreground">
-										Showing {products.length} products
-										{totalCount && ` of ${totalCount} total`}
-									</div>
-									<div className="flex items-center gap-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToPreviousPage}
-											disabled={!hasPreviousPage}
-										>
-											<ChevronLeft className="h-4 w-4 mr-1" />
-											Previous
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={goToNextPage}
-											disabled={!hasNextPage}
-										>
-											Next
-											<ChevronRight className="h-4 w-4 ml-1" />
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+						<Pagination
+							entity={products}
+							totalCount={totalCount}
+							hasNextPage={hasNextPage}
+							hasPreviousPage={hasPreviousPage}
+							goToNextPage={goToNextPage}
+							goToPreviousPage={goToPreviousPage}
+						/>
 					</>
 				)}
 			</div>
