@@ -5,3 +5,4 @@ public record CreatePaymentRequest(
     decimal Amount,
     string Currency,
     string PaymentMethod);
+ 

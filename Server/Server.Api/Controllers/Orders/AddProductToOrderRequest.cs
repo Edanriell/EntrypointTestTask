@@ -8,3 +8,4 @@ public record ProductItemRequest(
     Guid ProductId,
     int Quantity
 );
+ 

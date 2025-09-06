@@ -18,7 +18,7 @@ internal sealed class AddProductToOrderCommandValidator : AbstractValidator<AddP
             .SetValidator(new ProductItemValidator());
     }
 }
-
+ 
 internal sealed class ProductItemValidator : AbstractValidator<ProductItem>
 {
     public ProductItemValidator()

@@ -12,3 +12,4 @@ internal static class Roles
     public const string ProductManager = "ProductManager";
     public const string UserManager = "UserManager";
 }
+ 

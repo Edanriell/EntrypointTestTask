@@ -58,7 +58,7 @@ public sealed record ClientResponse
     public string ClientEmail { get; init; } = string.Empty;
     public string? ClientPhoneNumber { get; init; }
 }
-
+ 
 public sealed record PaymentResponse
 {
     public Guid PaymentId { get; init; }

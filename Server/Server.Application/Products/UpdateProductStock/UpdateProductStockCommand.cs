@@ -6,3 +6,4 @@ public sealed record UpdateProductStockCommand(
     Guid ProductId,
     int TotalStock
 ) : ICommand;
+ 

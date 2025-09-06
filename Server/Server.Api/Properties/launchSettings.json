@@ -10,7 +10,7 @@
 			"dotnetRunMessages": true,
 			"applicationUrl": "http://localhost:5000"
 		},
-		"https": {
+		"https": { 
 			"commandName": "Project",
 			"launchBrowser": true,
 			"launchUrl": "swagger",

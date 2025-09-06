@@ -17,21 +17,20 @@ internal sealed class ShipOrderCommandHandler : ICommandHandler<ShipOrderCommand
 
     public async Task<Result> Handle(ShipOrderCommand request, CancellationToken cancellationToken)
     {
-        // ✅ Get the order
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        // ✅ Create tracking number value object
+        // Create tracking number value object
         Result<TrackingNumber> trackingNumberResult = TrackingNumber.Create(request.TrackingNumber);
         if (trackingNumberResult.IsFailure)
         {
             return Result.Failure(trackingNumberResult.Error);
         }
 
-        // ✅ Ship order with courier enum and estimated delivery date
+        // Ship order with courier enum and estimated delivery date
         Result shipResult = order.Ship(
             trackingNumberResult.Value,
             request.Courier,
@@ -42,10 +41,8 @@ internal sealed class ShipOrderCommandHandler : ICommandHandler<ShipOrderCommand
             return Result.Failure(shipResult.Error);
         }
 
-        // ✅ Update repository
         _orderRepository.Update(order);
 
-        // ✅ Save changes using UnitOfWork
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

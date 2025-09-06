@@ -45,3 +45,4 @@ public static class UserErrors
         "Users.IdentityNotFound",
         "User identity not found in the system");
 }
+ 

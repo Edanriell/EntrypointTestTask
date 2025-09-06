@@ -48,3 +48,4 @@ internal sealed class UpdateProductPriceCommandHandler : ICommandHandler<UpdateP
         return Result.Success();
     }
 }
+ 

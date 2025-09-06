@@ -12,3 +12,4 @@ internal sealed class DeleteProductCommandValidator : AbstractValidator<DeletePr
     }
 }
  
+ 

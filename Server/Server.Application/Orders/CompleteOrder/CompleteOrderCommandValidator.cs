@@ -11,3 +11,4 @@ public sealed class CompleteOrderCommandValidator : AbstractValidator<CompleteOr
             .WithMessage("Order ID is required");
     }
 }
+ 

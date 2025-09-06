@@ -20,3 +20,4 @@ public sealed class GetProductByIdResponse
     public DateTime LastUpdatedAt { get; init; }
     public DateTime? LastRestockedAt { get; init; }
 }
+ 

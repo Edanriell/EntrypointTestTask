@@ -15,4 +15,4 @@ public sealed record RegisterUserCommand(
     string Street,
     string Password,
     IEnumerable<string>? RoleNames = null) : ICommand<Guid>;
- 
+  

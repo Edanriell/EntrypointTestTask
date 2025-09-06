@@ -127,33 +127,6 @@ public sealed class Payment : Entity
             return Result.Failure<Refund>(PaymentErrors.CannotRefundUnpaidPayment);
         }
 
-        // Money totalRefunded = GetTotalRefundedAmount();
-        // var availableForRefund = new Money(Amount.Amount - totalRefunded.Amount, Amount.Currency);
-        //
-        // if (refundAmount > availableForRefund)
-        // {
-        //     return Result.Failure<Refund>(PaymentErrors.RefundAmountExceedsPaidAmount);
-        // }
-        //
-        // if (refundAmount <= Money.Zero())
-        // {
-        //     return Result.Failure<Refund>(PaymentErrors.InvalidRefundAmount);
-        // }
-
-        // Create a refund, we support only full refunds for now
-        // Result<Refund> refundResult = Refund.Create(Id, Amount.Amount, reason);
-        // if (refundResult.IsFailure)
-        // {
-        //     return Result.Failure<Refund>(refundResult.Error);
-        // }
-
-        // Money refundAmount = refundResult.Value.Amount;
-
-        // Refund = refundResult.Value;
-        // Refund.AttachToPayment(this);
-
-        // Update payment status
-        // var newTotalRefunded = new Money(refundAmount.Amount, Amount.Currency);
         if (refundAmount.Amount == Amount.Amount)
         {
             PaymentStatus = PaymentStatus.Refunded;
@@ -172,17 +145,6 @@ public sealed class Payment : Entity
             _ => Amount
         };
     }
-
-    // public Money GetTotalRefundedAmount()
-    // {
-    //     if (!_refunds.Any())
-    //     {
-    //         return Money.Zero(Amount.Currency);
-    //     }
-    //
-    //     decimal totalRefunded = _refunds.Sum(r => r.Amount.Amount);
-    //     return new Money(totalRefunded, Amount.Currency);
-    // }
 
     public Money GetRefundedAmount()
     {
@@ -230,7 +192,6 @@ public sealed class Payment : Entity
         return PaymentStatus == PaymentStatus.Paid;
     }
 
-    // MANY PAYMENTS
     public bool IsFailed()
     {
         return PaymentStatus == PaymentStatus.Failed;
@@ -243,7 +204,6 @@ public sealed class Payment : Entity
 
     public Result UpdateStatus(PaymentStatus newStatus)
     {
-        // Add validation logic here if needed
         if (!IsValidStatusTransition(PaymentStatus, newStatus))
         {
             return Result.Failure(PaymentErrors.InvalidStatusTransition);
@@ -255,7 +215,6 @@ public sealed class Payment : Entity
 
     private bool IsValidStatusTransition(PaymentStatus from, PaymentStatus to)
     {
-        // Define valid transitions based on your business rules
         return from switch
         {
             PaymentStatus.Pending => to is PaymentStatus.Processing or PaymentStatus.Paid or PaymentStatus.Failed

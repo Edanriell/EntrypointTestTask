@@ -42,7 +42,7 @@ internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserComma
         {
             return deleteResult;
         }
-
+ 
         // Delete user from Keycloak
         if (!string.IsNullOrEmpty(user.IdentityId))
         {

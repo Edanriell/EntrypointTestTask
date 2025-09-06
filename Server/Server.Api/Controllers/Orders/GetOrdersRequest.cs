@@ -30,3 +30,4 @@ public sealed record GetOrdersRequest(
     string? ClientNameFilter,
     string? PaymentStatusFilter,
     int PageSize = 10);
+ 

@@ -21,3 +21,4 @@ public sealed class GetCustomersQuery : IQuery<GetCustomersResponse>
     public DateTime? CreatedAfter { get; init; }
     public DateTime? CreatedBefore { get; init; }
 }
+ 

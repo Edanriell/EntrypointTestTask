@@ -137,3 +137,4 @@ internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterU
             roleList.Distinct().Count() == roleList.Count; // No duplicates
     }
 }
+ 

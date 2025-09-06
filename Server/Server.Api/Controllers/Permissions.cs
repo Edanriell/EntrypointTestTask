@@ -34,3 +34,4 @@ internal static class Permissions
     public const string PaymentsRefund = "payments:refund";
     public const string PaymentsManage = "payments:manage";
 }
+ 

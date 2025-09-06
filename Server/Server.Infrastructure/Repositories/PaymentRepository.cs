@@ -1,5 +1,4 @@
-﻿using Bookify.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain.Payments;
 
 namespace Server.Infrastructure.Repositories;
@@ -23,8 +22,6 @@ internal sealed class PaymentRepository
     {
         return await DbContext
             .Set<Payment>()
-            // FIXES problem
-            // .AsNoTracking()
             .Include(p => p.Refund)
             .Where(p => p.OrderId == orderId)
             .OrderBy(p => p.CreatedAt)

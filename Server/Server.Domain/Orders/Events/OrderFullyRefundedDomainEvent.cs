@@ -7,3 +7,4 @@ public sealed record OrderFullyRefundedDomainEvent(
     Guid OrderId,
     Guid ClientId,
     Money TotalRefundedAmount) : IDomainEvent;
+ 

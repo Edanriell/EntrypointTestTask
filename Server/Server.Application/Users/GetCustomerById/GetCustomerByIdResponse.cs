@@ -62,3 +62,4 @@ public sealed class RecentOrder
     public string Status { get; init; } = string.Empty;
     public DateTime CreatedOnUtc { get; init; }
 }
+ 

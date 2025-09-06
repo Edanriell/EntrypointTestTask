@@ -35,23 +35,21 @@ internal sealed class AddProductToOrderCommandHandler : ICommandHandler<AddProdu
             return Result.Failure(OrderErrors.NoProductsToAdd);
         }
 
-        // ✅ Get the order (tracked for modifications)
+        // Get the order (tracked for modifications)
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        // ✅ Domain validation - can order be modified?
         if (!order.CanBeModified())
         {
             return Result.Failure(OrderErrors.CannotModifyNonPendingOrder);
         }
 
-        // ✅ Process each product using Rich Domain Model
         foreach (ProductItem productItem in request.Products)
         {
-            // ✅ Create Quantity Value Object
+            // Create Quantity Value Object
             Result<Quantity> quantityResult = Quantity.CreateQuantity(productItem.Quantity);
             if (quantityResult.IsFailure)
             {
@@ -60,17 +58,17 @@ internal sealed class AddProductToOrderCommandHandler : ICommandHandler<AddProdu
 
             Quantity requestedQuantity = quantityResult.Value;
 
-            // ✅ Get product to validate it exists and get its properties
+            // Get product to validate
             Product? product = await _productRepository.GetByIdAsync(productItem.ProductId, cancellationToken);
             if (product is null)
             {
                 return Result.Failure(OrderErrors.ProductNotFound);
             }
 
-            // ✅ Check if product already exists in order
+            // Check if product already exists in order
             if (order.HasProduct(productItem.ProductId))
             {
-                // ✅ FEATURE: Increment quantity if product exists
+                // Increment quantity if product exists
                 Result incrementResult = order.UpdateExistingProductQuantity(
                     productItem.ProductId,
                     requestedQuantity);
@@ -80,7 +78,7 @@ internal sealed class AddProductToOrderCommandHandler : ICommandHandler<AddProdu
                     return Result.Failure(incrementResult.Error);
                 }
 
-                // ✅ Update the existing OrderProduct in repository
+                // Update the existing OrderProduct in repository
                 List<OrderProduct> existingOrderProducts =
                     await _orderProductRepository.GetByOrderIdAsync(order.Id, cancellationToken);
 
@@ -94,7 +92,7 @@ internal sealed class AddProductToOrderCommandHandler : ICommandHandler<AddProdu
             }
             else
             {
-                // ✅ FEATURE: Add new product if it doesn't exist
+                // Add new product if it doesn't exist
                 Result<OrderProduct> orderProductResult = OrderProduct.Create(
                     order.Id,
                     product.Id,
@@ -109,22 +107,20 @@ internal sealed class AddProductToOrderCommandHandler : ICommandHandler<AddProdu
 
                 OrderProduct newOrderProduct = orderProductResult.Value;
 
-                // ✅ Use Rich Domain Model to add product
                 Result addResult = order.AddNewProduct(newOrderProduct);
                 if (addResult.IsFailure)
                 {
                     return Result.Failure(addResult.Error);
                 }
 
-                // ✅ Add to repository for persistence
                 _orderProductRepository.Add(newOrderProduct);
             }
         }
 
-        // ✅ Update order in repository (domain events and total recalculation handled by domain)
+        // Update order in repository (domain events and total recalculation handled by domain)
         _orderRepository.Update(order);
 
-        // ✅ Save all changes in single transaction
+        // Save all changes in single transaction
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

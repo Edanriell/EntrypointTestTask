@@ -15,3 +15,4 @@ internal sealed class UpdateProductStockCommandValidator : AbstractValidator<Upd
             .WithMessage("Stock is required");
     }
 }
+ 

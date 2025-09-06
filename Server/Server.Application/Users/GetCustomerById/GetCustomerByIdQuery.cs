@@ -12,3 +12,4 @@ namespace Server.Application.Users.GetCustomerById;
 public sealed record GetCustomerByIdQuery(Guid UserId) : IQuery<GetCustomerByIdResponse>
 {
 }
+ 

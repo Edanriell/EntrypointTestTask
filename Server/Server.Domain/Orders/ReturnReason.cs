@@ -11,5 +11,3 @@ public sealed record ReturnReason
         return new ReturnReason(returnReason);
     }
 }
- 
- 

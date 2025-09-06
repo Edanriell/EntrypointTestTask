@@ -12,6 +12,5 @@ public enum OrderStatus
     Completed,
     Cancelled,
     Returned,
-    Failed,
-    UnderReview
+    Failed
 }

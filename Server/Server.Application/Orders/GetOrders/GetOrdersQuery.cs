@@ -2,8 +2,6 @@
 
 namespace Server.Application.Orders.GetOrders;
 
-// public sealed record GetOrdersQuery : IQuery<IReadOnlyList<OrdersResponse>>;
-
 public sealed record GetOrdersQuery : IQuery<GetOrdersResponse>
 {
     public int PageSize { get; init; } = 10;

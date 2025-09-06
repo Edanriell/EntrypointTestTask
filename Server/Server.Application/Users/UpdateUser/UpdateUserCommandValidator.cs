@@ -108,3 +108,4 @@ internal sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserC
         return existingUser is null;
     }
 }
+ 

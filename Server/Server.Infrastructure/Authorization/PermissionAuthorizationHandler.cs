@@ -42,3 +42,4 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
         }
     }
 }
+ 

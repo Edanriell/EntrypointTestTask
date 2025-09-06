@@ -16,7 +16,7 @@ internal sealed class RestoreProductCommandHandler : ICommandHandler<RestoreProd
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
-
+  
     public async Task<Result> Handle(
         RestoreProductCommand request,
         CancellationToken cancellationToken)

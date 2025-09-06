@@ -73,3 +73,4 @@ public sealed class AddPaymentCommandValidator : AbstractValidator<AddPaymentCom
         return result.IsSuccess;
     }
 }
+ 

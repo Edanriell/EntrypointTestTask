@@ -56,32 +56,4 @@ public sealed class Refund : Entity
         Payment = payment;
         PaymentId = payment.Id;
     }
-
-    // public Result ProcessRefund(string? refundReference = null)
-    // {
-    //     if (Status != RefundStatus.Pending)
-    //     {
-    //         return Result.Failure(PaymentErrors.RefundAlreadyProcessed);
-    //     }
-    //
-    //     Status = RefundStatus.Processed;
-    //     ProcessedAt = DateTime.UtcNow;
-    //     RefundReference = refundReference;
-    //
-    //     return Result.Success();
-    // }
-    //
-    // public Result FailRefund(string reason)
-    // {
-    //     if (Status != RefundStatus.Pending)
-    //     {
-    //         return Result.Failure(PaymentErrors.RefundAlreadyProcessed);
-    //     }
-    //
-    //     RefundFailureReason = reason;
-    //     Status = RefundStatus.Failed;
-    //     ProcessedAt = DateTime.UtcNow;
-    //
-    //     return Result.Success();
-    // }
 }

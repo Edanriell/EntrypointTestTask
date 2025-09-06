@@ -8,3 +8,4 @@ public sealed record PaginationInfo<T>
     public bool HasNextPage { get; init; }
     public bool HasPreviousPage { get; init; }
 }
+ 

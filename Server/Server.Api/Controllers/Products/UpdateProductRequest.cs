@@ -6,3 +6,4 @@ public record UpdateProductRequest(
     decimal? Price,
     string? Currency,
     int? Stock);
+ 

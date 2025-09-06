@@ -15,7 +15,6 @@ internal sealed class ProcessPaymentCommandHandler : ICommandHandler<ProcessPaym
 
     public async Task<Result> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
     {
-        // ✅ Use the PaymentService.ProcessAsync method
         return await _paymentService.ProcessAsync(request.PaymentId, cancellationToken);
     }
 }

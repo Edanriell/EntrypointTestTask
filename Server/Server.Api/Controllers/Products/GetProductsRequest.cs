@@ -19,5 +19,5 @@ public sealed record GetProductsRequest(
     DateTime? LastRestockedBefore,
     bool? HasStock,
     bool? IsReserved,
+    bool? HasLowStock,
     int PageSize = 10);
- 

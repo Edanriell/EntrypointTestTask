@@ -7,3 +7,4 @@ public sealed record AddPaymentCommand(
     decimal Amount,
     string Currency,
     string PaymentMethod) : ICommand<Guid>;
+ 

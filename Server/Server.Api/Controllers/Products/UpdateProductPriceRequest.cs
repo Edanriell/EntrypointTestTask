@@ -2,3 +2,4 @@
 
 public record UpdateProductPriceRequest(decimal Price);
  
+ 

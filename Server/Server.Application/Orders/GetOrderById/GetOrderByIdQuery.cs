@@ -12,3 +12,4 @@ namespace Server.Application.Orders.GetOrderById;
 public sealed record GetOrderByIdQuery(Guid OrderId) : IQuery<GetOrderByIdResponse>
 {
 }
+ 

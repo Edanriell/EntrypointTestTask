@@ -7,3 +7,4 @@ public sealed record DiscountProductCommand(
     decimal NewPrice
 ) : ICommand;
  
+ 

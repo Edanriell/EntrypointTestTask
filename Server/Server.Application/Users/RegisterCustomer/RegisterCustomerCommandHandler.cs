@@ -21,7 +21,7 @@ internal sealed class RegisterCustomerCommandHandler : ICommandHandler<RegisterC
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result<Guid>> Handle(
         RegisterCustomerCommand request,
         CancellationToken cancellationToken)

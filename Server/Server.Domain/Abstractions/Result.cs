@@ -63,12 +63,8 @@ public class Result
     public static Result<TValue> Create<TValue>(TValue? value)
     {
         return value is not null
-            ? Success(
-                value
-            )
-            : Failure<TValue>(
-                Error.NullValue
-            );
+            ? Success(value)
+            : Failure<TValue>(Error.NullValue);
     }
 }
 
@@ -77,10 +73,7 @@ public sealed class Result<TValue> : Result
     private readonly TValue? _value;
 
     public Result(TValue? value, bool isSuccess, Error error)
-        : base(
-            isSuccess,
-            error
-        )
+        : base(isSuccess, error)
     {
         _value = value;
     }
@@ -93,7 +86,5 @@ public sealed class Result<TValue> : Result
         );
 
     public static implicit operator Result<TValue>(TValue? value) =>
-        Create(
-            value
-        );
+        Create(value);
 }

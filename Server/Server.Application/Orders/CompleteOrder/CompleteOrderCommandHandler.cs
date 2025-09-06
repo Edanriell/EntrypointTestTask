@@ -25,21 +25,21 @@ internal sealed class CompleteOrderCommandHandler : ICommandHandler<CompleteOrde
 
     public async Task<Result> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
     {
-        // ✅ Get order with products to release stock properly
+        // Get order with products to release stock properly
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        // ✅ Complete the order first
+        // Complete the order first
         Result completeResult = order.Complete();
         if (completeResult.IsFailure)
         {
             return completeResult;
         }
 
-        // ✅ Release reserved stock for all products in the order
+        // Release reserved stock for all products in the order
         foreach (OrderProduct orderProduct in order.OrderProducts)
         {
             Result releaseResult = await _productService.ReleaseReservedStockAsync(

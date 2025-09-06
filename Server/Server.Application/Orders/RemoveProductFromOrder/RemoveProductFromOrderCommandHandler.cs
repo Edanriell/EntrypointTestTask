@@ -26,7 +26,7 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
         RemoveProductFromOrderCommand request,
         CancellationToken cancellationToken)
     {
-        // ✅ Get order with products
+        // Get order with products
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
@@ -40,7 +40,7 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
 
         var stockToRelease = new List<(Guid ProductId, int Quantity)>();
 
-        // ✅ Process each product removal request
+        // Process each product removal request
         foreach (ProductRemovalRequest removal in request.ProductRemovals)
         {
             if (!order.HasProduct(removal.ProductId))
@@ -58,7 +58,7 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
             int currentQuantity = currentQuantityResult.Value.Value;
             int quantityToRemove = removal.Quantity ?? currentQuantity; // null = remove all
 
-            // ✅ Validate removal quantity
+            // Validate removal quantity
             if (quantityToRemove <= 0)
             {
                 return Result.Failure(OrderErrors.InvalidQuantityToRemove);
@@ -69,10 +69,10 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
                 return Result.Failure(OrderErrors.CannotRemoveMoreThanAvailable);
             }
 
-            // ✅ Track stock to release
+            // Track stock to release
             stockToRelease.Add((removal.ProductId, quantityToRemove));
 
-            // ✅ Handle full vs partial removal
+            // Handle full vs partial removal
             if (quantityToRemove == currentQuantity)
             {
                 // Remove entire product
@@ -100,7 +100,7 @@ internal sealed class RemoveProductFromOrderCommandHandler : ICommandHandler<Rem
             }
         }
 
-        // ✅ Release reserved stock using ProductService
+        // Release reserved stock using ProductService
         foreach ((Guid productId, int quantity) in stockToRelease)
         {
             Result releaseResult = await _productService.ReleaseReservedStockAsync(productId, quantity);

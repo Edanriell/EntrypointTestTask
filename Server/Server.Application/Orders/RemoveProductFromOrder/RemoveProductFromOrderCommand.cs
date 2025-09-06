@@ -13,3 +13,4 @@ public sealed record ProductRemovalRequest
     public Guid ProductId { get; init; }
     public int? Quantity { get; init; } // null = remove all
 }
+ 

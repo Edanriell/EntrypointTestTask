@@ -7,3 +7,4 @@ public sealed record GetOrderByNumberQuery(string OrderNumber) : ICachedQuery<Ge
     public string CacheKey => $"order-{OrderNumber}";
     public TimeSpan? Expiration => TimeSpan.FromMinutes(5);
 }
+ 

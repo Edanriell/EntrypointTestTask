@@ -66,13 +66,6 @@ public sealed class OrderProductService
             return Result.Failure<OrderProduct>(orderProductResult.Error);
         }
 
-        // Reserve stock
-        // Result reservedStockResult = product.AdjustStock(quantity);
-        // if (reservedStockResult.IsFailure)
-        // {
-        //     return Result.Failure<OrderProduct>(reservedStockResult.Error);
-        // }
-
         return orderProductResult;
     }
 }

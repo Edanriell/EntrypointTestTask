@@ -93,4 +93,4 @@ internal sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByI
 
         getCustomerById.RecentOrders = recentOrders.ToList();
     }
-}
+} 

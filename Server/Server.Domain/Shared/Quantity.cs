@@ -12,7 +12,7 @@ public sealed record Quantity
     private Quantity(int value) { Value = value; }
 
     public int Value { get; init; }
-
+ 
     public static Quantity operator +(Quantity first, Quantity second) => new(first.Value + second.Value);
     public static Quantity operator -(Quantity first, Quantity second) => new(first.Value - second.Value);
 

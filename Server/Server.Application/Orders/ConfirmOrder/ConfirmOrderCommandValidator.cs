@@ -11,3 +11,4 @@ public sealed class ConfirmOrderCommandValidator : AbstractValidator<ConfirmOrde
             .WithMessage("Order ID is required");
     }
 }
+ 

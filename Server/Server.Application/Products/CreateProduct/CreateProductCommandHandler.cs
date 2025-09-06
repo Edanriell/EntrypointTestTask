@@ -17,7 +17,7 @@ internal sealed class CreateProductCommandHandler : ICommandHandler<CreateProduc
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
-
+  
     public async Task<Result<Guid>> Handle(
         CreateProductCommand request,
         CancellationToken cancellationToken)

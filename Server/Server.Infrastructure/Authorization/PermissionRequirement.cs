@@ -8,3 +8,4 @@ internal sealed class PermissionRequirement : IAuthorizationRequirement
     public string Permission { get; }
 }
  
+ 

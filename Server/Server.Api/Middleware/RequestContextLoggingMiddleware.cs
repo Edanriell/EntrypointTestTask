@@ -32,3 +32,4 @@ internal sealed class RequestContextLoggingMiddleware(RequestDelegate next)
         return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
     }
 }
+  

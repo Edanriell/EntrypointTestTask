@@ -2,13 +2,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Api.Controllers.Customers;
 using Server.Application.Users.GetCustomerById;
 using Server.Application.Users.GetCustomers;
 using Server.Application.Users.RegisterCustomer;
 using Server.Domain.Abstractions;
 
-namespace Server.Api.Controllers.Clients;
+namespace Server.Api.Controllers.Customers;
 
 [ApiController]
 [ApiVersion(ApiVersions.V1)]

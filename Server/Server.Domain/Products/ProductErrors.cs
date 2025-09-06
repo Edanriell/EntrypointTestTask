@@ -17,18 +17,6 @@ public static class ProductErrors
         "Product.CannotDeleteWithStock",
         "Cannot delete product that has stock remaining");
 
-    public static readonly Error CannotDeleteProductWithActiveOrders = new(
-        "Product.CannotDeleteWithActiveOrders",
-        "Cannot delete product that has active orders");
-
-    public static readonly Error CannotReserveProduct = new(
-        "Product.CannotReserveProduct",
-        "Cannot reserve product, because not enough quantity is available");
-
-    public static readonly Error CannotUnreserveReservedStock = new(
-        "Product.CannotUnreserveReservedStock",
-        "Reserved stock value cannot be less than zero");
-
     public static readonly Error UnableToRestoreProduct = new(
         "Product.UnableToRestoreProduct",
         "Unable to restore product, because it is not deleted");
@@ -60,8 +48,4 @@ public static class ProductErrors
     public static readonly Error CannotDeleteProductWithActiveReservations = new(
         "Product.CannotDeleteProductWithActiveReservations",
         "Cannot delete product with active reservations");
-
-    public static readonly Error ProductNotAvailable = new(
-        "Products.ProductNotAvailable",
-        "The product is not available for purchase");
 }

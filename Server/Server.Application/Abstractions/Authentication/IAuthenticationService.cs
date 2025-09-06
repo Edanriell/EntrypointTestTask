@@ -1,7 +1,7 @@
 ﻿using Server.Domain.Users;
 
 namespace Server.Application.Abstractions.Authentication;
- 
+
 public interface IAuthenticationService
 {
     Task<string> RegisterAsync(

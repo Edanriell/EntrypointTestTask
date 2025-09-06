@@ -8,3 +8,4 @@ public sealed record PaymentFailedDomainEvent(
     Guid OrderId,
     Money Amount,
     PaymentFailureReason PaymentFailureReason) : IDomainEvent;
+ 

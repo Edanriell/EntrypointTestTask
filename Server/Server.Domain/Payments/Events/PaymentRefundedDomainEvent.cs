@@ -6,3 +6,4 @@ namespace Server.Domain.Payments.Events;
 
 public sealed record
     PaymentRefundedDomainEvent(Guid Id, Guid OrderId, Money Amount, RefundReason Reason) : IDomainEvent;
+ 

@@ -49,7 +49,6 @@ internal sealed class GetPaymentByIdQueryHandler : IQueryHandler<GetPaymentByIdQ
                            WHERE p.id = @PaymentId
                            """;
 
-        // ✅ FIX: Use QueryAsync like the working GetOrderByIdQueryHandler
         IEnumerable<GetPaymentByIdResponse> results =
             await connection.QueryAsync<GetPaymentByIdResponse, RefundResponse, GetPaymentByIdResponse>(
                 sql,
@@ -57,7 +56,7 @@ internal sealed class GetPaymentByIdQueryHandler : IQueryHandler<GetPaymentByIdQ
                 {
                     return payment with
                     {
-                        Refund = refund // This property exists in PaymentResponse
+                        Refund = refund
                     };
                 },
                 new { request.PaymentId },

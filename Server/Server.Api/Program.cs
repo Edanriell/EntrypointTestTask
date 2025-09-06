@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowedOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") // Add your frontend URLs
+        policy.WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -91,7 +91,7 @@ app.MapHealthChecks(
     }
 );
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;
 

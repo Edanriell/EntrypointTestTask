@@ -45,7 +45,6 @@ public class PaymentsController : ControllerBase
     {
         var query = new GetPaymentsByOrderIdQuery(orderId);
 
-        // ✅ FIX: Changed to match the actual return type
         Result<GetPaymentsByOrderIdResponse> result = await _sender.Send(
             query,
             cancellationToken

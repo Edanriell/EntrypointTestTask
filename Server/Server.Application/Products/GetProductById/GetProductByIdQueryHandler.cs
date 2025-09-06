@@ -48,7 +48,7 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
             product = await connection.QueryFirstOrDefaultAsync<GetProductByIdResponse>(
                 sql,
                 new { request.ProductId });
-
+ 
         if (product is null)
         {
             return Result.Failure<GetProductByIdResponse>(ProductErrors.NotFound);

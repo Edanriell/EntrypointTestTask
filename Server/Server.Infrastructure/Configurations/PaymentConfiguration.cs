@@ -75,15 +75,6 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasForeignKey<Refund>(refund => refund.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Test
-        // builder.HasMany<Refund>("_refunds")
-        //     .WithOne(refund => refund.Payment)
-        //     .HasForeignKey(refund => refund.PaymentId)
-        //     .OnDelete(DeleteBehavior.Cascade);
-        //
-        // builder.Navigation("_refunds")
-        //     .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         builder.HasIndex(payment => payment.OrderId)
             .HasDatabaseName("ix_payments_order_id");
         builder.HasIndex(payment => payment.PaymentStatus)

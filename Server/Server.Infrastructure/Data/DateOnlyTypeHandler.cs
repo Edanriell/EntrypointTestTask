@@ -18,4 +18,4 @@ internal sealed class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
         parameter.Value = value;
     }
 }
- 
+  

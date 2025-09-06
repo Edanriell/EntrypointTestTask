@@ -10,3 +10,4 @@ public sealed record UpdateProductCommand(
     decimal? Price,
     int? StockChange
 ) : ICommand;
+  

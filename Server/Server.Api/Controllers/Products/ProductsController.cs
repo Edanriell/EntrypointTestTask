@@ -47,7 +47,8 @@ public class ProductsController : ControllerBase
             LastRestockedAfter = request.LastRestockedAfter,
             LastRestockedBefore = request.LastRestockedBefore,
             HasStock = request.HasStock,
-            IsReserved = request.IsReserved
+            IsReserved = request.IsReserved,
+            HasLowStock = request.HasLowStock
         };
 
         Result<GetProductsResponse> result = await _sender.Send(query, cancellationToken);

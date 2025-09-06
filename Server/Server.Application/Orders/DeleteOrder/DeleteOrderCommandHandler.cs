@@ -36,4 +36,3 @@ internal sealed class DeleteOrderCommandHandler : ICommandHandler<DeleteOrderCom
         return Result.Success();
     }
 }
- 

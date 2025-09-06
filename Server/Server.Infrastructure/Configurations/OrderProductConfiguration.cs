@@ -76,7 +76,6 @@ internal sealed class OrderProductConfiguration : IEntityTypeConfiguration<Order
                 value => Quantity.CreateQuantity(value).Value
             );
 
-        // Relationships
         builder.HasOne(op => op.Order)
             .WithMany(order => order.OrderProducts)
             .HasForeignKey(op => op.OrderId)

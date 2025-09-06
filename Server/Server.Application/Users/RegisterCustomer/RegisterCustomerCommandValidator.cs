@@ -103,4 +103,4 @@ internal sealed class RegisterCustomerCommandValidator : AbstractValidator<Regis
         const string specialCharacters = "!@#$%^&*()_+-=[]{}|;:,.<>?";
         return password.Any(specialCharacters.Contains);
     }
-}
+} 

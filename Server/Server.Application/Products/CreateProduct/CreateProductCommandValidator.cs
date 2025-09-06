@@ -11,7 +11,7 @@ internal sealed class CreateProductCommandValidator : AbstractValidator<CreatePr
     public CreateProductCommandValidator(IProductRepository productRepository)
     {
         _productRepository = productRepository;
-
+  
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Product name is required")

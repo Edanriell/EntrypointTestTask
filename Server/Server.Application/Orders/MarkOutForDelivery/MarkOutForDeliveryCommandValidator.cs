@@ -9,8 +9,7 @@ public sealed class MarkOutForDeliveryCommandValidator : AbstractValidator<MarkO
         RuleFor(x => x.OrderId)
             .NotEmpty()
             .WithMessage("Order ID is required");
-
-        // ✅ Optional estimated delivery date validation
+        
         RuleFor(x => x.EstimatedDeliveryDate)
             .Must(date => !date.HasValue || date.Value > DateTime.UtcNow)
             .WithMessage("Estimated delivery date must be in the future when provided")

@@ -85,3 +85,4 @@ internal sealed class ExceptionHandlingMiddleware
         string Detail,
         IEnumerable<object>? Errors);
 }
+   

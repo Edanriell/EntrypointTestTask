@@ -27,7 +27,7 @@ public sealed record GetOrderByIdResponse
     public IReadOnlyList<PaymentResponse>? Payments { get; init; } = new List<PaymentResponse>();
     public IReadOnlyList<OrderProductResponse> OrderProducts { get; init; } = new List<OrderProductResponse>();
 }
-
+ 
 public sealed record OrderProductResponse
 {
     public Guid ProductId { get; init; }

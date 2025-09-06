@@ -6,3 +6,4 @@ public record CreateProductRequest(
     string Currency,
     decimal Price,
     int Stock);
+ 

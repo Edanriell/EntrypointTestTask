@@ -21,3 +21,4 @@ internal sealed class UserContext : IUserContext
             "User context is unavailable"
         );
 } 
+ 

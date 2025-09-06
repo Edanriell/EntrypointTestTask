@@ -24,6 +24,6 @@ public sealed record GetProductsQuery : IQuery<GetProductsResponse>
     public DateTime? LastRestockedAfter { get; init; }
     public DateTime? LastRestockedBefore { get; init; }
     public bool? HasStock { get; init; }
+    public bool? HasLowStock { get; init; }
     public bool? IsReserved { get; init; }
 }
- 

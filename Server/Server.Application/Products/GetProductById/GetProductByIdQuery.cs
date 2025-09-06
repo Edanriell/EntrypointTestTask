@@ -8,7 +8,7 @@ namespace Server.Application.Products.GetProductById;
 //     public string CacheKey => $"product-{ProductId}";
 //     public TimeSpan? Expiration => TimeSpan.FromMinutes(10);
 // }
-
+ 
 public sealed record GetProductByIdQuery(Guid ProductId) : IQuery<GetProductByIdResponse>
 {
 }

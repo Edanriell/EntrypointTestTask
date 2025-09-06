@@ -6,3 +6,4 @@ public sealed record UserPersonalInfoUpdatedDomainEvent(
     Guid UserId,
     FirstName FirstName,
     LastName LastName) : IDomainEvent;
+ 

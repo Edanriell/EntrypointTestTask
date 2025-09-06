@@ -19,48 +19,6 @@ public sealed class OrderPaymentService
         _refundRepository = refundRepository;
     }
 
-    // public Result ProcessFullRefundForOrder(Order order, RefundReason reason)
-    // {
-    //     if (order.Status is OrderStatus.Cancelled or OrderStatus.Returned)
-    //     {
-    //         return Result.Failure(OrderErrors.InvalidStatusTransition);
-    //     }
-    //
-    //     var paidPayments = order.Payments
-    //         .Where(p => p.PaymentStatus is PaymentStatus.Paid or PaymentStatus.PartiallyRefunded)
-    //         .ToList();
-    //
-    //     if (!paidPayments.Any())
-    //     {
-    //         return Result.Failure(PaymentErrors.NoPaymentsToRefund);
-    //     }
-    //
-    //     // Process refunds for all paid payments
-    //     foreach (Payment payment in paidPayments)
-    //     {
-    //         Money remainingAmount = payment.GetRemainingAmount();
-    //         if (remainingAmount.Amount > 0)
-    //         {
-    //             Result<Refund> refundResult = payment.ProcessRefund(remainingAmount, reason);
-    //             if (refundResult.IsFailure)
-    //             {
-    //                 return Result.Failure(refundResult.Error);
-    //             }
-    //         }
-    //     }
-    //
-    //     // Mark order as returned if all payments are fully refunded
-    //     bool allPaymentsRefunded = order.Payments.All(p =>
-    //         p.PaymentStatus is PaymentStatus.Refunded or PaymentStatus.Failed or PaymentStatus.Cancelled);
-    //
-    //     if (allPaymentsRefunded)
-    //     {
-    //         return order.MarkAsReturnedDueToRefund(reason);
-    //     }
-    //
-    //     return Result.Success();
-    // }
-
     public async Task<Result> ProcessFullRefundForOrderAsync(
         Guid orderId,
         RefundReason reason,
@@ -95,21 +53,16 @@ public sealed class OrderPaymentService
         // Process refunds for all paid payments
         foreach (Payment payment in paidPayments)
         {
-            // Money remainingAmount = payment.GetRemainingAmount();
-            // if (remainingAmount.Amount > 0)
-            // {
-            //     // Refund Payment
-            //     
-            // }
             Result<Refund> refundResult = Refund.Create(payment.Id, payment.Amount.Amount, reason);
             if (refundResult.IsFailure)
             {
                 return Result.Failure<Refund>(refundResult.Error);
             }
 
-            // Is it valid approach ?
+            // Important!
+            // Is it approach valid?
             _refundRepository.Add(refundResult.Value);
-            // Do we need it do manually ?
+            // Do we need attach entity manually?
             refundResult.Value.AttachToPayment(payment);
 
             Result paymentProcessResult = payment.ProcessRefund(refundResult.Value.Amount, reason);
@@ -119,27 +72,9 @@ public sealed class OrderPaymentService
             }
         }
 
-        // Check if all payments are now fully refunded
-        // Re-fetch payments to get updated statuses
-        // IReadOnlyList<Payment> updatedPayments = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
-
-        // bool allPaymentsRefunded = updatedPayments.All(p =>
-        //     p.PaymentStatus is PaymentStatus.Refunded or PaymentStatus.Failed or PaymentStatus.Cancelled);
-
-        // Update Order status if fully refunded
-        // if (allPaymentsRefunded)
-        // {
-        //     Result orderResult = order.MarkAsReturnedDueToRefund(reason);
-        //     if (orderResult.IsFailure)
-        //     {
-        //         return orderResult;
-        //     }
-        // }
-
         // Update Order's refund
         Result<Money> totalRefundedResult =
             await GetTotalRefundedAmountAsync(orderId, order.Currency, cancellationToken);
-
 
         if (totalRefundedResult.IsSuccess)
         {
@@ -148,86 +83,6 @@ public sealed class OrderPaymentService
 
         return Result.Success();
     }
-
-
-    // public async Task<Result<Money>> GetTotalPendingPaymentAmountAsync(
-    //     Guid orderId,
-    //     Currency currency,
-    //     CancellationToken cancellationToken = default)
-    // {
-    //     IReadOnlyList<Payment> payments = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
-    //
-    //     var pendingPayments = payments
-    //         .Where(p => p.PaymentStatus is PaymentStatus.Pending or PaymentStatus.Processing)
-    //         .ToList();
-    //
-    //     if (!pendingPayments.Any())
-    //     {
-    //         return Result.Success(Money.Zero(currency));
-    //     }
-    //
-    //     // Ensure all payments are in the same currency
-    //     if (pendingPayments.Any(p => p.Amount.Currency != currency))
-    //     {
-    //         return Result.Failure<Money>(PaymentErrors.CurrencyMismatch);
-    //     }
-    //
-    //     decimal totalAmount = pendingPayments.Sum(p => p.Amount.Amount);
-    //     var totalMoney = new Money(totalAmount, currency);
-    //
-    //     return Result.Success(totalMoney);
-    // }
-
-    // public async Task<Result<Money>> GetEffectivePaymentAmountAsync(
-    //     Guid paymentId,
-    //     Currency currency,
-    //     CancellationToken cancellationToken = default)
-    // {
-    //     IReadOnlyList<Payment> payments = await _paymentRepository.GetByOrderIdAsync(paymentId, cancellationToken);
-    //     Payment? payment = payments.FirstOrDefault(p => p.Id == paymentId);
-    //
-    //     if (payment is null)
-    //     {
-    //         return Result.Failure<Money>(PaymentErrors.NotFound);
-    //     }
-    //
-    //     Money effectiveAmount = payment.PaymentStatus switch
-    //     {
-    //         PaymentStatus.Paid => payment.Amount,
-    //         _ => Money.Zero(currency)
-    //     };
-    //
-    //     return Result.Success(effectiveAmount);
-    // }
-
-    // public async Task<Result<Money>> GetTotalEffectivePaymentAmountAsync(
-    //     Guid orderId,
-    //     Currency currency,
-    //     CancellationToken cancellationToken = default)
-    // {
-    //     IReadOnlyList<Payment> payments = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
-    //
-    //     if (!payments.Any())
-    //     {
-    //         return Result.Success(Money.Zero(currency));
-    //     }
-    //
-    //     decimal totalEffectiveAmount = 0;
-    //
-    //     foreach (Payment payment in payments)
-    //     {
-    //         decimal effectiveAmount = payment.PaymentStatus switch
-    //         {
-    //             PaymentStatus.Paid => payment.Amount.Amount,
-    //             _ => 0
-    //         };
-    //
-    //         totalEffectiveAmount += effectiveAmount;
-    //     }
-    //
-    //     return Result.Success(new Money(totalEffectiveAmount, currency));
-    // }
-
 
     public async Task<Result<Money>> GetTotalPaidAmountAsync(
         Guid orderId,
@@ -334,16 +189,6 @@ public sealed class OrderPaymentService
         return Result.Success(new Money(Math.Max(0, netAmount), currency));
     }
 
-    public async Task<bool> HasFailedOrDisputedPaymentsAsync(
-        Guid orderId,
-        CancellationToken cancellationToken = default)
-    {
-        IReadOnlyList<Payment> payments = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
-
-        return payments.Any(p => p.PaymentStatus is PaymentStatus.Failed);
-    }
-
-// ✅ More specific methods for better granularity
     public async Task<bool> HasFailedPaymentsAsync(
         Guid orderId,
         CancellationToken cancellationToken = default)

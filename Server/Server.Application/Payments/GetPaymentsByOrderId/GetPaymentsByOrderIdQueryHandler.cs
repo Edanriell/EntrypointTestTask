@@ -50,7 +50,6 @@ internal sealed class GetPaymentsByOrderIdQueryHandler
                            ORDER BY p.created_at DESC
                            """;
 
-        // ✅ Use Dictionary to handle multiple payments, each with potential refund
         var paymentDictionary = new Dictionary<Guid, PaymentResponse>();
 
         await connection.QueryAsync<PaymentResponse, RefundResponse, PaymentResponse>(
@@ -59,7 +58,6 @@ internal sealed class GetPaymentsByOrderIdQueryHandler
             {
                 if (!paymentDictionary.TryGetValue(payment.Id, out PaymentResponse? existingPayment))
                 {
-                    // Add new payment with its refund (if any)
                     PaymentResponse newPayment = payment with
                     {
                         Refund = refund

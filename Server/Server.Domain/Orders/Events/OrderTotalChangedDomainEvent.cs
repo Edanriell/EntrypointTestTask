@@ -8,3 +8,4 @@ public sealed record OrderTotalChangedDomainEvent(
     Money NewTotal
 ) : IDomainEvent;
  
+ 

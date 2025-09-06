@@ -16,7 +16,7 @@ internal sealed class MarkReadyForShipmentCommandHandler : ICommandHandler<MarkR
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result> Handle(MarkReadyForShipmentCommand request, CancellationToken cancellationToken)
     {
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);

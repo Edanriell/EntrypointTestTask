@@ -6,4 +6,3 @@ public sealed record OrderCancelledDomainEvent(
     Guid OrderId,
     OrderStatus Status,
     CancellationReason cancellationReason) : IDomainEvent;
- 

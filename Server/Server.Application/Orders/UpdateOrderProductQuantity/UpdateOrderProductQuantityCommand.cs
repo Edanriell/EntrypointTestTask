@@ -8,3 +8,4 @@ public sealed record UpdateOrderProductQuantityCommand : ICommand
     public Guid ProductId { get; init; }
     public int Quantity { get; init; }
 }
+ 

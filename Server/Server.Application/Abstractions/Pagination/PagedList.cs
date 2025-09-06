@@ -22,3 +22,4 @@ public sealed class PagedList<T>
     public bool HasNextPage { get; }
     public bool HasPreviousPage { get; }
 }
+ 

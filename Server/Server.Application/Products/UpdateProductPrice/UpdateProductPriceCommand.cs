@@ -7,3 +7,4 @@ public sealed record UpdateProductPriceCommand(
     decimal NewPrice
 ) : ICommand;
  
+ 

@@ -9,3 +9,4 @@ public sealed record AddProductToOrderCommand(
 public sealed record ProductItem(
     Guid ProductId,
     int Quantity);
+ 

@@ -12,3 +12,4 @@ public static class CurrencyErrors
         "Currency.InvalidCode",
         "The specified currency code is not supported");
 }
+ 

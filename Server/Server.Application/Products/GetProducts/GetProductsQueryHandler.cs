@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿// Needs refactoring!
+
+using System.Data;
 using System.Globalization;
 using System.Text;
 using Dapper;
@@ -31,7 +33,6 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
         var sqlBuilder = new StringBuilder();
         var parameters = new DynamicParameters();
 
-        // Base query
         sqlBuilder.Append("""
                           SELECT 
                               p.id as Id,
@@ -43,6 +44,7 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
                               p.reserved AS Reserved,
                               (p.total_stock - p.reserved) as Available,
                               (p.total_stock - p.reserved = 0) as IsOutOfStock,
+                              (p.total_stock - p.reserved <= 25) as HasLowStock,
                               (p.reserved > 0) as HasReservations,
                               (p.total_stock - p.reserved > 0) as IsInStock,
                               p.status as Status,
@@ -58,21 +60,6 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
 
         // Add sorting
         AddSorting(sqlBuilder, request);
-
-        // Add LIMIT - get extra records to check for previous/next pages
-        // parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
-        // sqlBuilder.Append(" LIMIT @PageSize");
-        //
-        // var products = (await connection.QueryAsync<GetAllProductsResponse>(sqlBuilder.ToString(), parameters))
-        //     .ToList();
-
-        // Calculate current page from cursor
-        // int currentPage = 1;
-        // if (!string.IsNullOrEmpty(request.Cursor))
-        // {
-        //     var decodedCursor = _cursorPaginationService.DecodeCursor(request.Cursor);
-        //     currentPage = decodedCursor.PageNumber;
-        // }
 
         CursorInfo cursorInfo = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty);
         int offset = (cursorInfo.PageNumber - 1) * request.PageSize;
@@ -92,16 +79,6 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
             cursorInfo.PageNumber,
             product => GetProductSortValue(product, request.SortBy ?? "CreatedOnUtc"));
 
-        // Determine pagination state
-        // PaginationInfo<GetAllProductsResponse> paginationInfo = _cursorPaginationService.DeterminePaginationState(
-        //     products,
-        //     request.PageSize,
-        //     request.SortBy,
-        //     // Test
-        //     _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber,
-        //     product => GetProductSortValue(product, request.SortBy));
-
-        // Get total count
         int totalCount = await GetTotalCount(connection, request);
 
         return new GetProductsResponse
@@ -220,6 +197,18 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
                 sqlBuilder.Append(" AND p.reserved = 0");
             }
         }
+
+        if (request.HasLowStock.HasValue)
+        {
+            if (request.HasLowStock.Value)
+            {
+                sqlBuilder.Append(" AND p.total_stock - p.reserved <= 25");
+            }
+            else
+            {
+                sqlBuilder.Append(" AND p.total_stock - p.reserved > 25");
+            }
+        }
     }
 
     private void AddSorting(StringBuilder sqlBuilder, GetProductsQuery request)
@@ -236,7 +225,7 @@ internal sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, 
         {
             "name" => "name",
             "price" => "price_amount",
-            "stock" => "stock",
+            "totalstock" => "total_stock",
             "reserved" => "reserved",
             "status" => "status",
             "createdat" => "created_at",

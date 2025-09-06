@@ -11,3 +11,4 @@ public sealed class MarkReadyForShipmentCommandValidator : AbstractValidator<Mar
             .WithMessage("Order ID is required");
     }
 }
+ 

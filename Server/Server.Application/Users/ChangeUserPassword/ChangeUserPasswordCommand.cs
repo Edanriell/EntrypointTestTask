@@ -7,3 +7,4 @@ public sealed record ChangeUserPasswordCommand(
     string CurrentPassword,
     string NewPassword) : ICommand;
  
+ 

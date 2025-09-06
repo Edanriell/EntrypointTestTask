@@ -9,7 +9,7 @@ public sealed class UpdateOrderValidator : AbstractValidator<UpdateOrder>
         RuleFor(x => x.OrderId)
             .NotEmpty()
             .WithMessage("Order ID is required");
-
+ 
         RuleFor(x => x.Street)
             .MaximumLength(200)
             .WithMessage("Street address cannot exceed 200 characters")

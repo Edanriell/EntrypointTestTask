@@ -32,8 +32,8 @@ internal sealed class UpdateProductCommandValidator : AbstractValidator<UpdatePr
             .When(x => x.Price.HasValue);
 
         RuleFor(x => x.StockChange)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Product stock cannot be negative")
+            .NotEqual(0)
+            .WithMessage("Stock change cannot be zero")
             .When(x => x.StockChange.HasValue);
 
         RuleFor(x => x)

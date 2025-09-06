@@ -21,3 +21,4 @@ public sealed class UpdateOrderProductQuantityCommandValidator : AbstractValidat
             .WithMessage("Quantity cannot exceed 1000 units");
     }
 }
+ 

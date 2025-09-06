@@ -22,7 +22,7 @@ public sealed class User : Entity
         Address = address;
         CreatedAt = createdAt;
     }
-
+ 
     private User() { }
 
     public string IdentityId { get; private set; } = string.Empty;

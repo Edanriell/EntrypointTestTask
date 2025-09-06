@@ -17,7 +17,7 @@ internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateP
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result> Handle(
         UpdateProductStockCommand request,
         CancellationToken cancellationToken)

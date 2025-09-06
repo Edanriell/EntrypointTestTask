@@ -11,3 +11,4 @@ public sealed record UpdateOrder : ICommand
     public string? Country { get; init; } = string.Empty;
     public string? Info { get; init; } = string.Empty;
 }
+ 

@@ -10,5 +10,5 @@ public sealed class ConcurrencyException : Exception
     {
     }
 }
- 
+  
  

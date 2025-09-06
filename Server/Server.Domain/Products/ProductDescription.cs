@@ -15,7 +15,7 @@ public sealed record ProductDescription
         "ProductDescription.DescriptionTooLong",
         "Product description cannot exceed 1000 characters"
     );
-
+ 
     private ProductDescription(string value) { Value = value; }
 
     public string Value { get; init; }

@@ -18,3 +18,4 @@ internal sealed class UpdateProductPriceCommandValidator : AbstractValidator<Upd
     }
 }
  
+ 

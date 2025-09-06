@@ -13,8 +13,6 @@ public sealed record GetPaymentByIdResponse
     public DateTime? PaymentFailedAt { get; init; }
     public DateTime? PaymentExpiredAt { get; init; }
     public string? PaymentFailureReason { get; init; }
-
-    // ✅ CHANGED: Single refund instead of collection
     public RefundResponse? Refund { get; init; }
 }
 

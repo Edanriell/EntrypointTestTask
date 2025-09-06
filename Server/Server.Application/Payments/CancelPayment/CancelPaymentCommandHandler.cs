@@ -16,7 +16,7 @@ internal sealed class CancelPaymentCommandHandler : ICommandHandler<CancelPaymen
         _paymentRepository = paymentRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result> Handle(CancelPaymentCommand request, CancellationToken cancellationToken)
     {
         Payment? payment = await _paymentRepository.GetByIdAsync(request.PaymentId, cancellationToken);

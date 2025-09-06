@@ -1,5 +1,4 @@
-﻿using Bookify.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain.OrderProducts;
 
 namespace Server.Infrastructure.Repositories;

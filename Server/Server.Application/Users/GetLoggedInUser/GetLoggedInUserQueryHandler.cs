@@ -47,4 +47,4 @@ internal sealed class GetLoggedInUserQueryHandler
 
         return getLoggedInUser;
     }
-}
+} 

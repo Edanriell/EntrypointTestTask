@@ -53,7 +53,6 @@ public sealed class ApplicationDbContext
         ChangeTracker.Clear();
     }
 
-    // ✅ Implement the new method
     public void MarkAsAdded<TEntity>(TEntity entity) where TEntity : class
     {
         Entry(entity).State = EntityState.Added;

@@ -70,6 +70,7 @@ public sealed class PaymentService
             return Result.Failure<Payment>(OrderErrors.NotFound);
         }
 
+        // Important! This is an Example!
         // Validate basic order constraints (synchronous, within Order aggregate)
         Result basicValidation = order.ValidatePayment(amount);
         if (basicValidation.IsFailure)
@@ -77,6 +78,7 @@ public sealed class PaymentService
             return Result.Failure<Payment>(basicValidation.Error);
         }
 
+        // Important! This is an Example!
         // Comprehensive validation using domain service
         Result comprehensiveValidation = await ValidatePaymentAsync(orderId, amount, cancellationToken);
         if (comprehensiveValidation.IsFailure)
@@ -91,12 +93,13 @@ public sealed class PaymentService
             return Result.Failure<Payment>(paymentResult.Error);
         }
 
-        // Is it valid approach ?
+        // Is this approach valid?
         Payment payment = paymentResult.Value;
+        // Adding payment manually. 
         _paymentRepository.Add(payment);
 
         // Update Order aggregate
-        Result recordResult = order.RecordOrderPayment(payment.Id, amount);
+        Result recordResult = order.AttachPaymentToOrder(payment.Id, amount);
         if (recordResult.IsFailure)
         {
             return Result.Failure<Payment>(recordResult.Error);
@@ -105,7 +108,6 @@ public sealed class PaymentService
         return Result.Success(payment);
     }
 
-// Separate validation method
     private async Task<Result> ValidatePaymentAsync(
         Guid orderId,
         Money amount,
@@ -127,7 +129,7 @@ public sealed class PaymentService
         // Get outstanding amount
         Result<Money> outstandingResult = await _orderPaymentService.GetOutstandingAmountAsync(
             orderId,
-            order.TotalAmount, // We'll get the actual order total in the method
+            order.TotalAmount,
             cancellationToken);
         if (outstandingResult.IsFailure)
         {
@@ -143,12 +145,14 @@ public sealed class PaymentService
         return Result.Success();
     }
 
+    // Example below!
+    // Not used anywhere in the application
     public async Task<Result> UpdatePaymentStatusAsync(
         Guid paymentId,
         PaymentStatus newStatus,
         CancellationToken cancellationToken = default)
     {
-        // ✅ 1. Get Payment aggregate (owns the status)
+        // Get Payment aggregate (owns the status)
         Payment? payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment is null)
         {
@@ -158,44 +162,45 @@ public sealed class PaymentService
         PaymentStatus oldStatus = payment.PaymentStatus;
         Guid orderId = payment.OrderId;
 
-        // ✅ 2. Update payment status using Payment aggregate
+        // Update payment status using Payment aggregate
         Result statusUpdateResult = payment.UpdateStatus(newStatus);
         if (statusUpdateResult.IsFailure)
         {
             return statusUpdateResult;
         }
 
-        // ✅ 3. Get Order aggregate for coordination
+        // Get Order aggregate for coordination
         Order? order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        // ✅ 4. Update Order's payment status flags using domain service
+        // Update Order's payment status flags using domain service
         await UpdateOrderPaymentStatusFlagsAsync(order, cancellationToken);
 
-        // ✅ 5. Handle Order status changes based on payment status
+        // Handle Order status changes based on payment status
         Result orderStatusResult = await HandleOrderStatusChangeAsync(order, newStatus, cancellationToken);
         if (orderStatusResult.IsFailure)
         {
             return orderStatusResult;
         }
 
-        // ✅ 6. Save changes
+        // Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // ✅ 7. Raise domain event (Payment already raises its own events)
+        // Raise domain event (Payment already raises its own events)
         payment.RaiseDomainEvent(new PaymentStatusChangedDomainEvent(orderId, paymentId, oldStatus, newStatus));
 
         return Result.Success();
     }
 
+    // Example below!
     private async Task UpdateOrderPaymentStatusFlagsAsync(
         Order order,
         CancellationToken cancellationToken)
     {
-        // ✅ Use domain service to get payment status information
+        // Use domain service to get payment status information
         Task<bool>[] tasks = new[]
         {
             _orderPaymentService.HasPendingPaymentsAsync(order.Id, cancellationToken),
@@ -205,7 +210,7 @@ public sealed class PaymentService
 
         bool[] results = await Task.WhenAll(tasks);
 
-        // ✅ Update Order's internal state
+        // Update Order's internal state
         order.UpdatePaymentStatusFlags(
             results[0],
             results[1],
@@ -218,7 +223,7 @@ public sealed class PaymentService
         PaymentStatus newPaymentStatus,
         CancellationToken cancellationToken)
     {
-        // ✅ Handle different payment status scenarios
+        // Handle different payment status scenarios
         return newPaymentStatus switch
         {
             PaymentStatus.Paid => await HandlePaymentPaidAsync(order, cancellationToken),
@@ -232,7 +237,7 @@ public sealed class PaymentService
         Order order,
         CancellationToken cancellationToken)
     {
-        // ✅ Check if order is now fully paid
+        // Check if order is now fully paid
         bool isFullyPaid = await _orderPaymentService.IsFullyPaidAsync(
             order.Id,
             order.TotalAmount,
@@ -250,7 +255,7 @@ public sealed class PaymentService
         Order order,
         CancellationToken cancellationToken)
     {
-        // ✅ Check if all payments have failed
+        // Check if all payments have failed
         bool hasSuccessfulPayments = await _orderPaymentService.HasSuccessfulPaymentsAsync(
             order.Id,
             cancellationToken);
@@ -267,7 +272,7 @@ public sealed class PaymentService
         Order order,
         CancellationToken cancellationToken)
     {
-        // ✅ Check if all payments are refunded
+        // Check if all payments are refunded
         Result<Money> netPaidResult = await _orderPaymentService.GetNetPaidAmountAsync(
             order.Id,
             order.TotalAmount.Currency,
@@ -283,18 +288,6 @@ public sealed class PaymentService
         {
             return order.MarkAsReturnedDueToRefund(refundReasonResult.Value);
         }
-
-        return Result.Success();
-    }
-
-    private Result HandlePaymentDisputed()
-    {
-        // ✅ For disputed payments, we don't change the order status
-        // The order can continue its normal flow while the dispute is handled separately
-        // Just raise a domain event for notification purposes
-
-        // This could trigger notifications to admins, customer service, etc.
-        // but doesn't affect the order's main workflow
 
         return Result.Success();
     }

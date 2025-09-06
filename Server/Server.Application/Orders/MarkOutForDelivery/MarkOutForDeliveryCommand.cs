@@ -6,3 +6,4 @@ public sealed record MarkOutForDeliveryCommand(
     Guid OrderId,
     DateTime? EstimatedDeliveryDate = null
 ) : ICommand;
+ 

@@ -61,3 +61,4 @@ internal sealed class CustomClaimsTransformation : IClaimsTransformation
         return principal;
     }
 }
+ 

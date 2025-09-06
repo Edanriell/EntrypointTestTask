@@ -37,7 +37,7 @@ public static class DependencyInjection
             includeInternalTypes: true
         );
 
-        // Comes from Domain
+        // Comes from Domain layer
         services.AddTransient<OrderPaymentService>();
         services.AddTransient<OrderProductService>();
         services.AddTransient<UserService>();

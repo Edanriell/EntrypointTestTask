@@ -26,28 +26,28 @@ internal sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderCom
         CancelOrderCommand request,
         CancellationToken cancellationToken)
     {
-        // ✅ Get order with products to release reserved stock
+        // Get order with products to release reserved stock
         Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             return Result.Failure(OrderErrors.NotFound);
         }
 
-        // ✅ Create cancellation reason
+        // Create cancellation reason
         Result<CancellationReason> cancellationReasonResult = CancellationReason.Create(request.CancellationReason);
         if (cancellationReasonResult.IsFailure)
         {
             return Result.Failure(cancellationReasonResult.Error);
         }
 
-        // ✅ Cancel the order first
+        // Cancel the order first
         Result cancelResult = order.Cancel(cancellationReasonResult.Value);
         if (cancelResult.IsFailure)
         {
             return Result.Failure(cancelResult.Error);
         }
 
-        // ✅ Release reserved stock for all products in the cancelled order
+        // Release reserved stock for all products in the cancelled order
         foreach (OrderProduct orderProduct in order.OrderProducts)
         {
             Result releaseResult = await _productService.ReleaseReservedStockAsync(

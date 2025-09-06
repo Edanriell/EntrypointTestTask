@@ -12,3 +12,4 @@ public interface ICachedQuery
     TimeSpan? Expiration { get; }
 }
  
+ 

@@ -16,7 +16,7 @@ internal sealed class StartProcessingOrderCommandHandler : ICommandHandler<Start
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result> Handle(
         StartProcessingOrderCommand request,
         CancellationToken cancellationToken)

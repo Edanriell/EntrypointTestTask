@@ -7,3 +7,4 @@ public sealed record GetPaymentByIdQuery(Guid PaymentId) : ICachedQuery<GetPayme
     public string CacheKey => $"payment-{PaymentId}";
     public TimeSpan? Expiration => TimeSpan.FromMinutes(5);
 }
+ 

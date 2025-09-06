@@ -7,3 +7,4 @@ public sealed record PaymentStatusChangedDomainEvent(
     Guid PaymentId,
     PaymentStatus OldStatus,
     PaymentStatus NewStatus) : IDomainEvent;
+ 

@@ -1,5 +1,4 @@
-﻿using Bookify.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain.Abstractions;
 using Server.Domain.Products;
 
@@ -37,7 +36,6 @@ internal sealed class ProductRepository
 
     public async Task<Product?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        // ✅ Create ProductName value object for comparison
         Result<ProductName> productName = ProductName.Create(name);
 
         return await DbContext

@@ -17,7 +17,7 @@ public sealed class ShipOrderCommandValidator : AbstractValidator<ShipOrderComma
             .WithMessage("Tracking number cannot exceed 100 characters")
             .Matches(@"^[A-Za-z0-9\-_]+$")
             .WithMessage("Tracking number can only contain letters, numbers, hyphens, and underscores");
-
+ 
         RuleFor(x => x.Courier)
             .IsInEnum()
             .WithMessage("Invalid courier selected");

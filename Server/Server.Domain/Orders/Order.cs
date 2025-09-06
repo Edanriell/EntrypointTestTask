@@ -163,7 +163,7 @@ public sealed class Order : Entity
             return Result.Failure(OrderErrors.MixedCurrenciesNotAllowed);
         }
 
-        // ✅ Check if product already exists (safety check)
+        // Check if the product already exists
         if (_orderProducts.Any(op => op.ProductId == orderProduct.ProductId))
         {
             return Result.Failure(OrderErrors.ProductAlreadyExists);
@@ -243,15 +243,7 @@ public sealed class Order : Entity
         return Result.Success();
     }
 
-    // Important !!!
-    // Important !!!
-    // Important !!!
-    // Important !!!
-    // Important !!!
-    // Important !!!
-    // Important !!!
-    // Rename to AttachPaymentToOrder
-    public Result RecordOrderPayment(Guid paymentId, Money amount)
+    public Result AttachPaymentToOrder(Guid paymentId, Money amount)
     {
         if (Status == OrderStatus.Cancelled)
         {
@@ -269,28 +261,6 @@ public sealed class Order : Entity
     {
         Money newPaidAmount = PaidAmount + amount;
         UpdatePaidAmount(newPaidAmount);
-    }
-
-    public bool IsFullyPaid()
-    {
-        return PaidAmount.Amount == TotalAmount.Amount;
-    }
-
-    public bool HasSufficientPaymentCoverage(Money pendingAmount)
-    {
-        decimal totalCoverage = PaidAmount.Amount + pendingAmount.Amount;
-        return totalCoverage >= TotalAmount.Amount;
-    }
-
-    public bool CanBeFullyPaid(Money additionalAmount)
-    {
-        decimal totalWithAdditional = PaidAmount.Amount + additionalAmount.Amount;
-        return totalWithAdditional >= TotalAmount.Amount;
-    }
-
-    public bool HasPartialPayment()
-    {
-        return PaidAmount.Amount > 0 && !IsFullyPaid();
     }
 
     public Result UpdateProductQuantity(Guid productId, Quantity newQuantity)
@@ -451,7 +421,6 @@ public sealed class Order : Entity
             return Result.Failure(OrderErrors.CannotCancelAlreadyCancelledOrder);
         }
 
-        // TODO22 Can cancel only pending orders !!! 
         if (Status is OrderStatus.Shipped or OrderStatus.OutForDelivery or OrderStatus.Delivered
             or OrderStatus.Completed or OrderStatus.Returned)
         {
@@ -490,27 +459,28 @@ public sealed class Order : Entity
 
     public Result MarkAsReturnedDueToRefund(RefundReason refundReason)
     {
-        // ✅ FIXED: Only allow refunds for Returned or Cancelled orders
+        // Only allow refunds for Returned or Cancelled orders
         if (Status is not (OrderStatus.Returned or OrderStatus.Cancelled))
         {
             return Result.Failure(OrderErrors.CanOnlyRefundReturnedOrCancelledOrders);
         }
 
-        // ✅ Can't refund if no payments were made
+        // Can't refund if no payments were made
         if (PaidAmount.Amount <= 0)
         {
             return Result.Failure(OrderErrors.NoPaymentsToRefund);
         }
 
-        // ✅ Update refund information
+        // Update refund information
         RefundReason = refundReason;
-
-        // ✅ Raise domain event for refund processing
-        // RaiseDomainEvent(new OrderRefundProcessedDomainEvent(Id, ClientId, refundReason));
 
         return Result.Success();
     }
 
+    public bool IsFullyPaid()
+    {
+        return PaidAmount.Amount == TotalAmount.Amount;
+    }
 
     public Money CalculateTotalAmount()
     {
@@ -556,17 +526,6 @@ public sealed class Order : Entity
         }
 
         return Result.Success(product.Quantity);
-    }
-
-    public Result<Money> GetProductTotal(Guid productId)
-    {
-        OrderProduct? product = _orderProducts?.FirstOrDefault(op => op.ProductId == productId);
-        if (product == null)
-        {
-            return Result.Failure<Money>(OrderErrors.ProductNotFound);
-        }
-
-        return Result.Success(product.TotalPrice);
     }
 
     private bool CanAcceptPayments()
@@ -627,18 +586,6 @@ public sealed class Order : Entity
 
         Status = OrderStatus.Failed;
         RaiseDomainEvent(new OrderFailedDomainEvent(Id, "Payment failed"));
-        return Result.Success();
-    }
-
-    public Result MarkAsUnderReview()
-    {
-        if (Status is not (OrderStatus.Confirmed or OrderStatus.Processing))
-        {
-            return Result.Failure(OrderErrors.InvalidStatusTransition);
-        }
-
-        Status = OrderStatus.UnderReview;
-        RaiseDomainEvent(new OrderUnderReviewDomainEvent(Id, "Payment disputed"));
         return Result.Success();
     }
 

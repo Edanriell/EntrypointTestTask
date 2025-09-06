@@ -4,6 +4,16 @@ using Server.Domain.Shared;
 
 namespace Server.Domain.Products;
 
+// Important!
+// Computed properties are not usually stored in the database
+// because they can create data inconsistencies.
+// We use computed properties only if:
+// We need them as indexed columns for query performance (e.g. querying millions of products for IsOutOfStock).
+// Or if we want to use a computed column in the database (SQL-side calculation).
+// We need to map them in the configuration.
+// builder.Property(p => p.Available)
+// .HasComputedColumnSql("[TotalStock] - [Reserved]");
+
 public sealed class Product : Entity
 {
     private Product(
@@ -37,6 +47,7 @@ public sealed class Product : Entity
     public bool IsOutOfStock => Available.Value == 0;
     public bool HasReservations => Reserved.Value > 0;
     public bool IsInStock => Available.Value > 0;
+    public bool HasLowStock => Available.Value <= 25;
 
     public static Product Create(
         ProductName name, ProductDescription description, Money price, Quantity reserved, Quantity totalStock)
@@ -245,39 +256,6 @@ public sealed class Product : Entity
         return Result.Success();
     }
 
-    public Result CancelReservation(Quantity quantity)
-    {
-        if (Status == ProductStatus.Deleted)
-        {
-            return Result.Failure(ProductErrors.CouldNotUpdateProduct);
-        }
-
-        if (quantity.Value <= 0)
-        {
-            return Result.Failure(ProductErrors.InvalidQuantity);
-        }
-
-        if (Reserved.Value < quantity.Value)
-        {
-            return Result.Failure(ProductErrors.CannotReleaseMoreThanReserved);
-        }
-
-        // Store old available quantity to detect status change
-        Quantity oldAvailable = Available;
-
-        // Only reduce Reserved, TotalStock stays the same (item stays in warehouse)
-        Reserved -= quantity;
-
-        LastUpdatedAt = DateTime.UtcNow;
-
-        // Check if product became available again due to cancellation
-        HandleReservationCancelStatusChanges(oldAvailable, Available);
-
-        RaiseDomainEvent(new ProductReservationCancelledDomainEvent(Id, quantity));
-
-        return Result.Success();
-    }
-
     public Result Delete()
     {
         if (Status == ProductStatus.Deleted)
@@ -356,21 +334,6 @@ public sealed class Product : Entity
         {
             RaiseDomainEvent(new ProductOutOfStockDomainEvent(Id));
             Status = ProductStatus.OutOfStock;
-        }
-    }
-
-    private void HandleReservationCancelStatusChanges(Quantity oldAvailable, Quantity newAvailable)
-    {
-        // Product went from out of stock to available (when reservation was cancelled)
-        if (oldAvailable.Value == 0 && newAvailable.Value > 0)
-        {
-            if (Status != ProductStatus.OutOfStock)
-            {
-                return;
-            }
-
-            Status = ProductStatus.Available;
-            RaiseDomainEvent(new ProductBackInStockDomainEvent(Id));
         }
     }
 

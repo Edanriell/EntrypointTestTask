@@ -25,6 +25,7 @@ public sealed record GetAllProductsResponse
     public bool IsOutOfStock { get; init; }
     public bool HasReservations { get; init; }
     public bool IsInStock { get; init; }
+    public bool HasLowStock { get; init; }
     public string Status { get; init; } = string.Empty;
     public DateTime CreatedAt { get; init; }
     public DateTime LastUpdatedAt { get; init; }

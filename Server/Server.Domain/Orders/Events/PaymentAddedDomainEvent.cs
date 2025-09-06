@@ -7,3 +7,4 @@ public sealed record PaymentAddedDomainEvent(
     Guid OrderId,
     Guid PaymentId,
     Money Amount) : IDomainEvent;
+ 

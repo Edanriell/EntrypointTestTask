@@ -13,7 +13,7 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.HasKey(role => role.Id);
 
         builder.HasMany(role => role.Permissions).WithMany().UsingEntity<RolePermission>();
-
+ 
         // Seed roles
         builder.HasData(
             Role.Admin,

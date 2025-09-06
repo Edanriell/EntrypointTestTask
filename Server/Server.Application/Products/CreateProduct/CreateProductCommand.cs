@@ -9,3 +9,4 @@ public sealed record CreateProductCommand(
     string Currency,
     int TotalStock
 ) : ICommand<Guid>;
+ 

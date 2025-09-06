@@ -18,3 +18,4 @@ public interface IPaymentRepository
     void Update(Payment payment);
     void Remove(Payment payment);
 }
+ 

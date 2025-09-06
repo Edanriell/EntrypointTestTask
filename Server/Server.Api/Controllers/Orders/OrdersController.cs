@@ -149,30 +149,6 @@ public class OrdersController : ControllerBase
         );
     }
 
-    // [HttpPost("{id:guid}/products")]
-    // public async Task<IActionResult> AddProductToOrder(
-    //     Guid id,
-    //     AddProductToOrderRequest request,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var command = new AddProductToOrderCommand
-    //     {
-    //         OrderId = id,
-    //         Products = request.Products.Select(p => new ProductItem
-    //         {
-    //             ProductId = p.ProductId,
-    //             Quantity = p.Quantity
-    //         }).ToList()
-    //     };
-    //
-    //     Result result = await _sender.Send(
-    //         command,
-    //         cancellationToken
-    //     );
-    //
-    //     return result.IsSuccess ? NoContent() : BadRequest(result.Error);
-    // }
-
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateOrder(
         Guid id,
@@ -431,24 +407,3 @@ public class OrdersController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 }
-
-// // Your fulfillment business flow:
-// POST   /api/v1/orders                          → Create order (Pending)
-// // ↓ Customer pays
-// PATCH  /api/v1/orders/{id}/confirm             → Confirm order (Confirmed) [After all payments received]
-// // ↓ You order from warehouse/supplier
-// PATCH  /api/v1/orders/{id}/start-processing    → Start processing (Processing) [Order from warehouse]
-// // ↓ Products arrive at your store from supplier
-// PATCH  /api/v1/orders/{id}/ready-for-shipment → Ready for shipment (ReadyForShipment) [Products at your store]
-// // ↓ You hand over to delivery service
-// PATCH  /api/v1/orders/{id}/ship                → Ship order (Shipped) [Given to delivery service]
-// // ↓ Delivery service is en route to customer
-// PATCH  /api/v1/orders/{id}/out-for-delivery    → Out for delivery (OutForDelivery)
-// // ↓ Package delivered to customer
-// PATCH  /api/v1/orders/{id}/deliver             → Mark as delivered (Delivered)
-// // ↓ Customer confirms satisfaction or return period expires
-//     PATCH  /api/v1/orders/{id}/complete            → Complete order (Completed)
-//
-// // Exception flows:
-// PATCH  /api/v1/orders/{id}/cancel              → Cancel order (Cancelled) [With reason]
-// POST   /api/v1/orders/{id}/return              → Return order (Returned) [Customer returns]

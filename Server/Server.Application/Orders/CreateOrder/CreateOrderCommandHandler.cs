@@ -10,14 +10,8 @@ namespace Server.Application.Orders.CreateOrder;
 
 internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, Guid>
 {
-    // MANY PAYMENTS
-    // private readonly OrderPaymentService _orderPaymentService;
     private readonly OrderProductService _orderProductService;
-
     private readonly IOrderRepository _orderRepository;
-
-    // MANY PAYMENTS
-    // private readonly IPaymentRepository _paymentRepository;
     private readonly IProductRepository _productRepository;
     private readonly ProductService _productService;
     private readonly IUnitOfWork _unitOfWork;
@@ -29,27 +23,20 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
         IProductRepository productRepository,
         ProductService productService,
         OrderProductService orderProductService,
-        // MANY PAYMENTS
-        // IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _userRepository = userRepository;
         _productRepository = productRepository;
-        // MANY PAYMENTS
-        // _paymentRepository = paymentRepository;
         _orderProductService = orderProductService;
         _productService = productService;
         _unitOfWork = unitOfWork;
-        // MANY PAYMENTS
-        // _orderPaymentService = new OrderPaymentService();
     }
 
     public async Task<Result<Guid>> Handle(
         CreateOrderCommand request,
         CancellationToken cancellationToken)
     {
-        // If there is no order items return early
         if (request.OrderItems is null || request.OrderItems.Count == 0)
         {
             return Result.Failure<Guid>(OrderErrors.EmptyOrder);
@@ -134,7 +121,6 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
                 return Result.Failure<Guid>(addProductResult.Error);
             }
 
-            // This works TODO22 ?? 
             Result reserveStockResult =
                 await _productService.ReserveStockAsync(orderProduct.ProductId, orderProduct.Quantity.Value);
             if (reserveStockResult.IsFailure)
@@ -143,39 +129,6 @@ internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCom
             }
         }
 
-        // Create unpaid payment
-        // MANY PAYMENTS
-        // Result<Payment> paymentResult = Payment.Create(order.Id);
-        // if (paymentResult.IsFailure)
-        // {
-        //     return Result.Failure<Guid>(paymentResult.Error);
-        // }
-
-        // MANY PAYMENTS
-        // Payment payment = paymentResult.Value;
-        // FIX ALL TODO222 Currency issues everything should work
-        // Migrate to payments multiple !
-        // TODO222 Test
-        // MANY PAYMENTS
-        // Result paymentResult2 = order.SetPaymentId(payment.Id);
-        // if (paymentResult2.IsFailure)
-        // {
-        // return Result.Failure<Guid>(paymentResult2.Error);
-        // }
-
-        // Update payment TotalAmount using OrderPaymentService
-        // MANY PAYMENTS
-        // Result updatePaymentResult = _orderPaymentService.UpdatePaymentTotalFromOrder(payment, order);
-        // if (updatePaymentResult.IsFailure)
-        // {
-        //     return Result.Failure<Guid>(updatePaymentResult.Error);
-        // }
-
-        // order.PaymentId = payment.Id;
-
-        // Add entities to repositories for tracking
-        // MANY PAYMENTS
-        // _paymentRepository.Add(payment);
         _orderRepository.Add(order);
 
         // Save changes in database

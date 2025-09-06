@@ -10,3 +10,4 @@ public sealed record ShipOrderCommand(
     Courier Courier,
     DateTime EstimatedDeliveryDate
 ) : ICommand;
+ 

@@ -3,3 +3,4 @@
 namespace Server.Application.Users.GetLoggedInUser;
 
 public sealed record GetLoggedInUserQuery : IQuery<GetLoggedInUserResponse>;
+ 

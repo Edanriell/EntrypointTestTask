@@ -15,7 +15,7 @@ internal sealed class ChangeUserPasswordCommandValidator : AbstractValidator<Cha
             .WithMessage("Current password is required.")
             .MinimumLength(1)
             .WithMessage("Current password cannot be empty.");
-
+ 
         RuleFor(x => x.NewPassword)
             .NotEmpty()
             .WithMessage("New password is required.")

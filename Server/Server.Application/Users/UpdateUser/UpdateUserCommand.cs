@@ -14,3 +14,4 @@ public sealed record UpdateUserCommand(
     string? City,
     string? ZipCode,
     string? Street) : ICommand;
+ 

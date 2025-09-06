@@ -20,7 +20,7 @@ internal sealed class LogInUserCommandHandler : ICommandHandler<LogInUserCommand
             request.Password,
             cancellationToken
         );
-
+ 
         if (result.IsFailure)
         {
             return Result.Failure<AccessTokenResponse>(

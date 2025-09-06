@@ -6,3 +6,4 @@ public sealed class RolePermission
     public int PermissionId { get; set; }
 }
  
+ 

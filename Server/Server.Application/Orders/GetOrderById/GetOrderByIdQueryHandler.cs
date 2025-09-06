@@ -63,7 +63,7 @@ internal sealed class GetOrderByIdQueryHandler : IQueryHandler<GetOrderByIdQuery
                              u.email AS ClientEmail,
                              u.phone_number AS ClientPhoneNumber,
                              
-                             -- Payment data (all payments, not just latest)
+                             -- Payment data (all payments)
                              p.id AS PaymentId,
                              p.amount AS PaymentTotalAmount,
                              p.payment_status AS PaymentStatus,

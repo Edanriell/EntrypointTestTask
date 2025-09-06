@@ -14,3 +14,4 @@ public interface ICursorPaginationService
 
     bool IsValidCursor(string cursor);
 }
+ 

@@ -13,5 +13,3 @@ public sealed record TrackingNumber
         return new TrackingNumber(trackingNumber);
     }
 }
- 
- 

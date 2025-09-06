@@ -11,7 +11,7 @@ public sealed record GetCustomersResponse
     public int CurrentPageSize { get; init; }
     public int PageNumber { get; init; }
 }
-
+ 
 public sealed class Customer
 {
     public Guid Id { get; init; }

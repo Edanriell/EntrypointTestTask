@@ -73,3 +73,4 @@ internal sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
             .HasDatabaseName("ix_refunds_created_at");
     }
 }
+  

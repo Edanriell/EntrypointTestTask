@@ -19,3 +19,4 @@ public sealed record GetCustomersRequest(
     DateTime? CreatedBefore,
     int PageSize = 10
 ) : IQuery<GetCustomersResponse>;
+ 

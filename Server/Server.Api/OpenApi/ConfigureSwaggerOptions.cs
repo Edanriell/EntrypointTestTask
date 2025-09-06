@@ -35,7 +35,7 @@ internal sealed class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGe
     {
         var openApiInfo = new OpenApiInfo
         {
-            Title = $"Bookify.Api v{apiVersionDescription.ApiVersion}",
+            Title = $"Server.Api v{apiVersionDescription.ApiVersion}",
             Version = apiVersionDescription.ApiVersion.ToString()
         };
 

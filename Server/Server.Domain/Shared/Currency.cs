@@ -8,7 +8,7 @@ public sealed record Currency
     public static readonly Currency Usd = new("USD");
     public static readonly Currency Eur = new("EUR");
     public static readonly IReadOnlyCollection<Currency> All = new[] { Usd, Eur };
-
+ 
     private Currency(string code) { Code = code; }
     public string Code { get; init; }
 

@@ -17,7 +17,7 @@ internal sealed class DiscountProductCommandHandler : ICommandHandler<DiscountPr
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
-
+ 
     public async Task<Result> Handle(
         DiscountProductCommand request,
         CancellationToken cancellationToken)

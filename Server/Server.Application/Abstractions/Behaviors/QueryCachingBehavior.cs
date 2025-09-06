@@ -61,4 +61,4 @@ internal sealed class QueryCachingBehavior<TRequest, TResponse>
 
         return result;
     }
-}
+} 

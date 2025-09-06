@@ -7,3 +7,4 @@ public sealed record ShipOrderRequest(
     Courier Courier,
     DateTime EstimatedDeliveryDate
 );
+ 

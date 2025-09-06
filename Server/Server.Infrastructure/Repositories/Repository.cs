@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain.Abstractions;
-using Server.Infrastructure;
 
-namespace Bookify.Infrastructure.Repositories;
+namespace Server.Infrastructure.Repositories;
 
 internal abstract class Repository<T>
     where T : Entity
@@ -10,7 +9,7 @@ internal abstract class Repository<T>
     protected readonly ApplicationDbContext DbContext;
 
     protected Repository(ApplicationDbContext dbContext) { DbContext = dbContext; }
- 
+
     public async Task<T?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -27,4 +26,4 @@ internal abstract class Repository<T>
             entity
         );
     }
-} 
+}

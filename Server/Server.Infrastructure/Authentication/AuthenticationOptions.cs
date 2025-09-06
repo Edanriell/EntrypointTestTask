@@ -7,4 +7,4 @@ public sealed class AuthenticationOptions
     public bool RequireHttpsMetadata { get; init; }
     public string Issuer { get; set; } = string.Empty;
 } 
- 
+  

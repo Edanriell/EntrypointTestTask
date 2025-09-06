@@ -7,3 +7,4 @@ public sealed record UserPhoneNumberChangedDomainEvent(
     PhoneNumber OldPhoneNumber,
     PhoneNumber NewPhoneNumber) : IDomainEvent;
  
+ 

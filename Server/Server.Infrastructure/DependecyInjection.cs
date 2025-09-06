@@ -44,7 +44,7 @@ public static class DependencyInjection
             services,
             configuration
         );
-
+   
         AddCaching(
             services,
             configuration

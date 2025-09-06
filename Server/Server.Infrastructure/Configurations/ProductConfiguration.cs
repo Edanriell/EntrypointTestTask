@@ -1,94 +1,4 @@
-﻿// using Microsoft.EntityFrameworkCore;
-// using Microsoft.EntityFrameworkCore.Metadata.Builders;
-// using Server.Domain.Products;
-// using Server.Domain.Shared;
-//
-// namespace Server.Infrastructure.Configurations;
-//
-// internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
-// {
-//     public void Configure(EntityTypeBuilder<Product> builder)
-//     {
-//         builder.ToTable("products");
-//
-//         builder.HasKey(product => product.Id);
-//
-//         builder.Property(product => product.Name)
-//             .HasMaxLength(300)
-//             .IsRequired()
-//             .HasConversion(
-//                 name => name.Value,
-//                 value => ProductName.Create(value).Value
-//             );
-//
-//         builder.Property(product => product.Description)
-//             .HasMaxLength(2000)
-//             .IsRequired()
-//             .HasConversion(
-//                 description => description.Value,
-//                 value => ProductDescription.Create(value).Value
-//             );
-//
-//         builder.OwnsOne(product => product.Price, priceBuilder =>
-//         {
-//             priceBuilder.Property(money => money.Amount)
-//                 .HasColumnName("price_amount")
-//                 .HasPrecision(18, 2)
-//                 .IsRequired();
-//
-//             priceBuilder.Property(money => money.Currency)
-//                 .HasColumnName("price_currency")
-//                 .HasMaxLength(3)
-//                 .IsRequired()
-//                 .HasConversion(
-//                     currency => currency.Code,
-//                     code => Currency.FromCode(code)
-//                 );
-//         });
-//
-//         builder.Property(product => product.Reserved)
-//             .IsRequired()
-//             .HasConversion(
-//                 reserved => reserved.Value,
-//                 value => Quantity.CreateQuantity(value).Value
-//             );
-//
-//         builder.Property(product => product.TotalStock)
-//             .IsRequired()
-//             .HasConversion(
-//                 stock => stock.Value,
-//                 value => Quantity.CreateQuantity(value).Value
-//             );
-//
-//         builder.Property(product => product.Available)
-//             .IsRequired()
-//             .HasConversion(
-//                 available => available.Value,
-//                 value => Quantity.CreateQuantity(value).Value);
-//
-//         builder.Property(product => product.Status)
-//             .HasConversion<string>()
-//             .HasMaxLength(50)
-//             .IsRequired();
-//
-//         builder.Property(product => product.CreatedAt)
-//             .IsRequired();
-//
-//         builder.Property(product => product.LastUpdatedAt)
-//             .IsRequired();
-//
-//         builder.Property(product => product.LastRestockedAt)
-//             .IsRequired(false);
-//
-//         builder.HasIndex(product => product.Status);
-//         builder.HasIndex(product => product.CreatedAt);
-//         builder.HasIndex(product => product.LastUpdatedAt);
-//         builder.HasIndex(product => new { product.Status, product.TotalStock });
-//         builder.HasIndex(product => product.Name).IsUnique();
-//     }
-// }
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Server.Domain.Products;
 using Server.Domain.Shared;
@@ -150,14 +60,6 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                 value => Quantity.CreateQuantity(value).Value
             );
 
-        // ✅ REMOVE this mapping - Available is a calculated property
-        // builder.Property(product => product.Available)
-        //     .IsRequired()
-        //     .HasConversion(
-        //         available => available.Value,
-        //         value => Quantity.CreateQuantity(value).Value);
-
-        // ✅ EXPLICITLY IGNORE the calculated Available property
         builder.Ignore(product => product.Available);
 
         builder.Property(product => product.Status)

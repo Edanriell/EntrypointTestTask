@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿// Needs refactoring!
+
+using System.Data;
 using System.Globalization;
 using System.Text;
 using Dapper;
@@ -32,7 +34,6 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
         var sqlBuilder = new StringBuilder();
         var parameters = new DynamicParameters();
 
-        // Base query
         sqlBuilder.Append("""
                           SELECT 
                               u.id as Id,
@@ -76,20 +77,6 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
         // Add sorting
         AddSorting(sqlBuilder, request);
 
-        // // Add LIMIT - get extra records to check for previous/next pages
-        // parameters.Add("PageSize", request.PageSize + 1); // +1 to check for next page
-        // sqlBuilder.Append(" LIMIT @PageSize");
-        //
-        // var customers = (await connection.QueryAsync<Customer>(sqlBuilder.ToString(), parameters)).ToList();
-        //
-        // // Determine pagination state
-        // PaginationInfo<Customer> paginationInfo = _cursorPaginationService.DeterminePaginationState(
-        //     customers,
-        //     request.PageSize,
-        //     request.SortBy ?? "CreatedOnUtc",
-        //     _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty).PageNumber,
-        //     customer => GetCustomerSortValue(customer, request.SortBy!));
-
         // Add LIMIT and OFFSET for pagination
         CursorInfo cursorInfo = _cursorPaginationService.DecodeCursor(request.Cursor ?? string.Empty);
         int offset = (cursorInfo.PageNumber - 1) * request.PageSize;
@@ -107,7 +94,6 @@ internal sealed class GetCustomersQueryHandler : IQueryHandler<GetCustomersQuery
             request.SortBy ?? "CreatedOnUtc",
             cursorInfo.PageNumber,
             customer => GetCustomerSortValue(customer, request.SortBy ?? "CreatedOnUtc"));
-
 
         // Get recent orders for each customer
         await LoadRecentOrders(connection, paginationInfo.PageItems);
