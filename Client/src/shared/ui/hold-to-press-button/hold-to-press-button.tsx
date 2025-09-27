@@ -1,8 +1,8 @@
-import { ComponentProps, FC, type ReactNode } from "react";
+import type { ComponentProps, FC, ReactNode } from "react";
 
 import { Button } from "@shared/ui/button";
 
-import { useHoldToAction } from "./lib/hooks";
+import { useHoldToAction } from "./hooks";
 
 type HoldToPressButtonProps = {
 	onPressAction: () => Promise<void>;

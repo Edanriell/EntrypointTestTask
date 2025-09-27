@@ -107,9 +107,9 @@ export const useUpdateProductStock = (setError: UseFormSetError<UpdateProductSto
 			)(error);
 		},
 
-		onSuccess: (_, { productId, updatedProductStockData }) => {
+		onSuccess: (_, { productId, updatedProductStockData }, context) => {
 			toast.success("Product stock updated successfully", {
-				description: `New stock: ${updatedProductStockData?.totalStock}`
+				description: `New stock: ${context.previousProductData!.totalStock + updatedProductStockData.totalStock!}`
 			});
 		},
 

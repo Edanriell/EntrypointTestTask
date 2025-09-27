@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 
-import { authConfig } from "@features/authentication/general/config";
+import { authConfig } from "../../../../general";
 
 type TokenResponse = {
 	access_token: string;

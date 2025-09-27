@@ -13,6 +13,8 @@ import { useGetProductById, useUpdateProductStock } from "../api";
 import { PRODUCT_STOCK_UPDATABLE_FIELDS } from "../config";
 import { stockComparator } from "../lib";
 
+import { ProductStockSkeleton } from "./product-stock-skeleton";
+
 type UpdateProductStockProps = {
 	productId: string;
 };
@@ -59,9 +61,14 @@ export const UpdateProductStock: FC<UpdateProductStockProps> = ({ productId }) =
 				);
 
 				if (Object.keys(updatedProductStockData).length > 0) {
+					const adjustedProductStockData =
+						updatedProductStockData.totalStock! - productData.totalStock;
+
 					await updateStock({
 						productId,
-						updatedProductStockData
+						updatedProductStockData: {
+							totalStock: adjustedProductStockData
+						}
 					});
 				} else {
 					console.log("No stock changes detected");
@@ -96,14 +103,7 @@ export const UpdateProductStock: FC<UpdateProductStockProps> = ({ productId }) =
 	};
 
 	if (!productData) {
-		return (
-			<div className="flex flex-col gap-1 min-w-0 flex-shrink-0">
-				<div className="text-xs text-muted-foreground text-center">Stock</div>
-				<div className="w-20 h-8 flex items-center justify-center">
-					<Spinner />
-				</div>
-			</div>
-		);
+		return <ProductStockSkeleton />;
 	}
 
 	return (
@@ -118,7 +118,7 @@ export const UpdateProductStock: FC<UpdateProductStockProps> = ({ productId }) =
 							{...register("totalStock", { valueAsNumber: true })}
 							onBlur={handleSubmit(handleStockSubmit)}
 							onKeyDown={handleKeyDown}
-							className={`w-20 h-8 text-sm text-center no-arrows pr-6 ${
+							className={`w-[80px] h-8 text-sm text-center no-arrows pr-6 ${
 								errors.totalStock ? "border-red-500" : ""
 							}`}
 							disabled={isPending}
@@ -149,7 +149,7 @@ export const UpdateProductStock: FC<UpdateProductStockProps> = ({ productId }) =
 				</form>
 			) : (
 				<div
-					className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded text-sm font-medium min-h-8"
+					className="w-[80px] flex items-center gap-1 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded text-sm font-medium min-h-8 justify-center"
 					onClick={() => setEditingStock(true)}
 				>
 					<span>{productData.totalStock}</span>

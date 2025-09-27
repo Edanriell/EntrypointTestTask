@@ -1,3 +1,9 @@
+"use client";
+
 import { OrdersPage } from "@views/orders";
 
-export default OrdersPage;
+import { withAuthGuard } from "@features/authentication/general";
+
+const ProtectedOrdersPage = withAuthGuard(OrdersPage);
+
+export default ProtectedOrdersPage;

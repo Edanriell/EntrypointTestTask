@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from "@shared/lib/utils";
 
 import { Customer } from "../../model";
 import { getInitials } from "../../lib";
+
 import { ManagementActions } from "./management-actions";
 
 type CustomerRowCardComponents = {

@@ -3,21 +3,18 @@ import { useCallback, useState } from "react";
 import { FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useBaseAuth } from "@features/authentication/general/lib/hooks/useBaseAuth";
-import { AuthProvider } from "@features/authentication/general/model";
-import {
-	useLoginMutation,
-	useLogoutMutation
-} from "@features/authentication/general/api/mutations";
-
 import { ApiError, ErrorHandler } from "@shared/lib/handlers/error";
+
+import { AuthProvider } from "../../model";
+import { useLoginMutation, useLogoutMutation } from "../../api";
+
+import { useBaseAuth } from "../hooks";
 
 type LoginFormData = {
 	email: string;
 	password: string;
 };
 
-// Field mapping for login form
 const LOGIN_FIELD_MAPPING: Record<string, FieldPath<LoginFormData>> = {
 	Email: "email",
 	Password: "password"
@@ -105,13 +102,6 @@ export const useCredentialsAuth = (): AuthProvider &
 							resource: "user"
 						});
 						baseAuth.setError("Failed to create session");
-
-						// const errorMsg = "Failed to create session";
-						// baseAuth.setError(errorMsg);
-						// toast.error("Session error", {
-						// 	description: errorMsg,
-						// 	duration: 5000
-						// });
 					}
 				} else {
 					const tokenError = {
@@ -133,13 +123,6 @@ export const useCredentialsAuth = (): AuthProvider &
 						resource: "user"
 					});
 					baseAuth.setError("No access token received");
-
-					// const errorMsg = "No access token received";
-					// baseAuth.setError(errorMsg);
-					// toast.error("Authentication error", {
-					// 	description: errorMsg,
-					// 	duration: 4000
-					// });
 				}
 			} catch (err: any) {
 				if (process.env.NODE_ENV === "development") {
@@ -186,12 +169,6 @@ export const useCredentialsAuth = (): AuthProvider &
 				}
 			);
 
-			// console.error("Credentials logout error:", error);
-			// baseAuth.handleError(error);
-			// toast.error("Logout error", {
-			// 	description: "There was an issue signing out",
-			// 	duration: 4000
-			// });
 			throw error;
 		}
 	}, [baseAuth.router, baseAuth.handleError, logoutMutation]);

@@ -1,5 +1,6 @@
-import { useAuthUser } from "@features/authentication/general/lib/hooks";
-import type { AuthStrategy } from "@features/authentication/general/model";
+import type { AuthStrategy } from "../../model";
+
+import { useAuthUser } from "../hooks";
 
 type UsePermissionsOptions = {
 	strategy?: AuthStrategy;

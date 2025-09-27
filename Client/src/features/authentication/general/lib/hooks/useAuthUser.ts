@@ -1,5 +1,6 @@
-import { useRequireAuth } from "@features/authentication/general/lib/hooks";
-import type { AuthStrategy } from "@features/authentication/general/model";
+import type { AuthStrategy } from "../../model";
+
+import { useRequireAuth } from "../hooks";
 
 export const useAuthUser = (strategy?: AuthStrategy) => {
 	const auth = useRequireAuth(strategy);

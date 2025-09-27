@@ -10,6 +10,8 @@ export const getChangedFields = <TOriginal, TForm>(
 		const originalValue = originalData[field as keyof TOriginal];
 		const formValue = formData[field];
 
+		console.log(originalValue, formValue);
+
 		// Check if there's a custom comparison function for this field
 		const customComparison = customComparisons?.[field as string];
 		const areEqual = customComparison

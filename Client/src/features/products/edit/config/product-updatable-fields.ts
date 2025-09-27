@@ -5,5 +5,5 @@ export const PRODUCT_UPDATABLE_FIELDS: (keyof EditProductFormData)[] = [
 	"description",
 	"price",
 	"currency",
-	"stock"
+	"totalStock"
 ];

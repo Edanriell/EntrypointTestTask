@@ -1,5 +1,6 @@
-import { apiClient } from "@shared/api";
 import { LogoutRequest } from "@features/authentication/general";
+
+import { apiClient } from "@shared/api";
 
 export const logoutUser = async (request?: LogoutRequest): Promise<void> => {
 	// Not implemented on the back-end, just an example

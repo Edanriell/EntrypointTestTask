@@ -35,7 +35,7 @@ export const useAddPayment = (
 
 			reset(); // Reset form on success
 		},
-		onError: ErrorHandler.createMutationErrorHandler(setError, reset, {
+		onError: ErrorHandler.createMutationErrorHandler(setError, reset as any, {
 			action: "add_payment",
 			resource: "payment"
 		})

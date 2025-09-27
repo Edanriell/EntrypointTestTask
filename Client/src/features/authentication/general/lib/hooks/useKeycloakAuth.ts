@@ -1,8 +1,9 @@
 import { signIn, signOut } from "next-auth/react";
 import { useCallback } from "react";
 
-import { useBaseAuth } from "@features/authentication/general/lib/hooks";
-import type { AuthProvider } from "@features/authentication/general/model";
+import type { AuthProvider } from "../../model";
+
+import { useBaseAuth } from "../hooks";
 
 export const useKeycloakAuth = (): AuthProvider & ReturnType<typeof useBaseAuth> => {
 	const baseAuth = useBaseAuth();

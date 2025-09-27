@@ -1,4 +1,3 @@
-// src/features/payments/refund/ui/refund-payments.tsx
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -107,7 +106,6 @@ export const Refund: FC<RefundPaymentsProps> = ({
 							</p>
 						</div>
 					</div>
-
 					<div className="space-y-2">
 						<Label htmlFor="refundReason">
 							Refund Reason <span className="text-red-500">*</span>
@@ -130,7 +128,6 @@ export const Refund: FC<RefundPaymentsProps> = ({
 							</p>
 						</div>
 					</div>
-
 					<div className="flex justify-end gap-2 pt-2">
 						<Button
 							type="button"

@@ -12,6 +12,8 @@ import { useGetProductById, useUpdateProductPrice } from "../api";
 import { PRODUCT_PRICE_UPDATABLE_FIELDS } from "../config";
 import { priceComparator } from "../lib";
 
+import { ProductPriceSkeleton } from "./product-price-skeleton";
+
 type UpdateProductPriceProps = {
 	productId: string;
 };
@@ -57,9 +59,6 @@ export const UpdateProductPrice: FC<UpdateProductPriceProps> = ({ productId }) =
 					priceComparator
 				);
 
-				console.log(productData);
-				console.log(data);
-
 				if (Object.keys(updatedProductPriceData).length > 0) {
 					await updatePrice({
 						productId,
@@ -98,18 +97,11 @@ export const UpdateProductPrice: FC<UpdateProductPriceProps> = ({ productId }) =
 	};
 
 	if (!productData) {
-		return (
-			<div className="flex flex-col gap-1 min-w-0 flex-shrink-0">
-				<div className="text-xs text-muted-foreground text-center">Price</div>
-				<div className="w-20 h-8 flex items-center justify-center">
-					<Spinner />
-				</div>
-			</div>
-		);
+		return <ProductPriceSkeleton />;
 	}
 
 	return (
-		<div className="flex flex-col gap-1 min-w-0 flex-shrink-0 relative">
+		<div className="flex items-center justify-center flex-col gap-1 min-w-0 flex-shrink-0 relative">
 			<div className="text-xs text-muted-foreground text-center">Price</div>
 			{editingPrice ? (
 				<form onSubmit={handleSubmit(handlePriceSubmit)} className="relative">
@@ -121,7 +113,7 @@ export const UpdateProductPrice: FC<UpdateProductPriceProps> = ({ productId }) =
 							{...register("price", { valueAsNumber: true })}
 							onBlur={handleSubmit(handlePriceSubmit)}
 							onKeyDown={handleKeyDown}
-							className={`w-20 h-8 text-sm text-center no-arrows pr-6 ${
+							className={`w-[80px] h-8 text-sm text-center no-arrows pr-6 ${
 								errors.price ? "border-red-500" : ""
 							}`}
 							disabled={isPending}
@@ -152,7 +144,7 @@ export const UpdateProductPrice: FC<UpdateProductPriceProps> = ({ productId }) =
 				</form>
 			) : (
 				<div
-					className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded text-sm font-medium min-h-8"
+					className="w-[80px] flex items-center gap-1 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded text-sm font-medium min-h-8 justify-center"
 					onClick={() => setEditingPrice(true)}
 				>
 					<span>{formatCurrency(productData.price)}</span>

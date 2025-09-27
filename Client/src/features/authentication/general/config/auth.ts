@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
-
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authConfig: NextAuthOptions = {
@@ -51,19 +50,25 @@ export const authConfig: NextAuthOptions = {
 				if (!credentials?.token) {
 					return null;
 				}
-
 				try {
 					// Verify the token with our backend or decode JWT
 					const payload = JSON.parse(
 						Buffer.from(credentials.token.split(".")[1], "base64").toString()
 					);
 
+					console.log(payload);
+
 					return {
 						id: payload.sub || payload.userId,
 						name: payload.name || payload.username,
 						email: payload.email,
 						image: payload.picture,
-						roles: payload.roles || [],
+						// IMPORTANT
+						// Needs adjustments!
+						// In KeyCloak roles are in realm_access.roles
+						// roles: payload.roles
+						roles: payload.realm_access.roles || [],
+						// Permissions in KeyCloak are placed in resource_access
 						permissions: payload.permissions || []
 					};
 				} catch (error) {
@@ -82,6 +87,9 @@ export const authConfig: NextAuthOptions = {
 				token.name = user.name;
 				token.roles = user.roles;
 				token.permissions = user.permissions;
+
+				console.log("[JWT callback] credentials roles:", token.roles);
+				console.log("[JWT callback] credentials permissions:", token.permissions);
 
 				return token;
 			}
@@ -111,6 +119,9 @@ export const authConfig: NextAuthOptions = {
 						token.userId = payload.sub;
 						token.email = payload.email;
 						token.name = payload.name || payload.preferred_username;
+
+						console.log("[JWT callback] keycloak roles:", token.roles);
+						console.log("[JWT callback] keycloak permissions:", token.permissions);
 					} catch (error) {
 						console.error("Error parsing Keycloak token:", error);
 						token.roles = [];

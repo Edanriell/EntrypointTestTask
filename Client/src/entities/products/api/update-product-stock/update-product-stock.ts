@@ -6,5 +6,8 @@ export const updateProductStock = async ({
 	productId,
 	updatedProductStockData
 }: UpdateProductStockCommand): Promise<void> => {
-	return apiClient.patch<void>(`/products/${productId}/stock`, updatedProductStockData);
+	// API changed a bit
+	return apiClient.patch<void>(`/products/${productId}/stock`, {
+		stock: updatedProductStockData.totalStock
+	});
 };

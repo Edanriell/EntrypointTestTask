@@ -57,11 +57,6 @@ export const getStatusInfo = (status: OrderStatus) => {
 				color: "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-200",
 				label: "Failed"
 			};
-		case OrderStatus.UnderReview:
-			return {
-				color: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300",
-				label: "Under Review"
-			};
 		default:
 			return {
 				color: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",

@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 
-import { useCredentialsAuth } from "@features/authentication/general";
+import { useCredentialsAuth } from "../../general";
 
 export const SignOut: FC = () => {
 	const { logout } = useCredentialsAuth();

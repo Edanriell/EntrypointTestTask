@@ -1,7 +1,7 @@
 import { Order } from "../../model";
 
 export type GetOrdersResponse = {
-	orders: readonly OrdersResponse[];
+	orders: OrdersResponse[];
 	nextCursor?: string;
 	previousCursor?: string;
 	hasNextPage: boolean;

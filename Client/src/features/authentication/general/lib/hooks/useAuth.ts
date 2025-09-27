@@ -1,5 +1,6 @@
-import { useCredentialsAuth, useKeycloakAuth } from "@features/authentication/general/lib/hooks";
-import type { AuthStrategy } from "@features/authentication/general/model";
+import type { AuthStrategy } from "../../model";
+
+import { useCredentialsAuth, useKeycloakAuth } from "../hooks";
 
 export const useAuth = (strategy: AuthStrategy = "keycloak") => {
 	switch (strategy) {
@@ -11,6 +12,3 @@ export const useAuth = (strategy: AuthStrategy = "keycloak") => {
 			return useKeycloakAuth();
 	}
 };
-
-// Convenience hooks for specific strategies
-// export { useKeycloakAuth, useCredentialsAuth };

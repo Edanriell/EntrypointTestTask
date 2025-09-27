@@ -1,8 +1,6 @@
 import { FC } from "react";
 import { Zap } from "lucide-react";
 
-import { OrderStatus } from "@entities/orders";
-
 import { Button } from "@shared/ui/button";
 import { Spinner } from "@shared/ui/spinner";
 

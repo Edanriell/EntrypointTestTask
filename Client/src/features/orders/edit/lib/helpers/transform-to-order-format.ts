@@ -9,7 +9,8 @@
 // }
 // But data held in by a query is in whole string format
 // "country, city, street, zipCode"
-export const transformToOrderFormat = (updatedOrderData: any, oldData: GetOrderByIdResponse) => {
+
+export const transformToOrderFormat = (updatedOrderData: any, oldData: any) => {
 	const result = { ...oldData };
 
 	// If we have address fields, reconstruct the shippingAddress string

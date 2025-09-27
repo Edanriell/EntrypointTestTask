@@ -1,15 +1,9 @@
 import { FC, ReactNode } from "react";
 
+import { BreadCrumbs } from "@widgets/bread-crumbs";
+
 import { SidebarInset, SidebarTrigger } from "@shared/ui/sidebar";
 import { Separator } from "@shared/ui/separator";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator
-} from "@shared/ui/breadcrumb";
 
 type ContentProps = {
 	children: ReactNode;
@@ -25,17 +19,7 @@ export const Content: FC<ContentProps> = ({ children }) => {
 						orientation="vertical"
 						className="mr-2 data-[orientation=vertical]:h-4"
 					/>
-					<Breadcrumb>
-						<BreadcrumbList>
-							<BreadcrumbItem className="hidden md:block">
-								<BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
-							</BreadcrumbItem>
-							<BreadcrumbSeparator className="hidden md:block" />
-							<BreadcrumbItem>
-								<BreadcrumbPage>Data Fetching</BreadcrumbPage>
-							</BreadcrumbItem>
-						</BreadcrumbList>
-					</Breadcrumb>
+					<BreadCrumbs />
 				</div>
 			</header>
 			{children}

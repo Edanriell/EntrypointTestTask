@@ -1,4 +1,4 @@
-import type { AuthStrategy } from "@features/authentication/general/model";
+import type { AuthStrategy } from "../../model";
 
 import { useAuth } from "./useAuth";
 

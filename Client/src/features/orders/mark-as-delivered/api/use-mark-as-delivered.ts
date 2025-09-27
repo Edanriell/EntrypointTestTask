@@ -1,4 +1,3 @@
-// src/features/orders/mark-as-delivered/api/use-mark-as-delivered.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 

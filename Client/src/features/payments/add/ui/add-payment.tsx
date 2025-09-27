@@ -4,6 +4,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { PaymentMethod } from "@entities/payments";
+import { OrderStatus } from "@entities/orders";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@shared/ui/popover";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -11,11 +14,9 @@ import { Label } from "@shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
 import { Spinner } from "@shared/ui/spinner";
 
-import { Currency, PaymentMethod } from "@entities/payments";
-
 import { useAddPayment } from "../api";
 import { AddPaymentFormData, addPaymentSchema } from "../model";
-import { OrderStatus } from "@entities/orders";
+import { mapCurrencyToDisplay, mapCurrencyToEnum } from "../lib";
 
 type AddPaymentProps = {
 	orderId: string;
@@ -26,40 +27,13 @@ type AddPaymentProps = {
 	orderCurrency?: string;
 };
 
-// TODO222
-// USE Z ENUM, HAVE HERE STUPID CONVERSION
-
-// Helper function to map API string currency to enum values
-const mapCurrencyToEnum = (currency: string): Currency => {
-	switch (currency?.toUpperCase()) {
-		case "USD":
-			return "Usd" as Currency;
-		case "EUR":
-			return "Eur" as Currency;
-		default:
-			return "Usd" as Currency; // Default fallback
-	}
-};
-
-// Helper function to map display currency to what we expect from API
-const mapCurrencyToDisplay = (currency: string): string => {
-	switch (currency?.toUpperCase()) {
-		case "USD":
-			return "USD";
-		case "EUR":
-			return "EUR";
-		default:
-			return currency || "";
-	}
-};
-
 export const AddPayment: FC<AddPaymentProps> = ({
 	orderId,
 	orderStatus,
 	orderNumber,
 	outstandingAmount,
 	orderCurrency,
-													isFullyPaid
+	isFullyPaid
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -139,7 +113,6 @@ export const AddPayment: FC<AddPaymentProps> = ({
 								)}
 							</p>
 						</div>
-
 						{/* Amount Field */}
 						<div className="grid gap-2 relative">
 							<Label htmlFor="amount">Amount *</Label>
@@ -171,7 +144,6 @@ export const AddPayment: FC<AddPaymentProps> = ({
 								</AnimatePresence>
 							</div>
 						</div>
-
 						{/* Currency and Payment Method */}
 						<div className="grid grid-cols-2 gap-3">
 							{/* Currency Field */}
@@ -218,7 +190,6 @@ export const AddPayment: FC<AddPaymentProps> = ({
 									</AnimatePresence>
 								</div>
 							</div>
-
 							{/* Payment Method Field */}
 							<div className="grid gap-2">
 								<Label htmlFor="paymentMethod">Payment Method *</Label>
@@ -266,7 +237,6 @@ export const AddPayment: FC<AddPaymentProps> = ({
 								</div>
 							</div>
 						</div>
-
 						<div className="flex justify-between gap-2 mt-2">
 							<Button
 								type="button"

@@ -25,7 +25,7 @@ export type GetCustomerByIdResponse = {
 	customerStatus: string;
 };
 
-export type RecentOrder = {
+type RecentOrder = {
 	userId: string;
 	orderId: string;
 	totalAmount: number;

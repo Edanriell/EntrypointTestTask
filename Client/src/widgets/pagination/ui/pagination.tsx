@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@shared/ui/card";
@@ -21,8 +23,8 @@ export const Pagination = <T,>({
 	hasNextPage
 }: PaginationProps<T>) => {
 	return (
-		<Card>
-			<CardContent className="pt-6">
+		<Card className="mt-[36px]">
+			<CardContent>
 				<div className="flex items-center justify-between">
 					<div className="text-sm text-muted-foreground">
 						Showing {entity.length} products

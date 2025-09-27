@@ -3,8 +3,8 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useRequireAuth } from "@features/authentication/general/lib/hooks";
-import type { AuthStrategy } from "@features/authentication/general/model";
+import type { AuthStrategy } from "../../../general";
+import { useRequireAuth } from "../../../general";
 
 type AuthGuardProps = {
 	children: ReactNode;

@@ -1,4 +1,3 @@
-// src/features/orders/mark-as-delivered/ui/mark-as-delivered.tsx
 import { FC } from "react";
 import { CheckCircle } from "lucide-react";
 

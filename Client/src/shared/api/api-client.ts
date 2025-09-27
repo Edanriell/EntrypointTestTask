@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
 
-// TODO FSD CONFLICT HERE
+// !TOD0! FSD CONFLICT HERE
 import { TokenManager } from "@features/authentication/general";
 
 import { API_CONFIG } from "@shared/config";
@@ -233,8 +233,4 @@ export class ApiClient {
 	}
 }
 
-// Export a default instance
 export const apiClient = new ApiClient();
-
-// Keep backward compatibility
-// export const httpClient = apiClient;

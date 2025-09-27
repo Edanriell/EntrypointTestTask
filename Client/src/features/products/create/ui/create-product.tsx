@@ -1,3 +1,5 @@
+"use client";
+
 import { FC } from "react";
 import { SquarePen } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,8 +44,8 @@ export const CreateProduct: FC = () => {
 			name: "",
 			description: "",
 			currency: undefined,
-			price: 0,
-			totalStock: 0
+			price: undefined,
+			totalStock: undefined
 		}
 	});
 
@@ -65,7 +67,7 @@ export const CreateProduct: FC = () => {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button className="flex w-fit self-end">
+				<Button className="flex w-fit self-end ml-[20px]">
 					<SquarePen />
 					Create new
 				</Button>
@@ -99,7 +101,7 @@ export const CreateProduct: FC = () => {
 										}}
 										animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 										exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-										className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+										className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 									>
 										{errors.name.message}
 									</motion.p>
@@ -124,7 +126,7 @@ export const CreateProduct: FC = () => {
 										}}
 										animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 										exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-										className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+										className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 									>
 										{errors.description.message}
 									</motion.p>
@@ -166,7 +168,7 @@ export const CreateProduct: FC = () => {
 										}}
 										animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 										exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-										className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+										className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 									>
 										{errors.currency.message}
 									</motion.p>
@@ -195,7 +197,7 @@ export const CreateProduct: FC = () => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.price.message}
 										</motion.p>
@@ -222,7 +224,7 @@ export const CreateProduct: FC = () => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.totalStock.message}
 										</motion.p>

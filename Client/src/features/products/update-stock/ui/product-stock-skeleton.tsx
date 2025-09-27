@@ -1,7 +1,8 @@
 import { FC } from "react";
+
 import { Skeleton } from "@shared/ui/skeleton";
 
-export const ProductPriceSkeleton: FC = () => {
+export const ProductStockSkeleton: FC = () => {
 	return (
 		<div className="flex flex-col gap-1 min-w-0 flex-shrink-0">
 			<div className="text-xs text-muted-foreground text-center">Stock</div>

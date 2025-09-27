@@ -1,9 +1,7 @@
+import { EditOrderFormData } from "../../model";
+
 import { parseAddressString } from "./parse-address-string";
 
-// Transform order data to match form data structure
-// Converts: { country: "Germany" } (partial form changes)
-// Plus: "3873 Gunnar Village, London, France, 20974" (current address)
-// Into: "3873 Gunnar Village, London, Germany, 20974" (updated address string)
 export const transformOrderDataToFormFormat = (orderData: any): EditOrderFormData => {
 	let addressData: Partial<EditOrderFormData> = {
 		street: "",

@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
-import type { AuthSession, User } from "@features/authentication/general/model";
+import type { AuthSession, User } from "../../model";
 
 export const useBaseAuth = () => {
 	const { data: session, status } = useSession();

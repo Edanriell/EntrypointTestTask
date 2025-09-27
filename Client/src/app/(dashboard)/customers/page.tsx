@@ -1,3 +1,9 @@
+"use client";
+
 import { CustomersPage } from "@views/clients";
 
-export default CustomersPage;
+import { withAuthGuard } from "@features/authentication/general";
+
+const ProtectedCustomersPage = withAuthGuard(CustomersPage);
+
+export default ProtectedCustomersPage;

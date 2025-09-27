@@ -37,9 +37,9 @@ export const DiscountProduct: FC<DiscountProductProps> = ({ productId }) => {
 		setError
 	} = useForm<DiscountProductFormData>({
 		resolver: zodResolver(discountProductSchema),
-		mode: "onTouched",
+		mode: "onBlur",
 		defaultValues: {
-			newPrice: 0
+			newPrice: undefined
 		}
 	});
 
@@ -67,7 +67,7 @@ export const DiscountProduct: FC<DiscountProductProps> = ({ productId }) => {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline" size="sm">
+				<Button className="mr-[20px]" variant="outline" size="sm">
 					<Percent className="h-4 w-4 mr-2" />
 					Discount
 				</Button>

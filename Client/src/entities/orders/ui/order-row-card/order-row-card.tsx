@@ -48,16 +48,13 @@ type OrderRowCardComponents = {
 type OrderRowCard = FC<OrderRowCardProps> & OrderRowCardComponents;
 
 export const OrderRowCard: OrderRowCard = ({ order, children }) => {
-	const [isProductsOpen, setIsProductsOpen] = useState(false);
-	const [isPaymentsOpen, setIsPaymentsOpen] = useState(false);
-
-	console.log(order);
+	const [isProductsOpen, setIsProductsOpen] = useState<boolean>(false);
+	const [isPaymentsOpen, setIsPaymentsOpen] = useState<boolean>(false);
 
 	const isFullyPaid = order.paidAmount >= order.totalAmount;
 	const remainingAmount = Math.max(0, order.totalAmount - order.paidAmount);
 	const statusInfo = getStatusInfo(order.status);
 
-	// Use payments from the order response - check both 'payments' and 'payment' fields
 	const payments = (order as any).payments || order.payment || [];
 
 	const childrenArray = Children.toArray(children);
@@ -68,7 +65,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 		(child) => isValidElement(child) && child.type === ManagementActions
 	) as ReactElement | undefined;
 
-	// Helper function to get payment status info
 	const getPaymentStatusInfo = () => {
 		if (isFullyPaid) {
 			return {
@@ -96,7 +92,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 
 	const paymentStatus = getPaymentStatusInfo();
 
-	// Helper function to get payment status badge info
 	const getPaymentStatusBadge = (status: string) => {
 		switch (status.toLowerCase()) {
 			case "paid":
@@ -133,7 +128,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 		}
 	};
 
-	// Helper function to check if a status is completed
 	const isStatusCompleted = (targetStatus: OrderStatus): boolean => {
 		const statusOrder = [
 			OrderStatus.Pending,
@@ -152,7 +146,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 		return currentIndex >= targetIndex;
 	};
 
-	// Timeline data based on your actual order statuses
 	const timelineItems = [
 		{
 			label: "Confirmed",
@@ -191,14 +184,12 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 		}
 	];
 
-	// Filter timeline based on current status - don't show future steps for certain statuses
 	const getVisibleTimelineItems = () => {
 		if (
 			[OrderStatus.Cancelled, OrderStatus.Returned, OrderStatus.Failed].includes(
 				order.status as OrderStatus
 			)
 		) {
-			// For terminal statuses, show only up to the last completed step
 			return timelineItems.filter((item) => item.completed);
 		}
 		return timelineItems;
@@ -217,7 +208,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 								<ShoppingCart className="h-6 w-6" />
 							</AvatarFallback>
 						</Avatar>
-
 						<div className="flex-1 space-y-2">
 							<div className="flex items-center space-x-3 flex-wrap">
 								<h3 className="text-lg font-semibold tracking-tight">
@@ -239,7 +229,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 									</Badge>
 								)}
 							</div>
-
 							<div className="space-y-1">
 								{/* Client Info */}
 								<div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -251,7 +240,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 									<span className="text-muted-foreground">•</span>
 									<span>{order.client?.clientEmail}</span>
 								</div>
-
 								{/* Phone */}
 								{order.client?.clientPhoneNumber && (
 									<div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -259,7 +247,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 										<span>{order.client.clientPhoneNumber}</span>
 									</div>
 								)}
-
 								{/* Address */}
 								<div className="flex items-start space-x-2 text-sm text-muted-foreground">
 									<MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -268,7 +255,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 							</div>
 						</div>
 					</div>
-
 					{/* Right: Payment & Management */}
 					<div className="flex flex-col items-end space-y-3">
 						<div className="text-right space-y-1">
@@ -279,7 +265,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 								Paid: {formatCurrency(order.paidAmount)}
 							</div>
 						</div>
-
 						<Badge
 							variant={paymentStatus.variant}
 							className={cn("gap-1", paymentStatus.className)}
@@ -287,7 +272,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 							{paymentStatus.icon}
 							{paymentStatus.text}
 						</Badge>
-
 						{order.outstandingAmount > 0 && (
 							<Badge variant="destructive" className="text-xs">
 								Outstanding: {formatCurrency(order.outstandingAmount)}
@@ -298,7 +282,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 					</div>
 				</div>
 			</CardHeader>
-
 			<CardContent className="space-y-4">
 				{visibleTimelineItems.length > 0 && (
 					<div className="space-y-4">
@@ -326,7 +309,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 												<div className="h-2 w-2 rounded-full bg-muted-foreground" />
 											)}
 										</div>
-
 										{/* Connecting line to next dot */}
 										{index < visibleTimelineItems.length - 1 && (
 											<div
@@ -350,7 +332,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 												/>
 											</div>
 										)}
-
 										{/* Timeline labels - positioned absolutely to prevent layout shifts */}
 										<div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center min-w-max">
 											<div
@@ -363,7 +344,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 											>
 												{item.label}
 											</div>
-
 											{/* Status label - always reserve space */}
 											<div className="h-4 mt-1 flex items-center justify-center">
 												{item.completed && item.status === order.status && (
@@ -384,7 +364,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</div>
 					</div>
 				)}
-
 				{/* Special status messages for terminal states */}
 				{[OrderStatus.Cancelled, OrderStatus.Returned, OrderStatus.Failed].includes(
 					order.status as OrderStatus
@@ -435,7 +414,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</CardContent>
 					</Card>
 				)}
-
 				{/* Payments Section */}
 				{payments.length > 0 && (
 					<Collapsible open={isPaymentsOpen} onOpenChange={setIsPaymentsOpen}>
@@ -463,7 +441,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 											const statusBadge = getPaymentStatusBadge(
 												payment.paymentStatus
 											);
-
 											return (
 												<div
 													key={payment.paymentId}
@@ -487,12 +464,10 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 																{statusBadge.label}
 															</Badge>
 														</div>
-
 														<div className="text-xs text-muted-foreground">
 															Payment ID: {payment.paymentId}
 														</div>
 													</div>
-
 													<div className="text-right space-y-1">
 														<div className="font-semibold">
 															{formatCurrency(
@@ -506,7 +481,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 												</div>
 											);
 										})}
-
 										{/* Payment Summary */}
 										<div className="pt-3 border-t bg-muted/30 -mx-4 px-4 pb-0">
 											<div className="flex justify-between items-center text-sm">
@@ -540,7 +514,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</CollapsibleContent>
 					</Collapsible>
 				)}
-
 				{/* Shipping Info */}
 				{(order.trackingNumber || order.courier || order.estimatedDeliveryDate) && (
 					<Card className="bg-muted/50">
@@ -555,7 +528,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 										</Badge>
 									</div>
 								)}
-
 								{order.courier && (
 									<div className="flex items-center space-x-2">
 										<Package className="h-4 w-4 text-muted-foreground" />
@@ -563,7 +535,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 										<Badge variant="secondary">{order.courier}</Badge>
 									</div>
 								)}
-
 								{order.estimatedDeliveryDate && (
 									<div className="flex items-center space-x-2">
 										<Clock className="h-4 w-4 text-muted-foreground" />
@@ -577,7 +548,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</CardContent>
 					</Card>
 				)}
-
 				{/* Products Section */}
 				{order.orderProducts && order.orderProducts.length > 0 && (
 					<Collapsible open={isProductsOpen} onOpenChange={setIsProductsOpen}>
@@ -626,10 +596,8 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 						</CollapsibleContent>
 					</Collapsible>
 				)}
-
 				{/* Context Actions */}
 				{contextActions && <>{contextActions}</>}
-
 				{/* Additional Info */}
 				{(order.info ||
 					order.cancellationReason ||
@@ -649,7 +617,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 									</div>
 								</div>
 							)}
-
 							{/*{order.cancellationReason && (*/}
 							{/*	<div className="flex items-start space-x-2">*/}
 							{/*		<AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />*/}
@@ -661,7 +628,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 							{/*		</div>*/}
 							{/*	</div>*/}
 							{/*)}*/}
-
 							{order.returnReason && (
 								<div className="flex items-start space-x-2">
 									<AlertCircle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
@@ -673,7 +639,6 @@ export const OrderRowCard: OrderRowCard = ({ order, children }) => {
 									</div>
 								</div>
 							)}
-
 							{order.refundReason && (
 								<div className="flex items-start space-x-2">
 									<AlertCircle className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />

@@ -39,7 +39,7 @@ export const ProductRowCard: ProductRowCard = ({ product, children }) => {
 	return (
 		<Card className="w-full hover:shadow-md transition-shadow duration-200 pt-[unset] pb-[unset]">
 			<CardContent className="pt-4 pb-4 pl-6 pr-6">
-				<div className="flex items-center justify-between gap-4">
+				<div className="flex items-center justify-between gap-2">
 					<div className="flex items-center gap-4 flex-1 min-w-0">
 						<div className="h-12 w-12 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
 							<Package className="h-6 w-6 text-primary" />

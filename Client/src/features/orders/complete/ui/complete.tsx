@@ -1,4 +1,3 @@
-// src/features/orders/complete/ui/complete-order.tsx
 import { FC } from "react";
 import { CheckCheck } from "lucide-react";
 
@@ -26,7 +25,6 @@ export const Complete: FC<CompleteOrderProps> = ({ orderId, orderNumber, orderSt
 		}
 	};
 
-	// Only show button for delivered orders
 	if (orderStatus !== OrderStatus.Delivered) {
 		return null;
 	}

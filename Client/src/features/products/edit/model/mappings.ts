@@ -5,7 +5,7 @@ export const EDIT_PRODUCT_FORM_FIELDS_MAPPING = {
 	description: "description",
 	price: "price",
 	currency: "currency",
-	stock: "stock"
+	totalStock: "totalStock"
 } as const;
 
 export const CURRENCY_MAPPING: Record<string, Currency> = {

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { GetProductsQuery } from "@entities/products";
 import { productsQueries } from "@entities/products";
@@ -54,7 +54,7 @@ export const useProductsList = (options: UseProductsListOptions = {}) => {
 		}
 	};
 
-	const setSort = (sortBy: string, sortDirection: "asc" | "desc" = "asc") => {
+	const setSort = (sortBy: string, sortDirection: "asc" | "desc" = "desc") => {
 		// Reset cursor when sorting changes
 		updateQuery({ sortBy, sortDirection, cursor: undefined });
 	};

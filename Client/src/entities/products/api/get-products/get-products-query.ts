@@ -19,5 +19,6 @@ export type GetProductsQuery = {
 	lastRestockedAfter?: string | null;
 	lastRestockedBefore?: string | null;
 	hasStock?: boolean | null;
+	hasLowStock?: boolean | null;
 	isReserved?: boolean | null;
 };

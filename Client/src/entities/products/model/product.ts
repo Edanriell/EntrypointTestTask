@@ -12,6 +12,7 @@ export type Product = {
 	available: number;
 	isOutOfStock: boolean;
 	hasReservations: boolean;
+	hasLowStock: boolean;
 	isInStock: boolean;
 	status: ProductStatus;
 	createdAt: string;

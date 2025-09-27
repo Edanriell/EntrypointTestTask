@@ -28,7 +28,7 @@ import { getChangedFields } from "@shared/lib/utils";
 import { useGetProductById, useUpdateProduct } from "../api";
 import { CURRENCY_MAPPING, EditProductFormData, editProductSchema } from "../model";
 import { PRODUCT_UPDATABLE_FIELDS } from "../config";
-import { currencyComparator } from "../lib";
+import { currencyComparator, getStockLabel } from "../lib";
 
 type EditProductProps = {
 	productId: string;
@@ -50,17 +50,22 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 			description: "",
 			price: 0,
 			currency: undefined,
-			stock: 0
+			totalStock: undefined
 		}
 	});
 
 	const selectedCurrency = watch("currency");
+	const currentStock = watch("totalStock");
 
 	// Fetch product data for prefilling the form
 	const { data: productData, isLoading: isLoadingProduct } = useGetProductById(productId);
 
 	// Update product mutation
 	const { mutateAsync: updateProduct, isPending } = useUpdateProduct(setError);
+
+	useEffect(() => {
+		console.log(currentStock);
+	}, [currentStock]);
 
 	// Prefill form when product data is loaded
 	useEffect(() => {
@@ -69,21 +74,42 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 			setValue("description", productData.description);
 			setValue("price", productData.price);
 			setValue("currency", CURRENCY_MAPPING[productData.currency]);
-			setValue("stock", productData.totalStock);
+			setValue("totalStock", productData.totalStock);
 		}
 	}, [productData, setValue]);
 
 	const onSubmit = async (data: EditProductFormData) => {
 		try {
 			const updatedProductData = getChangedFields(
-				productData!,
+				productData,
 				data,
 				PRODUCT_UPDATABLE_FIELDS,
 				currencyComparator
 			);
 
+			console.log(updatedProductData);
+
 			if (Object.keys(updatedProductData).length > 0) {
-				await updateProduct({ productId, updatedProductData });
+				if (updatedProductData.totalStock) {
+					let adjustedUpdatedProductData = {
+						productId,
+						updatedProductData: {}
+					};
+
+					for (const [key, value] of Object.entries(updatedProductData)) {
+						if (key === "totalStock") {
+							(adjustedUpdatedProductData.updatedProductData as any)["stock"] = value;
+						}
+						(adjustedUpdatedProductData.updatedProductData as any)[key] = value;
+					}
+
+					await updateProduct(adjustedUpdatedProductData);
+				} else {
+					await updateProduct({
+						productId,
+						updatedProductData
+					});
+				}
 			} else {
 				console.log("No changes detected");
 			}
@@ -133,7 +159,7 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.name.message}
 										</motion.p>
@@ -158,7 +184,7 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.description.message}
 										</motion.p>
@@ -190,7 +216,7 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.price.message}
 											</motion.p>
@@ -236,7 +262,7 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.currency.message}
 											</motion.p>
@@ -245,16 +271,18 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 								</div>
 							</div>
 							<div className="grid gap-2 col-span-full relative">
-								<Label htmlFor="edit-stock">Stock</Label>
+								<Label htmlFor="edit-stock">
+									{getStockLabel(productData?.totalStock, currentStock)}
+								</Label>
 								<Input
 									id="edit-stock"
 									type="number"
 									placeholder="Enter product stock"
-									{...register("stock", { valueAsNumber: true })}
-									className={errors.stock ? "border-red-500" : ""}
+									{...register("totalStock", { valueAsNumber: true })}
+									className={errors.totalStock ? "border-red-500" : ""}
 								/>
 								<AnimatePresence>
-									{errors.stock && (
+									{errors.totalStock && (
 										<motion.p
 											initial={{
 												opacity: 0,
@@ -263,9 +291,9 @@ export const EditProduct: FC<EditProductProps> = ({ productId }) => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
-											{errors.stock.message}
+											{errors.totalStock.message}
 										</motion.p>
 									)}
 								</AnimatePresence>

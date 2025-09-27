@@ -64,7 +64,7 @@ export const CreateCustomer: FC = () => {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button className="flex w-fit self-end">
+				<Button className="flex w-fit self-end ml-[20px]">
 					<SquarePen />
 					Create new
 				</Button>

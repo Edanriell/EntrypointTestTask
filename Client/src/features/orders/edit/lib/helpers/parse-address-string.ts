@@ -1,6 +1,5 @@
-// Helper function to parse address string into form format
-// Converts: "3873 Gunnar Village, London, France, 20974"
-// Into: { street: "3873 Gunnar Village", city: "London", country: "France", zipCode: "20974" }
+import { EditOrderFormData } from "../../model";
+
 export const parseAddressString = (addressString: string): Partial<EditOrderFormData> => {
 	const parts = addressString.split(", ");
 

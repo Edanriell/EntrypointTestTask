@@ -10,5 +10,5 @@ export type ProductData = {
 	description?: string | null;
 	currency?: Currency | null;
 	price?: number | null;
-	stockChange?: number | null;
+	stock?: number | null;
 };

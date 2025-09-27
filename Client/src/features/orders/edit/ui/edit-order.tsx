@@ -51,7 +51,7 @@ export const EditOrder: FC<EditOrderProps> = ({ orderId }) => {
 	});
 
 	// Fetch order data for prefilling the form
-	const { data: orderData, isLoading: isLoadingOrder } = useGetOrderById(orderId);
+	const { data: orderData, isLoading: isLoadingOrder } = useGetOrderById(orderId) as any;
 
 	// Update order mutation
 	const { mutateAsync: updateOrder, isPending } = useUpdateOrder(setError);
@@ -65,10 +65,10 @@ export const EditOrder: FC<EditOrderProps> = ({ orderId }) => {
 				// split string into four components which are expected by inputs.
 				const parsedAddress = parseAddressString(orderData.shippingAddress);
 
-				setValue("street", parsedAddress.street);
-				setValue("city", parsedAddress.city);
-				setValue("zipCode", parsedAddress.zipCode);
-				setValue("country", parsedAddress.country);
+				setValue("street", parsedAddress.street!);
+				setValue("city", parsedAddress.city!);
+				setValue("zipCode", parsedAddress.zipCode!);
+				setValue("country", parsedAddress.country!);
 			}
 			setValue("info", orderData.info || "");
 		}

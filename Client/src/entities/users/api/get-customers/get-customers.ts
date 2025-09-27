@@ -18,7 +18,5 @@ export const getCustomers = async (params?: GetCustomersQuery): Promise<GetCusto
 	const queryString = queryParams.toString();
 	const url = `/customers${queryString ? `?${queryString}` : ""}`;
 
-	console.log(url);
-
 	return await apiClient.get<GetCustomersResponse>(url);
 };

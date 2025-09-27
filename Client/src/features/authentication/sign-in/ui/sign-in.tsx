@@ -5,15 +5,16 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "motion/react";
 
-import { useCredentialsAuth } from "@features/authentication/general/lib/hooks";
-import { SignInFormData, signInSchema } from "@features/authentication/sign-in";
-
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import { Label } from "@shared/ui/label";
 import { Card, CardContent } from "@shared/ui/card";
 import { cn } from "@shared/lib/utils";
 import { Spinner } from "@shared/ui/spinner";
+
+import { useCredentialsAuth } from "../../general";
+
+import { SignInFormData, signInSchema } from "../model";
 
 export function SignIn({ className, ...props }: { className?: string }) {
 	const { login, isLoading } = useCredentialsAuth();

@@ -1,4 +1,3 @@
-// src/features/orders/mark-out-for-delivery/ui/mark-out-for-delivery.tsx
 import { FC, useState } from "react";
 import { Truck } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";

@@ -6,4 +6,4 @@ export const editOrderSchema = z.object({
 	zipCode: z.string().min(1, "Zip code is required"),
 	country: z.string().min(1, "Country is required"),
 	info: z.string().optional()
-});
+}) as any;

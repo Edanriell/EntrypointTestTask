@@ -5,6 +5,7 @@ import { UseFormReset, UseFormSetError } from "react-hook-form";
 import { cancelOrder } from "@entities/orders";
 
 import { ErrorHandler } from "@shared/lib/handlers/error";
+
 import { CancelOrderFormData } from "../model";
 
 export const useCancelOrder = (
@@ -30,7 +31,7 @@ export const useCancelOrder = (
 
 			reset(); // Reset form on success
 		},
-		onError: ErrorHandler.createMutationErrorHandler(setError, reset, {
+		onError: ErrorHandler.createMutationErrorHandler(setError, reset as any, {
 			action: "cancel_order",
 			resource: "order"
 		})

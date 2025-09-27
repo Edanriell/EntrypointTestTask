@@ -6,8 +6,7 @@ import type {
 	GetProductsResponse,
 	RestoreProductCommand
 } from "@entities/products";
-import { restoreProduct } from "@entities/products";
-import { ProductStatus } from "@entities/products/model";
+import { ProductStatus, restoreProduct } from "@entities/products";
 
 import { ErrorHandler } from "@shared/lib/handlers/error";
 

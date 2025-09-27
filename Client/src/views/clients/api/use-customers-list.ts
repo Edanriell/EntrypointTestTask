@@ -5,15 +5,15 @@ import { GetCustomersQuery, usersQueries } from "@entities/users";
 
 export type UseCustomersListOptions = {
 	initialPageSize?: number;
-	initialSortBy?: "CreatedOnUtc";
-	initialSortDirection?: "ASC" | "DESC";
+	initialSortBy?: string;
+	initialSortDirection?: "asc" | "desc";
 };
 
 export const useCustomersList = (options: UseCustomersListOptions = {}) => {
 	const {
 		initialPageSize = 10,
-		initialSortBy = "CreatedOnUtc",
-		initialSortDirection = "DESC"
+		initialSortBy = "createdAt",
+		initialSortDirection = "desc"
 	} = options;
 
 	// State for query parameters

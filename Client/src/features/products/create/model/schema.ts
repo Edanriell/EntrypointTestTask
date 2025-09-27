@@ -16,13 +16,13 @@ export const createProductSchema = z.object({
 	currency: z.nativeEnum(Currency, { required_error: "Currency is required" }),
 
 	price: z
-		.number()
-		.min(0, "Price must be a positive number")
+		.number({ message: "Price is required" })
+		.gt(0, "Price must be a positive number")
 		.max(999999.99, "Price cannot exceed 999,999.99"),
 
 	totalStock: z
-		.number()
+		.number({ message: "Stock is required" })
 		.int("Stock must be a whole number")
-		.min(0, "Stock cannot be negative")
+		.gt(0, "Stock cannot be 0")
 		.max(999999, "Stock cannot exceed 999,999")
 });
