@@ -20,21 +20,18 @@ internal sealed class AddPaymentCommandHandler : ICommandHandler<AddPaymentComma
         AddPaymentCommand request,
         CancellationToken cancellationToken)
     {
-        // Validate currency
         Result<Currency> currencyResult = Currency.Create(request.Currency);
         if (currencyResult.IsFailure)
         {
             return Result.Failure<Guid>(currencyResult.Error);
         }
 
-        // Validate payment method 
         Result<PaymentMethod> paymentMethodResult = PaymentMethodExtensions.Create(request.PaymentMethod);
         if (paymentMethodResult.IsFailure)
         {
             return Result.Failure<Guid>(paymentMethodResult.Error);
         }
 
-        // Create money
         Result<Money> moneyResult = Money.Create(request.Amount, currencyResult.Value);
         if (moneyResult.IsFailure)
         {

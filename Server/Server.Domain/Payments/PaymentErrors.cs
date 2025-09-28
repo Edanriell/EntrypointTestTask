@@ -47,4 +47,16 @@ public static class PaymentErrors
     public static Error InvalidPaymentMethod => new(
         "Payment.InvalidPaymentMethod",
         "Invalid payment method provided");
+
+    public static Error PaymentFailed => new(
+        "Payment.Failed",
+        "Payment failed");
+
+    public static Error PaymentExpired => new(
+        "Payment.Expired",
+        "Payment expired");
+
+    public static Error MixedCurrenciesNotAllowed => new(
+        "Payment.MixedCurrenciesNotAllowed",
+        "Payment currency must match order currency");
 }

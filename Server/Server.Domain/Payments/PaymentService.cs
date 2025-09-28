@@ -119,6 +119,11 @@ public sealed class PaymentService
             return Result.Failure(OrderErrors.NotFound);
         }
 
+        if (order.Currency != amount.Currency)
+        {
+            return Result.Failure(PaymentErrors.MixedCurrenciesNotAllowed);
+        }
+
         // Check if there are already pending payments, if there is we cannot create another one!
         bool hasPending = await _orderPaymentService.HasPendingPaymentsAsync(orderId, cancellationToken);
         if (hasPending)

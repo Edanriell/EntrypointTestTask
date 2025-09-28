@@ -71,10 +71,8 @@ public sealed class Payment : Entity
             PaymentStatus = PaymentStatus.Expired;
             PaymentFailedAt = DateTime.UtcNow;
             PaymentFailureReason = PaymentFailureReason.Expired;
-
             RaiseDomainEvent(new PaymentExpiredDomainEvent(Id, OrderId, Amount));
-
-            return Result.Success();
+            return Result.Failure(PaymentErrors.PaymentExpired);
         }
 
         PaymentStatus = PaymentStatus.Processing;
@@ -92,16 +90,14 @@ public sealed class Payment : Entity
             PaymentStatus = PaymentStatus.Paid;
             PaymentCompletedAt = DateTime.UtcNow;
             RaiseDomainEvent(new PaymentProcessedDomainEvent(Id, OrderId, Amount));
-        }
-        else
-        {
-            PaymentStatus = PaymentStatus.Failed;
-            PaymentFailedAt = DateTime.UtcNow;
-            PaymentFailureReason = PaymentFailureReason.GetRandomReason();
-            RaiseDomainEvent(new PaymentFailedDomainEvent(Id, OrderId, Amount, PaymentFailureReason));
+            return Result.Success();
         }
 
-        return Result.Success();
+        PaymentStatus = PaymentStatus.Failed;
+        PaymentFailedAt = DateTime.UtcNow;
+        PaymentFailureReason = PaymentFailureReason.GetRandomReason();
+        RaiseDomainEvent(new PaymentFailedDomainEvent(Id, OrderId, Amount, PaymentFailureReason));
+        return Result.Failure(PaymentErrors.PaymentFailed);
     }
 
     public Result Cancel()
