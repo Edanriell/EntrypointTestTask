@@ -11,12 +11,15 @@ const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION!;
 
 export async function GET() {
 	try {
-		const res = await fetch(`${API_BASE_URL}/${API_VERSION}/statistics/orders/total`, {
-			method: "GET",
-			headers: { "Content-Type": "application/json" },
-			cache: "no-store",
-			next: { revalidate: 0 }
-		});
+		const res = await fetch(
+			`${API_BASE_URL}/${API_VERSION}/statistics/products/low-stock-alerts`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+				cache: "no-store",
+				next: { revalidate: 0 }
+			}
+		);
 
 		if (!res.ok) {
 			console.error("Backend error:", {
@@ -33,7 +36,7 @@ export async function GET() {
 		const data = await res.json();
 		return NextResponse.json(data);
 	} catch (error) {
-		console.error("Error fetching total orders:", error);
-		return NextResponse.json({ error: "Failed to fetch total orders" }, { status: 500 });
+		console.error("Error fetching low stock alerts:", error);
+		return NextResponse.json({ error: "Failed to fetch low stock alerts" }, { status: 500 });
 	}
 }

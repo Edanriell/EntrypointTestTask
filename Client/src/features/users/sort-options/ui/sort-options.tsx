@@ -80,13 +80,13 @@ export const SortOptions: FC<SortOptionsProps> = ({ queryParams, setSort }) => {
 						{getSortIcon("totalOrders")}
 					</Button>
 					<Button
-						variant={queryParams.sortBy === "createdOnUtc" ? "default" : "outline"}
+						variant={queryParams.sortBy === "createdAt" ? "default" : "outline"}
 						size="sm"
-						onClick={() => handleSortChange("createdOnUtc")}
+						onClick={() => handleSortChange("createdAt")}
 						className="flex items-center gap-1 md:col-span-2"
 					>
 						Created Date
-						{getSortIcon("createdOnUtc")}
+						{getSortIcon("createdAt")}
 					</Button>
 				</div>
 			</PopoverContent>

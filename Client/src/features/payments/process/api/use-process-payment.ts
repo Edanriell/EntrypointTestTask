@@ -27,9 +27,15 @@ export const useProcessPayment = (orderId: string) => {
 				description: `Payment ID: ${paymentId}`
 			});
 		},
-		onError: ErrorHandler.createMutationErrorHandler(undefined, undefined, {
-			action: "process_payment",
-			resource: "payment"
-		})
+		onError: (error, variables, context) => {
+			ErrorHandler.createMutationErrorHandler(undefined, undefined, {
+				action: "process_payment",
+				resource: "payment"
+			})(error);
+
+			queryClient.invalidateQueries({ queryKey: ["payments"] });
+			queryClient.invalidateQueries({ queryKey: ["orders"] });
+			queryClient.invalidateQueries({ queryKey: ["orders", "orderDetail", orderId] });
+		}
 	});
 };

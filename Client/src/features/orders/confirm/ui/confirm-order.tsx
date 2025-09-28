@@ -8,19 +8,17 @@ import { useConfirmOrder } from "../api";
 
 type ConfirmOrderProps = {
 	orderId: string;
-	orderNumber?: string;
 	isFullyPaid: boolean;
 	isCancelled: boolean;
-	isNotConfirmed: boolean;
+	notPending: boolean;
 	disabled?: boolean;
 };
 
 export const ConfirmOrder: FC<ConfirmOrderProps> = ({
 	orderId,
-	orderNumber,
 	isFullyPaid,
 	isCancelled,
-	isNotConfirmed,
+	notPending,
 	disabled = false
 }) => {
 	const { mutateAsync: confirmOrder, isPending } = useConfirmOrder();
@@ -33,10 +31,9 @@ export const ConfirmOrder: FC<ConfirmOrderProps> = ({
 		}
 	};
 
-	// Only show button if order is fully paid not cancelled and not confirmed
-	// if (!isFullyPaid || isCancelled || isNotConfirmed) {
-	// 	return null;
-	// }
+	if (isFullyPaid || isCancelled || !notPending) {
+		return null;
+	}
 
 	return (
 		<Button

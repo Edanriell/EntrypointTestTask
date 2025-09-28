@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { Pagination } from "@widgets/pagination";
 
@@ -17,48 +17,6 @@ import { OrdersList } from "./orders-list";
 import { OrdersError } from "./orders-error";
 
 export const OrdersPage: FC = () => {
-	// TODO
-	// When creating an order we have small issue
-	// We need make in select virtual lists for performance
-	// Ui problem when cancelled order before confirming we must see nothing
-	// Api problem !
-	// When paying in different currency we get 500 instead we must throw an error
-	// When we cancell order all funds must be refunded if they exist !
-	const [showFilters, setShowFilters] = useState<boolean>(false);
-	const [searchTerm, setSearchTerm] = useState<string>("");
-
-	// Order filters
-	const [orderNumberFilter, setOrderNumberFilter] = useState<string>("");
-	const [statusFilter, setStatusFilter] = useState<string>("");
-	const [minTotalAmount, setMinTotalAmount] = useState<string>("");
-	const [maxTotalAmount, setMaxTotalAmount] = useState<string>("");
-	const [trackingNumberFilter, setTrackingNumberFilter] = useState<string>("");
-	const [minOutstandingAmount, setMinOutstandingAmount] = useState<string>("");
-	const [maxOutstandingAmount, setMaxOutstandingAmount] = useState<string>("");
-
-	// Date filters
-	const [createdAfter, setCreatedAfter] = useState<string>("");
-	const [createdBefore, setCreatedBefore] = useState<string>("");
-	const [confirmedAfter, setConfirmedAfter] = useState<string>("");
-	const [confirmedBefore, setConfirmedBefore] = useState<string>("");
-	const [shippedAfter, setShippedAfter] = useState<string>("");
-	const [shippedBefore, setShippedBefore] = useState<string>("");
-	const [deliveredAfter, setDeliveredAfter] = useState<string>("");
-	const [deliveredBefore, setDeliveredBefore] = useState<string>("");
-	const [estimatedDeliveryAfter, setEstimatedDeliveryAfter] = useState<string>("");
-	const [estimatedDeliveryBefore, setEstimatedDeliveryBefore] = useState<string>("");
-
-	// Boolean filters
-	const [hasPayment, setHasPayment] = useState<string>("");
-	const [isFullyPaid, setIsFullyPaid] = useState<string>("");
-	const [hasOutstandingBalance, setHasOutstandingBalance] = useState<string>("");
-
-	// Product/Client filters
-	const [productNameFilter, setProductNameFilter] = useState<string>("");
-	const [clientNameFilter, setClientNameFilter] = useState<string>("");
-	const [clientEmailFilter, setClientEmailFilter] = useState<string>("");
-	const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("");
-
 	const {
 		orders,
 		isLoading,
@@ -77,70 +35,6 @@ export const OrdersPage: FC = () => {
 		initialSortBy: "createdAt",
 		initialSortDirection: "desc"
 	});
-
-	const handleSearch = () => {
-		setFilters({
-			orderNumberFilter: searchTerm || undefined,
-			statusFilter: statusFilter === "all" || !statusFilter ? undefined : statusFilter,
-			minTotalAmount: minTotalAmount ? Number(minTotalAmount) : undefined,
-			maxTotalAmount: maxTotalAmount ? Number(maxTotalAmount) : undefined,
-			trackingNumberFilter: trackingNumberFilter || undefined,
-			minOutstandingAmount: minOutstandingAmount ? Number(minOutstandingAmount) : undefined,
-			maxOutstandingAmount: maxOutstandingAmount ? Number(maxOutstandingAmount) : undefined,
-			createdAfter: createdAfter || undefined,
-			createdBefore: createdBefore || undefined,
-			confirmedAfter: confirmedAfter || undefined,
-			confirmedBefore: confirmedBefore || undefined,
-			shippedAfter: shippedAfter || undefined,
-			shippedBefore: shippedBefore || undefined,
-			deliveredAfter: deliveredAfter || undefined,
-			deliveredBefore: deliveredBefore || undefined,
-			estimatedDeliveryAfter: estimatedDeliveryAfter || undefined,
-			estimatedDeliveryBefore: estimatedDeliveryBefore || undefined,
-			hasPayment: hasPayment === "all" || !hasPayment ? undefined : hasPayment === "true",
-			isFullyPaid: isFullyPaid === "all" || !isFullyPaid ? undefined : isFullyPaid === "true",
-			hasOutstandingBalance:
-				hasOutstandingBalance === "all" || !hasOutstandingBalance
-					? undefined
-					: hasOutstandingBalance === "true",
-			productNameFilter: productNameFilter || undefined,
-			clientNameFilter: clientNameFilter || undefined,
-			clientEmailFilter: clientEmailFilter || undefined,
-			paymentStatusFilter:
-				paymentStatusFilter === "all" || !paymentStatusFilter
-					? undefined
-					: paymentStatusFilter
-		});
-	};
-
-	const handleClearFilters = () => {
-		setSearchTerm("");
-		setOrderNumberFilter("");
-		setStatusFilter("");
-		setMinTotalAmount("");
-		setMaxTotalAmount("");
-		setTrackingNumberFilter("");
-		setMinOutstandingAmount("");
-		setMaxOutstandingAmount("");
-		setCreatedAfter("");
-		setCreatedBefore("");
-		setConfirmedAfter("");
-		setConfirmedBefore("");
-		setShippedAfter("");
-		setShippedBefore("");
-		setDeliveredAfter("");
-		setDeliveredBefore("");
-		setEstimatedDeliveryAfter("");
-		setEstimatedDeliveryBefore("");
-		setHasPayment("");
-		setIsFullyPaid("");
-		setHasOutstandingBalance("");
-		setProductNameFilter("");
-		setClientNameFilter("");
-		setClientEmailFilter("");
-		setPaymentStatusFilter("");
-		resetFilters();
-	};
 
 	if (error) {
 		return <OrdersError />;

@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 
-import { productsQueries } from "@entities/products";
+import { Currency, productsQueries } from "@entities/products";
 import { usersQueries } from "@entities/users";
 
 import { Button } from "@shared/ui/button";
@@ -36,6 +36,7 @@ import { Separator } from "@shared/ui/separator";
 
 import { useCreateOrder } from "../api";
 import { CreateOrderFormData, createOrderSchema } from "../model";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/select";
 
 type OrderProduct = {
 	id: string;
@@ -48,11 +49,10 @@ export const CreateOrder: FC = () => {
 		{ id: "1", productId: null, quantity: 1 }
 	]);
 	const [openProductSelector, setOpenProductSelector] = useState<string | null>(null);
-	const [openClientSelector, setOpenClientSelector] = useState(false);
+	const [openClientSelector, setOpenClientSelector] = useState<boolean>(false);
 
-	// Search states
-	const [customerSearchTerm, setCustomerSearchTerm] = useState("");
-	const [productSearchTerm, setProductSearchTerm] = useState("");
+	const [customerSearchTerm, setCustomerSearchTerm] = useState<string>("");
+	const [productSearchTerm, setProductSearchTerm] = useState<string>("");
 
 	const {
 		control,
@@ -74,27 +74,24 @@ export const CreateOrder: FC = () => {
 			zipCode: "",
 			street: "",
 			orderInfo: "",
+			currency: undefined,
 			orderProducts: []
 		}
 	});
 
 	const selectedCustomerId = watch("customerId");
 
-	// Dynamic customer search query
 	const customersQuery = useQuery({
 		...usersQueries.customersList({
-			pageSize: 100, // Increased page size
-			nameFilter: customerSearchTerm || null,
+			pageSize: 20,
 			emailFilter: customerSearchTerm || null
 		})
 	});
 
-	// Dynamic product search query
 	const productsQuery = useQuery({
 		...productsQueries.productsList({
-			pageSize: 100, // Increased page size
-			nameFilter: productSearchTerm || null,
-			descriptionFilter: productSearchTerm || null
+			pageSize: 20,
+			nameFilter: productSearchTerm || null
 		})
 	});
 
@@ -111,6 +108,8 @@ export const CreateOrder: FC = () => {
 	const { mutateAsync: createOrder, isPending } = useCreateOrder(reset, setError);
 
 	const selectedCustomer = customers.find((customer) => customer.id === selectedCustomerId);
+
+	const selectedCurrency = watch("currency");
 
 	// Check if form can be submitted
 	const hasValidProducts = orderProducts.some((op) => op.productId !== null);
@@ -144,7 +143,7 @@ export const CreateOrder: FC = () => {
 		trigger("orderProducts");
 	};
 
-	const selectClient = (customerId: number) => {
+	const selectClient = (customerId: string) => {
 		setValue("customerId", customerId, { shouldValidate: true });
 
 		const customer = customers.find((c) => c.id === customerId);
@@ -179,7 +178,7 @@ export const CreateOrder: FC = () => {
 					zipCode: data.zipCode,
 					street: data.street
 				},
-				currency: "USD", // You might want to make this dynamic
+				currency: data.currency,
 				info: data.orderInfo,
 				orderItems: orderItems
 			};
@@ -220,7 +219,6 @@ export const CreateOrder: FC = () => {
 				</SheetHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="grid flex-1 auto-rows-min gap-6 px-4 mb-10">
-						{/* Client Selection */}
 						<div className="space-y-4">
 							<h3 className="text-lg font-medium">Client</h3>
 							<div className="grid gap-2 relative">
@@ -251,7 +249,7 @@ export const CreateOrder: FC = () => {
 											<PopoverContent className="w-full p-0">
 												<Command>
 													<CommandInput
-														placeholder="Search clients..."
+														placeholder="Search clients by email..."
 														value={customerSearchTerm}
 														onValueChange={setCustomerSearchTerm}
 													/>
@@ -305,42 +303,47 @@ export const CreateOrder: FC = () => {
 											}}
 											animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
 											exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
-											className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+											className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 										>
 											{errors.customerId.message}
 										</motion.p>
 									)}
 								</AnimatePresence>
 							</div>
-
-							{/* Selected Client Info */}
-							{selectedCustomer && (
-								<div className="bg-muted/50 p-3 rounded-lg">
-									<div className="text-sm space-y-1">
-										<div>
-											<strong>Name:</strong> {selectedCustomer.firstName}{" "}
-											{selectedCustomer.lastName}
+							<AnimatePresence mode={"popLayout"}>
+								{selectedCustomer && (
+									<motion.div
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										exit={{ opacity: 0, y: -10 }}
+										transition={{ duration: 0.25, ease: "easeOut" }}
+										className="bg-muted p-3 rounded-lg"
+									>
+										<div className="text-sm space-y-1">
+											<div>
+												<strong>Name:</strong> {selectedCustomer.firstName}{" "}
+												{selectedCustomer.lastName}
+											</div>
+											<div>
+												<strong>Email:</strong> {selectedCustomer.email}
+											</div>
+											<div>
+												<strong>Phone:</strong>{" "}
+												{selectedCustomer.phoneNumber}
+											</div>
+											<div>
+												<strong>Address:</strong> {selectedCustomer.street},{" "}
+												{selectedCustomer.city}, {selectedCustomer.country}{" "}
+												{selectedCustomer.zipCode}
+											</div>
 										</div>
-										<div>
-											<strong>Email:</strong> {selectedCustomer.email}
-										</div>
-										<div>
-											<strong>Phone:</strong> {selectedCustomer.phoneNumber}
-										</div>
-										<div>
-											<strong>Address:</strong> {selectedCustomer.street},{" "}
-											{selectedCustomer.city}, {selectedCustomer.country}{" "}
-											{selectedCustomer.zipCode}
-										</div>
-									</div>
-								</div>
-							)}
+									</motion.div>
+								)}
+							</AnimatePresence>
 						</div>
-
-						{/* Shipping Address Section */}
-						<div className="space-y-4">
+						<div className="space-y-6">
 							<h3 className="text-lg font-medium">Shipping Address</h3>
-							<div className="grid grid-cols-2 gap-3">
+							<div className="grid grid-cols-2 gap-4">
 								<div className="grid gap-2 relative">
 									<Label htmlFor="country">Country *</Label>
 									<Input
@@ -365,7 +368,7 @@ export const CreateOrder: FC = () => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.country.message}
 											</motion.p>
@@ -394,7 +397,7 @@ export const CreateOrder: FC = () => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.city.message}
 											</motion.p>
@@ -402,7 +405,7 @@ export const CreateOrder: FC = () => {
 									</AnimatePresence>
 								</div>
 							</div>
-							<div className="grid grid-cols-2 gap-3">
+							<div className="grid grid-cols-2 gap-4">
 								<div className="grid gap-2 relative">
 									<Label htmlFor="zipCode">Zip Code *</Label>
 									<Input
@@ -427,7 +430,7 @@ export const CreateOrder: FC = () => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.zipCode.message}
 											</motion.p>
@@ -456,7 +459,7 @@ export const CreateOrder: FC = () => {
 													x: 15,
 													filter: "blur(0.24rem)"
 												}}
-												className="text-sm text-red-500 absolute bottom-[-1.5rem]"
+												className="text-sm text-red-500 absolute bottom-[-1.3rem]"
 											>
 												{errors.street.message}
 											</motion.p>
@@ -465,8 +468,6 @@ export const CreateOrder: FC = () => {
 								</div>
 							</div>
 						</div>
-
-						{/* Order Information */}
 						<div className="grid gap-2 relative">
 							<Label htmlFor="orderInfo">Order Information</Label>
 							<Textarea
@@ -492,8 +493,48 @@ export const CreateOrder: FC = () => {
 								)}
 							</AnimatePresence>
 						</div>
-
-						{/* Products Section */}
+						<div className="grid gap-2 col-span-full relative">
+							<Label htmlFor="currency">Currency</Label>
+							<Select
+								value={
+									selectedCurrency !== undefined
+										? selectedCurrency.toString()
+										: ""
+								}
+								onValueChange={(value) =>
+									setValue("currency", value as Currency, {
+										shouldValidate: true
+									})
+								}
+							>
+								<SelectTrigger
+									id="currency"
+									className={`w-full ${errors.currency ? "border-red-500" : ""}`}
+								>
+									<SelectValue placeholder="Select currency" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="Eur">EUR</SelectItem>
+									<SelectItem value="Usd">USD</SelectItem>
+								</SelectContent>
+							</Select>
+							<AnimatePresence>
+								{errors.currency && (
+									<motion.p
+										initial={{
+											opacity: 0,
+											x: -15,
+											filter: "blur(0.24rem)"
+										}}
+										animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
+										exit={{ opacity: 0, x: 15, filter: "blur(0.24rem)" }}
+										className="text-sm text-red-500 absolute bottom-[-1.3rem]"
+									>
+										{errors.currency.message}
+									</motion.p>
+								)}
+							</AnimatePresence>
+						</div>
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
 								<h3 className="text-lg font-medium">Products *</h3>
@@ -507,150 +548,203 @@ export const CreateOrder: FC = () => {
 									Add Product
 								</Button>
 							</div>
-
 							{!hasValidProducts && (
 								<p className="text-sm text-red-500">
 									Please select at least one product
 								</p>
 							)}
-
 							<div className="space-y-4">
-								{orderProducts.map((orderProduct, index) => {
-									const selectedProduct = products.find(
-										(p) => p.id === orderProduct.productId
-									);
-									return (
-										<div
-											key={orderProduct.id}
-											className="flex items-end gap-3 p-4 border rounded-lg"
-										>
-											<div className="flex-1 grid gap-2">
-												<Label>Product {index + 1} *</Label>
-												<Popover
-													open={openProductSelector === orderProduct.id}
-													onOpenChange={(open) => {
-														setOpenProductSelector(
-															open ? orderProduct.id : null
-														);
-														if (!open) {
-															setProductSearchTerm("");
-														}
-													}}
-												>
-													<PopoverTrigger asChild>
-														<Button
-															variant="outline"
-															role="combobox"
-															className="justify-between w-full"
+								<AnimatePresence mode="popLayout">
+									{orderProducts.map((orderProduct, index) => {
+										const selectedProduct = products.find(
+											(p) => p.id === orderProduct.productId
+										);
+										return (
+											<motion.div
+												key={orderProduct.id}
+												initial={
+													index === 0 ? false : { opacity: 0, y: 10 }
+												}
+												animate={{ opacity: 1, y: 0 }}
+												exit={{ opacity: 0, y: -10 }}
+												transition={{ duration: 0.25, ease: "easeOut" }}
+												className="relative group rounded-xl border bg-card/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200"
+											>
+												<div className="flex flex-col sm:flex-row sm:items-end gap-4 p-4">
+													<div className="flex-1 grid gap-2">
+														<Label className="text-sm font-medium text-muted-foreground">
+															Product {index + 1} *
+														</Label>
+														<Popover
+															open={
+																openProductSelector ===
+																orderProduct.id
+															}
+															onOpenChange={(open) => {
+																setOpenProductSelector(
+																	open ? orderProduct.id : null
+																);
+																if (!open) setProductSearchTerm("");
+															}}
 														>
-															{selectedProduct
-																? selectedProduct.name
-																: "Select product..."}
-														</Button>
-													</PopoverTrigger>
-													<PopoverContent className="w-full max-w-[400px] p-0">
-														<Command>
-															<CommandInput
-																placeholder="Search products..."
-																value={productSearchTerm}
-																onValueChange={setProductSearchTerm}
-															/>
-															<CommandList>
-																<CommandEmpty>
-																	{isLoadingProducts
-																		? "Loading..."
-																		: "No products found."}
-																</CommandEmpty>
-																<CommandGroup>
-																	{products.map((product) => (
-																		<CommandItem
-																			key={product.id}
-																			value={`${product.name} ${product.description}`}
-																			onSelect={() =>
-																				selectProduct(
-																					orderProduct.id,
-																					product.id
-																				)
-																			}
-																		>
-																			<div className="flex flex-col">
-																				<span className="font-medium">
-																					{product.name}
-																				</span>
-																				<span className="text-sm text-muted-foreground">
-																					Price: $
-																					{product.price}{" "}
+															<PopoverTrigger asChild>
+																<Button
+																	variant="outline"
+																	role="combobox"
+																	className="justify-between w-full text-left h-10 border-muted-foreground/20 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+																>
+																	{selectedProduct ? (
+																		<div className="flex flex-col items-start">
+																			<span className="font-medium leading-none">
+																				{
+																					selectedProduct.name
+																				}
+																			</span>
+																			<span className="text-xs text-muted-foreground">
+																				<span className="mr-1">
 																					{
-																						product.currency
-																					}{" "}
-																					| Available:{" "}
-																					{
-																						product.available
-																					}{" "}
-																					|
-																					{product.isInStock
-																						? " In Stock"
-																						: " Out of Stock"}
+																						selectedProduct.price
+																					}
 																				</span>
-																				{product.description && (
-																					<span className="text-xs text-muted-foreground mt-1">
-																						{
-																							product.description
+																				<span>
+																					{
+																						selectedProduct.currency
+																					}
+																				</span>
+																			</span>
+																		</div>
+																	) : (
+																		<span className="text-muted-foreground">
+																			Select product...
+																		</span>
+																	)}
+																</Button>
+															</PopoverTrigger>
+															<PopoverContent className="w-full max-w-[420px] p-0">
+																<Command>
+																	<CommandInput
+																		placeholder="Search products by name..."
+																		value={productSearchTerm}
+																		onValueChange={
+																			setProductSearchTerm
+																		}
+																	/>
+																	<CommandList>
+																		<CommandEmpty>
+																			{isLoadingProducts
+																				? "Loading..."
+																				: "No products found."}
+																		</CommandEmpty>
+																		<CommandGroup>
+																			{products.map(
+																				(product) => (
+																					<CommandItem
+																						key={
+																							product.id
 																						}
-																					</span>
-																				)}
-																			</div>
-																		</CommandItem>
-																	))}
-																</CommandGroup>
-															</CommandList>
-														</Command>
-													</PopoverContent>
-												</Popover>
-											</div>
-
-											<div className="grid gap-2 w-24">
-												<Label htmlFor={`quantity-${orderProduct.id}`}>
-													Quantity
-												</Label>
-												<Input
-													id={`quantity-${orderProduct.id}`}
-													type="number"
-													min="1"
-													value={orderProduct.quantity}
-													onChange={(e) =>
-														updateOrderProduct(orderProduct.id, {
-															quantity: Math.max(
-																1,
-																parseInt(e.target.value) || 1
-															)
-														})
-													}
-													className="text-center"
-												/>
-											</div>
-
-											{orderProducts.length > 1 && (
-												<Button
-													type="button"
-													variant="outline"
-													size="sm"
-													onClick={() =>
-														removeOrderProduct(orderProduct.id)
-													}
-													className="text-red-600 hover:text-red-700"
-												>
-													<X className="h-4 w-4" />
-												</Button>
-											)}
-										</div>
-									);
-								})}
+																						value={`${product.name} ${product.description}`}
+																						onSelect={() =>
+																							selectProduct(
+																								orderProduct.id,
+																								product.id
+																							)
+																						}
+																						className="cursor-pointer"
+																					>
+																						<div className="flex flex-col w-full">
+																							<span className="font-medium text-sm">
+																								{
+																									product.name
+																								}
+																							</span>
+																							<span className="text-xs text-muted-foreground">
+																								$
+																								{
+																									product.price
+																								}{" "}
+																								{
+																									product.currency
+																								}{" "}
+																								|{" "}
+																								{product.isInStock ? (
+																									<span className="text-green-600 font-medium">
+																										In
+																										Stock
+																									</span>
+																								) : (
+																									<span className="text-red-500 font-medium">
+																										Out
+																										of
+																										Stock
+																									</span>
+																								)}
+																							</span>
+																							{product.description && (
+																								<span className="text-xs text-muted-foreground mt-0.5">
+																									{
+																										product.description
+																									}
+																								</span>
+																							)}
+																						</div>
+																					</CommandItem>
+																				)
+																			)}
+																		</CommandGroup>
+																	</CommandList>
+																</Command>
+															</PopoverContent>
+														</Popover>
+													</div>
+													<div className="grid gap-2 w-24">
+														<Label
+															htmlFor={`quantity-${orderProduct.id}`}
+															className="text-sm text-muted-foreground"
+														>
+															Quantity
+														</Label>
+														<Input
+															id={`quantity-${orderProduct.id}`}
+															type="number"
+															min="1"
+															value={orderProduct.quantity}
+															onChange={(e) =>
+																updateOrderProduct(
+																	orderProduct.id,
+																	{
+																		quantity: Math.max(
+																			1,
+																			parseInt(
+																				e.target.value
+																			) || 1
+																		)
+																	}
+																)
+															}
+															className="text-center h-10 border-muted-foreground/20 focus:border-primary"
+														/>
+													</div>
+													{orderProducts.length > 1 && (
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon"
+															onClick={() =>
+																removeOrderProduct(orderProduct.id)
+															}
+															className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500"
+														>
+															<X className="h-4 w-4" />
+														</Button>
+													)}
+												</div>
+											</motion.div>
+										);
+									})}
+								</AnimatePresence>
 							</div>
 						</div>
-
-						{/* Order Summary */}
-						<div className="bg-muted/50 p-4 rounded-lg">
+						<div className="bg-muted p-4 rounded-lg">
 							<h3 className="font-medium mb-2">Order Summary</h3>
 							{selectedCustomer && (
 								<div className="mb-3 pb-2 border-b text-sm">
@@ -701,7 +795,7 @@ export const CreateOrder: FC = () => {
 						</div>
 					</div>
 					<SheetFooter>
-						<Button type="submit" disabled={!canSubmit}>
+						<Button type="submit">
 							{isSubmitting || isPending ? (
 								<>
 									<Spinner />

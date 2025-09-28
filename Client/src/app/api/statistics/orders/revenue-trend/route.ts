@@ -11,7 +11,7 @@ const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION!;
 
 export async function GET() {
 	try {
-		const res = await fetch(`${API_BASE_URL}/${API_VERSION}/statistics/orders/total`, {
+		const res = await fetch(`${API_BASE_URL}/${API_VERSION}/statistics/orders/revenue-trend`, {
 			method: "GET",
 			headers: { "Content-Type": "application/json" },
 			cache: "no-store",
@@ -33,7 +33,10 @@ export async function GET() {
 		const data = await res.json();
 		return NextResponse.json(data);
 	} catch (error) {
-		console.error("Error fetching total orders:", error);
-		return NextResponse.json({ error: "Failed to fetch total orders" }, { status: 500 });
+		console.error("Error fetching orders and revenue trend:", error);
+		return NextResponse.json(
+			{ error: "Failed to fetch orders and revenue trend" },
+			{ status: 500 }
+		);
 	}
 }

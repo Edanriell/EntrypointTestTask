@@ -13,11 +13,11 @@ export type GetOrdersResponse = {
 
 export type OrdersResponse = {
 	client?: ClientResponse;
-	payment?: readonly PaymentResponse[];
-	orderProducts: readonly OrderProductResponse[];
+	payments?: PaymentResponse[];
+	orderProducts: OrderProductResponse[];
 } & Order;
 
-type OrderProductResponse = {
+export type OrderProductResponse = {
 	productId: string;
 	productName: string;
 	quantity: number;
@@ -26,7 +26,7 @@ type OrderProductResponse = {
 	totalPriceAmount: number;
 };
 
-type ClientResponse = {
+export type ClientResponse = {
 	clientId: string;
 	clientFirstName: string;
 	clientLastName: string;
@@ -34,7 +34,7 @@ type ClientResponse = {
 	clientPhoneNumber?: string;
 };
 
-type PaymentResponse = {
+export type PaymentResponse = {
 	paymentId: string;
 	paymentTotalAmount: number;
 	paymentStatus: string;

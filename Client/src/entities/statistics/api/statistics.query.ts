@@ -1,39 +1,18 @@
 import { ApiError } from "@shared/lib/handlers";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import {
-	getActiveProducts,
-	getCustomerGrowthAndOrderVolume,
-	getInventoryStatus,
-	getLowStockAlerts,
-	getMonthlyRevenue,
-	getOrdersAndRevenueTrend,
-	getOrderStatusDistribution,
-	getRecentOrders,
-	getTopSellingProducts,
-	getTotalCustomers,
-	getTotalOrders
-} from "@entities/statistics";
 
-const MAX_RETRIES = 3;
-
-// v5 retry handler signature: (failureCount, error) => boolean
-function retryHandler(failureCount: number, error: unknown): boolean {
-	const apiError = error as ApiError | undefined;
-	const status = apiError?.response?.status;
-
-	// Do not retry client errors (4xx) except 429 (rate limit).
-	if (status && status >= 400 && status < 500) {
-		return status === 429 && failureCount < MAX_RETRIES;
-	}
-
-	// Retry on network / server errors up to MAX_RETRIES
-	return failureCount < MAX_RETRIES;
-}
-
-function retryDelay(attemptIndex: number): number {
-	// Exponential backoff capped at 30s
-	return Math.min(1000 * 2 ** attemptIndex, 30_000);
-}
+// NextJs route handlers, we are using them for performance reasons (They execute in parallel)
+import { getTotalOrders } from "@app/api/statistics/orders/total/api";
+import { getActiveProducts } from "@app/api/statistics/products/active/api";
+import { getTotalCustomers } from "@app/api/statistics/customers/total/api";
+import { getMonthlyRevenue } from "@app/api/statistics/revenue/monthly/api";
+import { getOrdersAndRevenueTrend } from "@app/api/statistics/orders/revenue-trend/api";
+import { getCustomerGrowthAndOrderVolume } from "@app/api/statistics/customers/growth-orders/api";
+import { getInventoryStatus } from "@app/api/statistics/inventory/status/api";
+import { getLowStockAlerts } from "@app/api/statistics/products/low-stock-alerts/api";
+import { getOrderStatusDistribution } from "@app/api/statistics/orders/status/api";
+import { getRecentOrders } from "@app/api/statistics/orders/recent/api";
+import { getTopSellingProducts } from "@app/api/statistics/products/top-selling/api";
 
 export const statisticsQueries = {
 	all: () => ["statistics"] as const,
@@ -41,6 +20,7 @@ export const statisticsQueries = {
 	activeProducts: () =>
 		queryOptions({
 			queryKey: [...statisticsQueries.all(), "activeProducts"],
+			// queryFn: () => getActiveProducts(),
 			queryFn: () => getActiveProducts(),
 			staleTime: 2 * 60 * 1000,
 			retry: retryHandler,
@@ -133,9 +113,28 @@ export const statisticsQueries = {
 	totalOrders: () =>
 		queryOptions({
 			queryKey: [...statisticsQueries.all(), "totalOrders"],
-			queryFn: () => getTotalOrders(),
+			// queryFn: () => getTotalOrders()
+			queryFn: getTotalOrders,
 			staleTime: 2 * 60 * 1000,
 			retry: retryHandler,
 			retryDelay
 		})
 };
+
+// Cleaner ?
+const MAX_RETRIES = 3;
+
+function retryHandler(failureCount: number, error: unknown): boolean {
+	const apiError = error as ApiError | undefined;
+	const status = apiError?.response?.status;
+
+	if (status && status >= 400 && status < 500) {
+		return status === 429 && failureCount < MAX_RETRIES;
+	}
+
+	return failureCount < MAX_RETRIES;
+}
+
+function retryDelay(attemptIndex: number): number {
+	return Math.min(1000 * 2 ** attemptIndex, 30_000);
+}

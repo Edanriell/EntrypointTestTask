@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { CreateCustomer } from "@features/users/create";
 
@@ -15,15 +15,6 @@ import { FiltersPanel } from "@features/users/filters-panel";
 import { Search } from "@features/users/search";
 
 export const CustomersPage: FC = () => {
-	const [showFilters, setShowFilters] = useState<boolean>(false);
-	const [searchTerm, setSearchTerm] = useState<string>("");
-	const [countryFilter, setCountryFilter] = useState<string>("");
-	const [cityFilter, setCityFilter] = useState<string>("");
-	const [minSpent, setMinSpent] = useState<string>("");
-	const [maxSpent, setMaxSpent] = useState<string>("");
-	const [minOrders, setMinOrders] = useState<string>("");
-	const [maxOrders, setMaxOrders] = useState<string>("");
-
 	const {
 		customers,
 		isLoading,
@@ -42,30 +33,6 @@ export const CustomersPage: FC = () => {
 		initialSortBy: "createdAt",
 		initialSortDirection: "desc"
 	});
-
-	const handleSearch = () => {
-		setFilters({
-			nameFilter: searchTerm || undefined,
-			emailFilter: searchTerm || undefined,
-			countryFilter: countryFilter || undefined,
-			cityFilter: cityFilter || undefined,
-			minTotalSpent: minSpent ? Number(minSpent) : undefined,
-			maxTotalSpent: maxSpent ? Number(maxSpent) : undefined,
-			minTotalOrders: minOrders ? Number(minOrders) : undefined,
-			maxTotalOrders: maxOrders ? Number(maxOrders) : undefined
-		});
-	};
-
-	const handleClearFilters = () => {
-		setSearchTerm("");
-		setCountryFilter("");
-		setCityFilter("");
-		setMinSpent("");
-		setMaxSpent("");
-		setMinOrders("");
-		setMaxOrders("");
-		resetFilters();
-	};
 
 	if (error) {
 		return <CustomersError />;

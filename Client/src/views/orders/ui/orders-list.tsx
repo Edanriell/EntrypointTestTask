@@ -41,10 +41,9 @@ export const OrdersList: FC<OrdersListProps> = ({ orders }) => {
 						<OrderRowCard.ContextActions>
 							<ConfirmOrder
 								orderId={order.id}
-								orderNumber={order.orderNumber}
-								isFullyPaid={order.paidAmount >= order.totalAmount}
+								isFullyPaid={order.paidAmount < order.totalAmount}
 								isCancelled={order.status === "Cancelled"}
-								isNotConfirmed={order.status !== OrderStatus.Confirmed}
+								notPending={order.status === OrderStatus.Pending}
 							/>
 							<MarkReadyForShipment
 								orderId={order.id}
@@ -54,13 +53,13 @@ export const OrdersList: FC<OrdersListProps> = ({ orders }) => {
 							<ProcessPayment orderId={order.id} orderNumber={order.orderNumber} />
 							<StartProcessing
 								orderId={order.id}
-								orderNumber={order.orderNumber}
 								isConfirmed={order.status === OrderStatus.Confirmed}
 							/>
 							<Refund
 								orderId={order.id}
 								orderNumber={order.orderNumber}
-								orderStatus={order.status}
+								isReturned={order.status === OrderStatus.Returned}
+								orderRefundReason={!!order.refundReason}
 								paidAmount={order.paidAmount}
 								currency={order.currency}
 							/>

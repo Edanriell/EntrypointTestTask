@@ -3,8 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RefreshCcw } from "lucide-react";
 
-import { OrderStatus } from "@entities/orders";
-
 import { Button } from "@shared/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@shared/ui/popover";
 import { Label } from "@shared/ui/label";
@@ -17,7 +15,8 @@ import { type RefundPaymentsFormData, refundPaymentsSchema } from "../model";
 type RefundPaymentsProps = {
 	orderId: string;
 	orderNumber?: string;
-	orderStatus: string;
+	isReturned: boolean;
+	orderRefundReason: boolean;
 	paidAmount: number;
 	currency: string;
 };
@@ -25,7 +24,8 @@ type RefundPaymentsProps = {
 export const Refund: FC<RefundPaymentsProps> = ({
 	orderId,
 	orderNumber,
-	orderStatus,
+	isReturned,
+	orderRefundReason,
 	paidAmount,
 	currency
 }) => {
@@ -69,12 +69,7 @@ export const Refund: FC<RefundPaymentsProps> = ({
 	};
 
 	// Only show button for returned orders
-	if (orderStatus !== OrderStatus.Returned) {
-		return null;
-	}
-
-	// Don't show if no payments to refund
-	if (paidAmount <= 0) {
+	if (!isReturned || orderRefundReason) {
 		return null;
 	}
 
