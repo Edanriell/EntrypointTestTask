@@ -195,7 +195,7 @@ internal static class SeedProductsDataExtension
 
         // Create products in batches
         const int batchSize = 100;
-        const int totalProducts = 5000; // A LOT of products as requested!
+        const int totalProducts = 2000;
 
         try
         {
@@ -247,7 +247,9 @@ internal static class SeedProductsDataExtension
                             continue;
                         }
 
-                        var priceVO = new Money(price, Currency.Usd);
+                        // IMPORTANT!
+                        // All prices will be in Euros
+                        var priceVO = new Money(price, Currency.Eur);
 
                         Result<Quantity> reservedResult = Quantity.CreateQuantity(reserved);
                         if (reservedResult.IsFailure)

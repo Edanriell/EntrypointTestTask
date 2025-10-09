@@ -135,7 +135,7 @@ internal static class SeedCustomersDataExtension
 
         // Create customers in smaller batches to avoid overwhelming Keycloak
         const int batchSize = 50;
-        const int totalCustomers = 200; // Reduced for faster seeding
+        const int totalCustomers = 200;
 
         try
         {
@@ -152,7 +152,9 @@ internal static class SeedCustomersDataExtension
                     string email = $"{firstName.ToLower()}.{lastName.ToLower()}{customerIndex}@example.com";
                     string? country = faker.PickRandom(countries);
                     string? city = faker.PickRandom(cities);
-                    string password = "password!@#Q1"; // Default password for all seeded users
+                    // IMPORTANT! 
+                    // Default password for all seeded users
+                    string password = "password!@#Q1";
 
                     try
                     {
@@ -231,4 +233,3 @@ internal static class SeedCustomersDataExtension
         };
     }
 }
- 

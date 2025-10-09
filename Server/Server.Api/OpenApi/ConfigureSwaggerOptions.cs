@@ -26,9 +26,7 @@ internal sealed class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGe
 
     public void Configure(string? name, SwaggerGenOptions options)
     {
-        Configure(
-            options
-        );
+        Configure(options);
     }
 
     private static OpenApiInfo CreateVersionInfo(ApiVersionDescription apiVersionDescription)

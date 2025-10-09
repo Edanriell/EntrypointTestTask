@@ -65,11 +65,14 @@ export const authConfig: NextAuthOptions = {
 						image: payload.picture,
 						// IMPORTANT
 						// Needs adjustments!
-						// In KeyCloak roles are in realm_access.roles
+						// How you assign roles and permissions is highly individual and depends on how
+						// KeyCloak is configured
 						// roles: payload.roles
-						roles: payload.realm_access.roles || [],
+						// roles: payload.realm_access.roles || [],
+						roles: payload.resource_access["server-admin-client"].roles || [],
 						// Permissions in KeyCloak are placed in resource_access
-						permissions: payload.permissions || []
+						// permissions: payload.permissions || []
+						permissions: payload.realm_access.permissions || []
 					};
 				} catch (error) {
 					console.error("Token verification failed:", error);
