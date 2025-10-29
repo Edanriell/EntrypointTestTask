@@ -124,7 +124,6 @@ project.fragment.lock.json
 artifacts/
 
 # Local development settings
-appsettings.Development.json
 appsettings.Local.json
 appsettings.*.local.json
 
